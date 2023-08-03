@@ -21,6 +21,24 @@ toggleInputView.addEventListener("click", function () {
 
 const loginButton = document.querySelector("#loginButton");
 
-loginButton.addEventListener("click", function () {});
+loginButton.addEventListener("click", function () {
+  const server = "http://127.0.0.1:5000/api/user/login";
+  const query = `?username="${inputInput.value}"&password="${passwordInput.value}"`;
+
+  fetch(server + query)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data[0]["count(*)"] == 0) {
+        const loginError = document.getElementById("hi");
+        loginError.style.visibility = "visible";
+      } else {
+        console.log("Epic");
+      }
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+});
 
 //For sign up
