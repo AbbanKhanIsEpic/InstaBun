@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <title>Sign up</title>
+</head>
+
+<body>
+    <div class="container-fluid d-flex justify-content-center align-items-center min-vw-100 min-vh-100">
+        <form class="min-vh-50 min-vw-50 border-2 border-black">
+            <h1 class="display-2 pb-5">Sign up</h1>
+            <h3>Username</h3>
+            <div class="input-group input-group-lg">
+                <input aria-label="Username" type="text" id="UsernameInput" class="form-control border-2 border-black">
+                <span class="input-group-text" role="button" id="viewUsernameInput">Open</span>
+            </div>
+            <p class="fw-bold text-danger">Hello</p>
+            <h3>Password</h3>
+            <div class="input-group input-group-lg">
+                <input aria-label="Password" type="text" id="PasswordInput" class="form-control border-2 border-black">
+                <span class="input-group-text" role="button" id="viewPasswordInput">Open</span>
+            </div>
+            <p class="fw-bold text-danger">Hello</p>
+            <h3>Confirm password</h3>
+            <div class="input-group input-group-lg">
+                <input aria-label="Password" type="text" id="confirmPasswordInput"
+                    class="form-control border-2 border-black">
+                <span class="input-group-text" role="button" id="viewConfirmPasswordInput">Open</span>
+            </div>
+            <p class="fw-bold text-danger">Hello</p>
+            <br>
+            <div class="border-2 border-black d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary btn-lg">Create account</button>
+                <button type="submit" class="btn btn-primary" onclick="window.open('/app/login.html')">Do have
+                    account</button>
+            </div>
+        </form>
+    </div>
+</body>
+<script src="/app/js/entry.js"></script>
+
+</html>
