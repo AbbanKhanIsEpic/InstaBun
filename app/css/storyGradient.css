@@ -1,0 +1,10 @@
+.normal-story {
+  background: linear-gradient(to right, #ff00ff, #ff0000, #ffff00);
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

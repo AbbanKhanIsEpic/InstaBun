@@ -1,0 +1,19 @@
+header {
+  height: 20vh;
+  width: 100%;
+  top: 0;
+  position: absolute;
+  z-index: 3;
+}
+main {
+  height: 60vh;
+  width: 100%;
+  margin-top: 20vh;
+}
+footer {
+  height: 20vh;
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+  z-index: 3;
+}
