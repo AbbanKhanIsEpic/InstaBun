@@ -4,6 +4,7 @@ header {
   top: 0;
   position: absolute;
   z-index: 3;
+  background: #000;
 }
 main {
   height: 60vh;
@@ -16,4 +17,5 @@ footer {
   bottom: 0;
   position: absolute;
   z-index: 3;
+  background: #000;
 }

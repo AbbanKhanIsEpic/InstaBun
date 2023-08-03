@@ -8,19 +8,54 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="/app/css/basic.css">
+    <link rel="stylesheet" href="/app/css/template.css">
     <link rel="stylesheet" href="/app/css/storyGradient.css">
+    <link rel="stylesheet" href="/app/css/video.css">
     <title>InstaBun</title>
 </head>
 
 <body class="bg-black text-white min-vw-100">
-    <header class="bg-body-secondary d-flex align-items-center">
+    <header class="d-flex align-items-center">
         <div class="normal-story" role="button">
             <img src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
                 alt="story_icon_1" class="rounded-circle m-3" width="100px" height="100px">
         </div>
     </header>
-    <main class="bg-warning">
+    <main class="d-flex justify-content-center align-items-center flex-column">
+        <div class="pt-5"></div>
+        <div class="d-flex justify-content-center align-items-center">
+            <video
+                src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/goatVideo.mp4?alt=media&token=3298c36a-621f-4481-ae88-b4cd9ea42fe5"
+                controls></video>
+            <div label="videoInterative" class="d-flex flex-column px-4">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-heart-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                    </svg>
+                </span>
+                <span data-bs-toggle="modal" data-bs-target="#commentModal" role="button">comment</span>
+                <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5 text-black" id="exampleModalLabel">Modal title</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-black">
+                                commens
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <span>share</span>
+            </div>
+        </div>
     </main>
     <footer></footer>
 </body>
