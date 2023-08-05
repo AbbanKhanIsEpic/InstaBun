@@ -27,14 +27,42 @@ connectToDatabase();
 app.get("/api/user/login", (req, res) => {
   const { username, password } = req.query;
 
-  const user = new UserManager(username);
-
-  console.log(username);
-  console.log(password);
-  console.log(user);
+  let user = new UserManager(username);
 
   user
-    .login(password)
+    .userLogin(password)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/user/email", (req, res) => {
+  const { email } = req.query;
+
+  let user = new UserManager(email);
+
+  user
+    .doesEmailExist()
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/user/username", (req, res) => {
+  const { username } = req.query;
+
+  let user = new UserManager(username);
+
+  user
+    .doesUsernameExist()
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

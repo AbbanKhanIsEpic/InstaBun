@@ -1,9 +1,10 @@
-//For Login and Sign up
 const togglePasswordView = document.querySelector("#viewPasswordInput");
 const passwordInput = document.querySelector("#PasswordInput");
 
 const toggleInputView = document.querySelector("#viewUsernameInput");
 const inputInput = document.querySelector("#UsernameInput");
+
+const loginButton = document.querySelector("#loginButton");
 
 togglePasswordView.addEventListener("click", function () {
   let nextView = togglePasswordView.innerHTML == "Open" ? "Close" : "Open";
@@ -17,19 +18,15 @@ toggleInputView.addEventListener("click", function () {
   inputInput.type = nextView == "Open" ? "text" : "password";
 });
 
-//For login
-
-const loginButton = document.querySelector("#loginButton");
-
 loginButton.addEventListener("click", function () {
   const server = "http://127.0.0.1:5000/api/user/login";
-  const query = `?username="${inputInput.value}"&password="${passwordInput.value}"`;
+  const query = `?username='${inputInput.value}'&password='${passwordInput.value}'`;
 
   fetch(server + query)
     .then((response) => response.json())
     .then((data) => {
       if (data[0]["count(*)"] == 0) {
-        const loginError = document.getElementById("hi");
+        const loginError = document.getElementById("LoginErrorP");
         loginError.style.visibility = "visible";
       } else {
         console.log("Epic");
@@ -40,5 +37,3 @@ loginButton.addEventListener("click", function () {
       console.error(error);
     });
 });
-
-//For sign up
