@@ -1,3 +1,5 @@
+import veriEmail from "./veriEmail.js";
+
 const emailInput = document.querySelector("#emailInput");
 
 const emailButton = document.querySelector("#emailButton");
@@ -183,7 +185,9 @@ function appendPasswordInput() {
     signUp();
   });
 
-  function signUp() {}
+  function signUp() {
+    veriEmail();
+  }
 
   div.appendChild(passwordInput);
   div.appendChild(viewPasswordInput);
