@@ -1,10 +1,8 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getStorage } from "firebase/storage";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDUY-K1dsxOvZ963mF1f_h3kX9OhkxKgB0",
   authDomain: "cogent-osprey-390319.firebaseapp.com",
@@ -17,9 +15,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-
-// Initialize Cloud Storage and get a reference to the service
-const storage = getStorage(app);
 
 // Export function to initialize firebase.
 export const initFirebase = () => {

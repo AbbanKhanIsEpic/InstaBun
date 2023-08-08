@@ -1,4 +1,9 @@
-import veriEmail from "./veriEmail.js";
+import { initFirebase } from "/app/js/firebase-setup.js";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
 
 const emailInput = document.querySelector("#emailInput");
 
@@ -186,7 +191,32 @@ function appendPasswordInput() {
   });
 
   function signUp() {
-    veriEmail();
+    signUpPopUp();
+  }
+
+  async function signUpPopUp() {
+    const app = initFirebase();
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+
+      console.log(result);
+
+      if (result == emailInput.value) {
+      } else {
+        alert(
+          `Sending email for verification code is too much \nSo, click button again for a popup \nSelect: ${emailInput.value}`
+        );
+      }
+    } catch (error) {
+      if (error.code === "auth/cancelled-popup-request") {
+        // Handle the cancelled popup request error here
+        console.log("Popup request cancelled by the user.");
+      } else {
+        console.log("Error occurred during authentication:", error);
+      }
+    }
   }
 
   div.appendChild(passwordInput);
