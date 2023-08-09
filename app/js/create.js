@@ -1,3 +1,14 @@
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
+import { initFirebase } from "/app/js/firebase-setup.js";
+
+const app = initFirebase();
+const storage = getStorage(app);
+
 document
   .querySelector("#uploadImagesVideosGIFs")
   .addEventListener("change", (event) => {
@@ -5,10 +16,8 @@ document
     if (!file.type) {
       return;
     }
-    if (file.type.match("video.*")) {
-      sendVideo(file);
-    } else if (file.type.match("image.*")) {
-      console.log(sendImage(file));
+    if (file.type.match("video.*") || file.type.match("image.*")) {
+      uploadToFirebase(file);
     } else {
       console.log("Na");
     }
@@ -53,17 +62,23 @@ export function sendFile(file) {
   setSource(file, anchor);
   return container;
 }
-function setSource(file, source, video) {
-  const reader = new FileReader();
-  reader.addEventListener("load", (event) => {
-    if (source.nodeName == "A") {
-      source.href = event.target.result;
-    } else {
-      source.src = event.target.result;
-    }
-    if (video != null) {
-      video.load();
-    }
-  });
-  reader.readAsDataURL(file);
+
+function uploadToFirebase(file) {
+  const type = file.type.match("video.*") ? "video" : "image";
+  const url = `${type}/${file.name}`;
+  const storageRef = ref(storage, url);
+  uploadBytes(storageRef, file)
+    .then((snapshot) => {
+      console.log("Image uploaded successfully!");
+      getDownloadURL(storageRef)
+        .then((url) => {
+          console.log("URL:", url);
+        })
+        .catch((error) => {
+          console.error("Error getting video URL:", error);
+        });
+    })
+    .catch((error) => {
+      console.error("Error uploading image:", error);
+    });
 }

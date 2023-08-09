@@ -30,11 +30,19 @@ class UserManager {
   }
 
   async userLogin(password) {
-    var result = await select(
-      `SELECT count(*) FROM abbankDB.Users where Username = ${
-        this.#username
-      }  AND Password=${password};`
-    );
+    if (this.#username) {
+      var result = await select(
+        `SELECT count(*) FROM abbankDB.Users where Username = ${
+          this.#username
+        }  AND Password=${password};`
+      );
+    } else {
+      var result = await select(
+        `SELECT count(*) FROM abbankDB.Users where EmailAddress = ${
+          this.#email
+        }  AND Password=${password};`
+      );
+    }
     return result;
   }
 

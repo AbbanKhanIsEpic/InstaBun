@@ -26,7 +26,14 @@ loginButton.addEventListener("click", function () {
     .then((response) => response.json())
     .then((data) => {
       if (data[0]["count(*)"] == 0) {
-        const loginError = document.getElementById("LoginErrorP");
+        let firstError = "Username";
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(inputInput.value)) {
+          firstError = "Email";
+        }
+        const loginError = document.getElementById("LoginError");
+        const loginErrorMessage = document.getElementById("ErrorMessage");
+        loginErrorMessage.innerText = `${firstError} or password incorrect`;
         loginError.style.visibility = "visible";
       } else {
         console.log("Epic");
