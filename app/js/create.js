@@ -23,7 +23,7 @@ document
     }
   });
 
-export function sendVideo(file) {
+function previewVideo(file) {
   let video = document.createElement("video");
   let source = document.createElement("source");
 
@@ -35,32 +35,13 @@ export function sendVideo(file) {
   setSource(file, source, video);
   return video;
 }
-export function sendImage(file) {
+function previewImage(file) {
   let image = document.createElement("img");
 
   image.setAttribute("width", "500px");
 
   setSource(file, image);
   return image;
-}
-export function sendFile(file) {
-  let image = document.createElement("img");
-  let container = document.createElement("div");
-  let text = document.createTextNode(`${file.name}`);
-  let anchor = document.createElement("a");
-
-  container.setAttribute("class", "container");
-  image.setAttribute("width", "200px");
-  anchor.setAttribute("target", "_blank");
-
-  image.src = "https://img.icons8.com/ios/512/file--v1.png";
-
-  anchor.appendChild(text);
-  container.append(image);
-  container.append(anchor);
-
-  setSource(file, anchor);
-  return container;
 }
 
 function uploadToFirebase(file) {
