@@ -1,3 +1,14 @@
+import { initFirebase } from "/app/js/firebase-setup.js";
+import {
+  getAuth,
+  sendPasswordResetEmail,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+
+const app = initFirebase();
+const auth = getAuth(app);
+
 const togglePasswordView = document.querySelector("#viewPasswordInput");
 const passwordInput = document.querySelector("#PasswordInput");
 
@@ -5,6 +16,8 @@ const toggleInputView = document.querySelector("#viewUsernameInput");
 const inputInput = document.querySelector("#UsernameInput");
 
 const loginButton = document.querySelector("#loginButton");
+
+const passwordChange = document.querySelector("#passwordChange");
 
 togglePasswordView.addEventListener("click", function () {
   let nextView = togglePasswordView.innerHTML == "Open" ? "Close" : "Open";
@@ -37,3 +50,35 @@ loginButton.addEventListener("click", function () {
       console.error(error);
     });
 });
+
+passwordChange.addEventListener("click", function () {
+  sendEmail();
+});
+
+async function sendEmail() {
+  const googleProvider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+
+    console.log(result);
+
+    console.log(auth.currentUser.email);
+    sendPasswordResetEmail(auth, auth.currentUser.email)
+      .then(() => {
+        // Password reset email sent!
+        // ..
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  } catch (error) {
+    if (error.code === "auth/cancelled-popup-request") {
+      // Handle the cancelled popup request error here
+      console.log("Popup request cancelled by the user.");
+    } else {
+      console.log("Error occurred during authentication:", error);
+    }
+  }
+}

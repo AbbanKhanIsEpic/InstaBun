@@ -32,20 +32,25 @@
                     Username or
                     password
                     incorrect</span>
-                <span role="button">&#160 &#160 &#160 forget
+                <span role="button" id="passwordChange">&#160 &#160 &#160 forget
                     password?</span>
             </p>
             <div class="border-2 border-black d-flex justify-content-between">
                 <button type="button" class="btn btn-primary btn-lg" id="loginButton">
                     Login in
                 </button>
-                <button type="button" class="btn btn-primary" onclick="window.open('/app/signup.html')">
+                <button type="button" class="btn btn-primary">
                     Do not have account
                 </button>
             </div>
         </form>
     </div>
 </body>
-<script src="/app/js/login.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.13.1/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.13.1/firebase-firestore.js"></script>
+<script type="module" src="/app/js/firebase-setup.js"></script>
+<script type="module" src="/app/js/login.js"></script>
 
 </html>

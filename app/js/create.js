@@ -4,7 +4,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
-import { initFirebase } from "app/js/firebase-setup.js";
+import { initFirebase } from "/app/js/firebase-setup.js";
 
 const app = initFirebase();
 const storage = getStorage(app);
@@ -16,7 +16,11 @@ document
   .addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (file.type.match("video.*")) {
-      previewVideo(file);
+      if (file.type == "video/mp4") {
+        previewVideo(file);
+      } else {
+        alert("Sorry, only mp4 videos");
+      }
     } else if (file.type.match("image.*")) {
       previewImage(file);
     } else {
@@ -28,12 +32,15 @@ function previewVideo(file) {
   let video = document.createElement("video");
   let source = document.createElement("source");
 
-  video.setAttribute("controls", true);
-  video.setAttribute("width", "500px");
+  video.setAttribute("width", "250px");
+  video.setAttribute("height", "400px");
+  video.setAttribute("controls", "true");
+  source.type = "video/mp4";
 
-  video.append(source);
+  source.src = URL.createObjectURL(file);
 
-  setSource(file, source, video);
+  video.appendChild(source);
+
   displayScreen(video);
 }
 function previewImage(file) {
@@ -42,23 +49,13 @@ function previewImage(file) {
   image.setAttribute("width", "250px");
   image.setAttribute("height", "400px");
 
-  setSource(file, image);
-  displayScreen(image);
-}
-
-function setSource(file, source, video) {
   const reader = new FileReader();
   reader.addEventListener("load", (event) => {
-    if (source.nodeName == "A") {
-      source.href = event.target.result;
-    } else {
-      source.src = event.target.result;
-    }
-    if (video != null) {
-      video.load();
-    }
+    image.src = event.target.result;
   });
   reader.readAsDataURL(file);
+
+  displayScreen(image);
 }
 
 function displayScreen(display) {
@@ -74,13 +71,43 @@ function displayScreen(display) {
   // Create the first <label> element for "Enter tags"
   const labelTags = document.createElement("label");
   labelTags.setAttribute("for", "tags");
-  labelTags.className = "h2 text-center";
+  labelTags.className = "h2 text-center ";
   labelTags.textContent = "Enter tags";
+
+  //Create the <div> element for tags
+  const divTag = document.createElement("div");
+  divTag.className = "input-group";
 
   // Create the <input> element for tags
   const inputTags = document.createElement("input");
+  inputTags.className = "form-control";
   inputTags.type = "text";
   inputTags.id = "tags";
+
+  //Create the <span> element for tags
+  const spanTag = document.createElement("span");
+  spanTag.className = "input-group-text";
+  spanTag.innerText = "Add";
+  spanTag.role = "button";
+  spanTag.id = "addTags";
+
+  //Create the <div> element to show the tags
+  const showDivTags = document.createElement("div");
+  showDivTags.className =
+    "d-flex justify-content-center align-items-center gap-2 flex-column pt-2";
+
+  spanTag.addEventListener("click", function () {
+    if (showDivTags.children.length < 3) {
+      //Create an <input> element to show the tag
+      const uneditableTagShowcase = document.createElement("input");
+      uneditableTagShowcase.className = "form-control text-dark";
+      uneditableTagShowcase.readOnly = "true";
+      uneditableTagShowcase.value = inputTags.value;
+      showDivTags.appendChild(uneditableTagShowcase);
+    } else {
+      alert("Too much tags");
+    }
+  });
 
   // Create the second <label> element for "Description:"
   const labelDescription = document.createElement("label");
@@ -149,13 +176,12 @@ function displayScreen(display) {
   uploadButton.className = "btn btn-primary mt-3";
   uploadButton.textContent = "Upload";
 
-  uploadButton.addEventListener("click",function(){
-    uploadToFirebase();
-  });
-
   // Append all the created elements to the section
   sectionElement.appendChild(labelTags);
-  sectionElement.appendChild(inputTags);
+  divTag.appendChild(inputTags);
+  divTag.appendChild(spanTag);
+  sectionElement.appendChild(divTag);
+  sectionElement.appendChild(showDivTags);
   sectionElement.appendChild(labelDescription);
   sectionElement.appendChild(inputDescription);
   divElement.appendChild(button1);
@@ -167,6 +193,8 @@ function displayScreen(display) {
 
   main.appendChild(display);
   main.appendChild(sectionElement);
+
+  display.load();
 }
 
 function uploadToFirebase(file) {
