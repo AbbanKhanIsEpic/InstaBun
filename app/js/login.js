@@ -43,6 +43,7 @@ loginButton.addEventListener("click", function () {
         loginError.style.visibility = "visible";
       } else {
         console.log("Epic");
+        setGlobalCookie("userID", "cookieValue", 30);
       }
     })
     .catch((error) => {
@@ -50,6 +51,18 @@ loginButton.addEventListener("click", function () {
       console.error(error);
     });
 });
+async function getUserID() {}
+function setGlobalCookie(name, value, expirationDays) {
+  const date = new Date();
+  date.setTime(date.getTime() + expirationDays * 24 * 60 * 60 * 1000);
+
+  const expires = "expires=" + date.toUTCString();
+  const domain = "domain=127.0.0.1"; // Replace with your domain
+  const path = "path=/"; // Cookie accessible from all paths
+
+  document.cookie =
+    name + "=" + value + ";" + expires + ";" + domain + ";" + path;
+}
 
 passwordChange.addEventListener("click", function () {
   sendEmail();

@@ -53,8 +53,8 @@
                 <span></span>
             </div>
         </div>
-        <div class="border-2 border-start border-white h-100 overflow-auto "
-            style="width: 80%; right:0;position:absolute">
+        <div class="border-2 border-start border-white overflow-auto "
+            style="width: 80%; right:0;position:absolute; height: 90%;" id="messageOutput">
             <div class="me-4 ms-4 mt-4 d-flex align-items-end flex-column bg-success rounded">
                 <div class="d-flex align-items-end flex-column ps-2 pe-2 pt-1">
                     <img alt="killerbunny1619's profile picture" draggable="false"
@@ -141,14 +141,32 @@
                 </div>
             </div>
         </div>
+        <div id="messageInput" style="width: 80%; height: 10%; position: absolute; bottom: 0; right: 0;"
+            class="d-flex align-items-center">
+            <form>
+                <div class="form-group d-flex flex-row align-items-center">
+                    <input type="text" aria-label="sendMessage" style="width: 700px; height: 40px;" class="rounded">
+                    <div class="d-flex flex-row align-items-center position-absolute end-0 me-4">
+                        <button class="btn btn-primary rounded ms-4" style="width: 100px;height: 40px;">Emoji</button>
+                        <div class="ms-2">
+                            <input type="file" id="uploadImagesVideosGIFs" aria-label="user upload files"
+                                class="position-absolute visually-hidden" />
+                            <label for="uploadImagesVideosGIFs" class="bg-primary rounded text-center pt-2"
+                                role="button" style="width: 100px;height: 40px;">Upload</label>
+                        </div>
+                        <button class="btn btn-primary rounded ms-2" style="width: 100px;height: 40px;">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </section>
     <footer class="d-flex justify-content-center align-items-center gap-5">
         <div role="button">
-            <svg aria-label="Home" color="rgb(245, 245, 245)" fill="rgb(245, 245, 245)" height="24" role="img"
-                viewBox="0 0 24 24" width="24">
+            <svg aria-label="Home" class="_ab6-" color="rgb(245, 245, 245)" fill="rgb(245, 245, 245)" height="24"
+                role="img" viewBox="0 0 24 24" width="24">
                 <path
-                    d="M22 23h-6.001a1 1 0 0 1-1-1v-5.455a2.997 2.997 0 1 0-5.993 0V22a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V11.543a1.002 1.002 0 0 1 .31-.724l10-9.543a1.001 1.001 0 0 1 1.38 0l10 9.543a1.002 1.002 0 0 1 .31.724V22a1 1 0 0 1-1 1Z">
-                </path>
+                    d="M9.005 16.545a2.997 2.997 0 0 1 2.997-2.997A2.997 2.997 0 0 1 15 16.545V22h7V11.543L12 2 2 11.543V22h7.005Z"
+                    fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path>
             </svg>
         </div>
         <div role="button">
@@ -175,12 +193,11 @@
             </svg>
         </div>
         <div role="button">
-            <svg aria-label="Messages" color="rgb(245, 245, 245)" fill="rgb(245, 245, 245)" height="24" role="img"
-                viewBox="0 0 24 24" width="24">
-                <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="22" x2="9.218"
-                    y1="3" y2="10.083"></line>
-                <polygon fill="none" points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
-                    stroke="currentColor" stroke-linejoin="round" stroke-width="2"></polygon>
+            <svg aria-label="Direct" class="_ab6-" color="rgb(245, 245, 245)" fill="rgb(245, 245, 245)" height="24"
+                role="img" viewBox="0 0 24 24" width="24">
+                <path
+                    d="M22.91 2.388a.69.69 0 0 0-.597-.347l-20.625.002a.687.687 0 0 0-.482 1.178L7.26 9.16a.686.686 0 0 0 .778.128l7.612-3.657a.723.723 0 0 1 .937.248.688.688 0 0 1-.225.932l-7.144 4.52a.69.69 0 0 0-.3.743l2.102 8.692a.687.687 0 0 0 .566.518.655.655 0 0 0 .103.008.686.686 0 0 0 .59-.337L22.903 3.08a.688.688 0 0 0 .007-.692"
+                    fill-rule="evenodd"></path>
             </svg>
         </div>
         <div role="button">

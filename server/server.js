@@ -30,7 +30,7 @@ app.get("/api/user/login", (req, res) => {
   let user = new UserManager();
 
   user
-    .userLogin(username,password)
+    .userLogin(username, password)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
