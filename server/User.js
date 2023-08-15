@@ -1,7 +1,7 @@
 const { select } = require("./DB");
 const { update } = require("./DB");
 
-class UserManager {
+class User {
   updateDisplayName(username, newDisplayName) {
     const query = `UPDATE abbankDB.Users SET DisplayName = '${newDisplayName}' WHERE (Username = ${username});`;
     update(query);
@@ -36,4 +36,4 @@ class UserManager {
   }
 }
 
-module.exports = UserManager;
+module.exports = User;

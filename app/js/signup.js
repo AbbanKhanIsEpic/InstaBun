@@ -15,6 +15,8 @@ const form = document.querySelector("#signUpForm");
 
 const buttonSection = document.querySelector("#buttonSection");
 
+const sendToLoginScreen = document.querySelector("#sendToLoginScreen");
+
 emailButton.addEventListener("click", function () {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(emailInput.value)) {
@@ -228,3 +230,7 @@ function appendPasswordInput() {
 
   form.insertBefore(passwordSection, buttonSection);
 }
+
+sendToLoginScreen.addEventListener("click", function () {
+  window.open("http://127.0.0.1:5501/app/login.html", "_self");
+});

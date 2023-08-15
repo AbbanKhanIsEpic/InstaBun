@@ -18,6 +18,7 @@ const inputInput = document.querySelector("#UsernameInput");
 const loginButton = document.querySelector("#loginButton");
 
 const passwordChange = document.querySelector("#passwordChange");
+const signUp = document.querySelector("#sendToSignUpSreen");
 
 togglePasswordView.addEventListener("click", function () {
   let nextView = togglePasswordView.innerHTML == "Open" ? "Close" : "Open";
@@ -43,7 +44,7 @@ loginButton.addEventListener("click", function () {
         loginError.style.visibility = "visible";
       } else {
         console.log("Epic");
-        setGlobalCookie("userID", "cookieValue", 30);
+        getUserID();
       }
     })
     .catch((error) => {
@@ -51,7 +52,22 @@ loginButton.addEventListener("click", function () {
       console.error(error);
     });
 });
-async function getUserID() {}
+async function getUserID() {
+  const server = "http://127.0.0.1:5000/api/user/userID";
+  const query = `?username='${inputInput.value}'`;
+
+  fetch(server + query)
+    .then((response) => response.json())
+    .then((data) => {
+      setGlobalCookie("userID", data[0].UserID, 30);
+      window.open("http://127.0.0.1:5501/app/mainscreen.html", "_self");
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
 function setGlobalCookie(name, value, expirationDays) {
   const date = new Date();
   date.setTime(date.getTime() + expirationDays * 24 * 60 * 60 * 1000);
@@ -95,3 +111,7 @@ async function sendEmail() {
     }
   }
 }
+
+signUp.addEventListener("click", function () {
+  window.open("http://127.0.0.1:5501/app/signup.html", "_self");
+});

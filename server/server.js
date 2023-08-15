@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const { createConnection } = require("./DB");
 
-const UserManager = require("./User");
+const User = require("./User");
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -27,7 +27,7 @@ connectToDatabase();
 app.get("/api/user/login", (req, res) => {
   const { username, password } = req.query;
 
-  let user = new UserManager();
+  let user = new User();
 
   user
     .userLogin(username, password)
@@ -43,7 +43,7 @@ app.get("/api/user/login", (req, res) => {
 app.get("/api/user/email", (req, res) => {
   const { email } = req.query;
 
-  let user = new UserManager();
+  let user = new User();
 
   user
     .doesEmailExist(email)
@@ -59,10 +59,26 @@ app.get("/api/user/email", (req, res) => {
 app.get("/api/user/username", (req, res) => {
   const { username } = req.query;
 
-  let user = new UserManager();
+  let user = new User();
 
   user
     .doesUsernameExist(username)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/user/userID", (req, res) => {
+  const { username } = req.query;
+
+  let user = new User();
+
+  user
+    .getUserID(username)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
