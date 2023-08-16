@@ -1,10 +1,5 @@
 import { initFirebase } from "/app/js/firebase-setup.js";
-import {
-  getAuth,
-  sendPasswordResetEmail,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
 
 const app = initFirebase();
 const auth = getAuth(app);
@@ -34,7 +29,7 @@ toggleInputView.addEventListener("click", function () {
 
 loginButton.addEventListener("click", function () {
   const server = "http://127.0.0.1:5000/api/user/login";
-  const query = `?username='${inputInput.value}'&password='${passwordInput.value}'`;
+  const query = `?username=${inputInput.value}&password=${passwordInput.value}`;
 
   fetch(server + query)
     .then((response) => response.json())
@@ -54,7 +49,7 @@ loginButton.addEventListener("click", function () {
 });
 async function getUserID() {
   const server = "http://127.0.0.1:5000/api/user/userID";
-  const query = `?username='${inputInput.value}'`;
+  const query = `?username=${inputInput.value}`;
 
   fetch(server + query)
     .then((response) => response.json())
@@ -84,33 +79,7 @@ passwordChange.addEventListener("click", function () {
   sendEmail();
 });
 
-async function sendEmail() {
-  const googleProvider = new GoogleAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-
-    console.log(result);
-
-    console.log(auth.currentUser.email);
-    sendPasswordResetEmail(auth, auth.currentUser.email)
-      .then(() => {
-        // Password reset email sent!
-        // ..
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
-  } catch (error) {
-    if (error.code === "auth/cancelled-popup-request") {
-      // Handle the cancelled popup request error here
-      console.log("Popup request cancelled by the user.");
-    } else {
-      console.log("Error occurred during authentication:", error);
-    }
-  }
-}
+async function sendEmail() {}
 
 signUp.addEventListener("click", function () {
   window.open("http://127.0.0.1:5501/app/signup.html", "_self");

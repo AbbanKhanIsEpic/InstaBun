@@ -29,7 +29,7 @@ emailButton.addEventListener("click", function () {
 
 function doesEmailExist() {
   const server = "http://127.0.0.1:5000/api/user/email";
-  const query = `?email="${emailInput.value}"`;
+  const query = `?email=${emailInput.value}`;
 
   fetch(server + query)
     .then((response) => response.json())
@@ -106,7 +106,7 @@ function appendUsernameInput() {
     const usernameErrorMessage = document.querySelector("#usernameError");
     const usernameInput = document.querySelector("#usernameInput");
     const server = "http://127.0.0.1:5000/api/user/username";
-    const query = `?username="${usernameInput.value}"`;
+    const query = `?username=${usernameInput.value}`;
 
     fetch(server + query)
       .then((response) => response.json())
