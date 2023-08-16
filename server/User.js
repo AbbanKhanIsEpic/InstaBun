@@ -14,6 +14,13 @@ class User {
     return result;
   }
 
+  async getListOfUsernames(username,searchingUsername) {
+    var result = await select(
+      `SELECT count(*) FROM abbankDB.Users where Username Like "${searchingUsername}" AND Username !=  ${username};`
+    );
+    return result;
+  }
+
   async userLogin(username, password) {
     var result = await select(
       `SELECT count(*) FROM abbankDB.Users where Username = ${username} AND Password = ${password}`

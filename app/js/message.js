@@ -101,6 +101,7 @@ sendMessage.addEventListener("click", function () {
 
     // Create the content div
     const contentDiv = document.createElement("div");
+    contentDiv.className="text-break";
     contentDiv.textContent = inputText.value;
 
     // Append the span elements and content div to the inner div
