@@ -137,20 +137,55 @@ app.get("/api/follow/following", (req, res) => {
     });
 });
 
-app.post("/api/follow", (req, res) => {
-  const followerID = req.body.currentID;
-  const followingID = req.body.profileID;
+app.get("/api/follow/followerCount", (req, res) => {
+  const { profileID } = req.query;
 
   let follow = new Follow();
+
   follow
-    .follow(followerID, followingID)
+    .getFollowersCount(profileID)
     .then((jsonifiedResult) => {
-      res.status(200).json(jsonifiedResult);
+      res.status(200).send(jsonifiedResult);
     })
     .catch((error) => {
       console.error(error);
       res.status(500).send("Error occurred");
     });
+});
+
+app.get("/api/follow/followingCount", (req, res) => {
+  const { profileID } = req.query;
+
+  let follow = new Follow();
+
+  follow
+    .getFolloweringCount(profileID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.post("/api/follow/becomeFollower", (req, res) => {
+  const followerID = req.body.currentID;
+  const followingID = req.body.profileID;
+
+  let follow = new Follow();
+  follow.follow(followerID, followingID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/follow/unfollow", (req, res) => {
+  const followerID = req.body.currentID;
+  const followingID = req.body.profileID;
+
+  let follow = new Follow();
+  follow.unfollow(followerID, followingID);
+
+  res.json({ message: "Data received and processed successfully" });
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

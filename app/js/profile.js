@@ -3,6 +3,8 @@ const urlParams = new URLSearchParams(queryString);
 
 const username = urlParams.get("Username");
 
+console.log(username);
+
 const currentUser = getCookie("userID");
 
 let profileUserID;
@@ -14,21 +16,31 @@ const bio = document.querySelector("#bio");
 
 const rowOfInteractive = document.querySelector("#rowOfInteractive");
 
-fetch(`http://127.0.0.1:5000/api/user/userID?username=${username}`)
-  .then((response) => response.json())
-  .then((data) => {
-    profileUserID = data[0].UserID;
-    setProfile();
-    if (currentUser == profileUserID) {
-      attachSetting();
-    } else {
-      attachFollow();
-    }
-  })
-  .catch((error) => {
-    // Handle any errors that occurred during the request
-    console.error(error);
-  });
+if (username == null) {
+  profileUserID = currentUser;
+  setProfile();
+  getFollowerCount();
+  getFollowingCount();
+  attachSetting();
+} else {
+  fetch(`http://127.0.0.1:5000/api/user/userID?username=${username}`)
+    .then((response) => response.json())
+    .then((data) => {
+      profileUserID = data[0].UserID;
+      setProfile();
+      getFollowerCount();
+      getFollowingCount();
+      if (currentUser == profileUserID) {
+        attachSetting();
+      } else {
+        attachFollow();
+      }
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
@@ -129,6 +141,15 @@ function attachFollow() {
       followButton.className = "btn btn-primary";
       followButton.id = "followButton";
       followButton.textContent = follow;
+      followButton.addEventListener("click", function () {
+        if (followButton.textContent == "Follow") {
+          becomeFollower();
+          followButton.textContent = "Unfollow";
+        } else {
+          unfollow();
+          followButton.textContent = "Follow";
+        }
+      });
       rowOfInteractive.appendChild(followButton);
     })
     .catch((error) => {
@@ -137,4 +158,80 @@ function attachFollow() {
     });
 }
 
-function follow() {}
+function becomeFollower() {
+  var dataObject = { currentID: currentUser, profileID: profileUserID };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  console.log(jsonObject);
+
+  fetch("http://127.0.0.1:5000/api/follow/becomeFollower", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      console.log("Response:", responseData);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+function unfollow() {
+  var dataObject = { currentID: currentUser, profileID: profileUserID };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  console.log(jsonObject);
+
+  fetch("http://127.0.0.1:5000/api/follow/unfollow", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      console.log("Response:", responseData);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+function getFollowerCount() {
+  fetch(
+    `http://127.0.0.1:5000/api/follow/followerCount?profileID=${profileUserID}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      const followersCount = document.querySelector("#followersCount");
+      followersCount.textContent = data[0]["count(*)"];
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
+function getFollowingCount() {
+  fetch(
+    `http://127.0.0.1:5000/api/follow/followingCount?profileID=${profileUserID}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      const followingCount = document.querySelector("#followingCount");
+      followingCount.textContent = data[0]["count(*)"];
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}

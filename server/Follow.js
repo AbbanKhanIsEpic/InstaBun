@@ -6,6 +6,10 @@ class Follow {
     const query = `INSERT INTO abbankDB.Follows (FollowerID, FollowingID) VALUES ("${followerID}", "${followingID}");`;
     update(query);
   }
+  unfollow(followerID, followingID) {
+    const query = `DELETE FROM abbankDB.Follows WHERE (FollowerID = "${followerID}") and (FollowingID = "${followingID}");`;
+    update(query);
+  }
   async isFollowing(followerID, followingID) {
     var result = await select(
       `SELECT count(*) FROM abbankDB.Follows where FollowerID = "${followerID}" AND FollowingID = "${followingID}"`
