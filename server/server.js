@@ -6,7 +6,7 @@ const cors = require("cors");
 const { createConnection } = require("./DB");
 
 const UserManager = require("./UserManager");
-const Follow = require("./Follow");
+const FollowManager = require("./FollowManager");
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -140,7 +140,7 @@ app.get("/api/user/profileIcon", (req, res) => {
 app.get("/api/follow/following", (req, res) => {
   const { currentID, profileID } = req.query;
 
-  let follow = new Follow();
+  let follow = new FollowManager();
 
   follow
     .isFollowing(currentID, profileID)
@@ -153,10 +153,10 @@ app.get("/api/follow/following", (req, res) => {
     });
 });
 
-app.get("/api/follow/followerCount", (req, res) => {
+app.get("/api/follow/listOfFollowers", (req, res) => {
   const { profileID } = req.query;
 
-  let follow = new Follow();
+  let follow = new FollowManager();
 
   follow
     .getFollowers(profileID)
@@ -169,10 +169,10 @@ app.get("/api/follow/followerCount", (req, res) => {
     });
 });
 
-app.get("/api/follow/followingCount", (req, res) => {
+app.get("/api/follow/listOfFollowings", (req, res) => {
   const { profileID } = req.query;
 
-  let follow = new Follow();
+  let follow = new FollowManager();
 
   follow
     .getFollowering(profileID)
@@ -189,7 +189,7 @@ app.post("/api/follow/becomeFollower", (req, res) => {
   const followerID = req.body.currentID;
   const followingID = req.body.profileID;
 
-  let follow = new Follow();
+  let follow = new FollowManager();
   follow.follow(followerID, followingID);
   res.json({ message: "Data received and processed successfully" });
 });
@@ -198,7 +198,7 @@ app.post("/api/follow/unfollow", (req, res) => {
   const followerID = req.body.currentID;
   const followingID = req.body.profileID;
 
-  let follow = new Follow();
+  let follow = new FollowManager();
   follow.unfollow(followerID, followingID);
 
   res.json({ message: "Data received and processed successfully" });

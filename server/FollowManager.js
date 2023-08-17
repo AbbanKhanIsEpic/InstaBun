@@ -1,7 +1,7 @@
 const { select } = require("./DB");
 const { update } = require("./DB");
 
-class Follow {
+class FollowManager {
   follow(followerID, followingID) {
     const query = `INSERT INTO abbankDB.Follows (FollowerID, FollowingID) VALUES ("${followerID}", "${followingID}");`;
     update(query);
@@ -28,6 +28,13 @@ class Follow {
     );
     return result;
   }
+  //ChatGPT said for "word for you follow a person and the person follow you" is Mutal
+  async getMutual(userID) {
+    var result = await select(
+      `SELECT FollowingID as Friends FROM abbankDB.Follows Where FollowerID  = "${userID}" OR FollowingID = "${userID}" AND FollowerID = FollowingID;`
+    );
+    return result;
+  }
 }
 
-module.exports = Follow;
+module.exports = FollowManager;

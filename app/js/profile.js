@@ -115,7 +115,6 @@ function setProfile() {
   fetch(`http://127.0.0.1:5000/api/user/profile?userID=${profileUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       profileIcon.src = data[0].ProfileIconLink;
       profileIcon.alt = `${data[0].Username}'s profile picture`;
       profileUsername.textContent = data[0].Username;
@@ -206,7 +205,7 @@ function unfollow() {
 
 function getFollowers() {
   fetch(
-    `http://127.0.0.1:5000/api/follow/followerCount?profileID=${profileUserID}`
+    `http://127.0.0.1:5000/api/follow/listOfFollowers?profileID=${profileUserID}`
   )
     .then((response) => response.json())
     .then((data) => {
@@ -280,10 +279,11 @@ function showCaseFollowers(userID) {
 
 function getFollowings() {
   fetch(
-    `http://127.0.0.1:5000/api/follow/followingCount?profileID=${profileUserID}`
+    `http://127.0.0.1:5000/api/follow/listOfFollowings?profileID=${profileUserID}`
   )
     .then((response) => response.json())
     .then((data) => {
+      console.log(data);
       const followingCount = document.querySelector("#followingCount");
       followingCount.textContent = data.length;
       data.forEach(function (element) {
