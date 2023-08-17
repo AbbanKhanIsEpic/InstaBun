@@ -16,15 +16,15 @@ class Follow {
     );
     return result;
   }
-  async getFolloweringCount(followerID) {
+  async getFollowering(followerID) {
     var result = await select(
-      `SELECT count(*) FROM abbankDB.Follows where FollowerID = "${followerID}"`
+      `SELECT * FROM abbankDB.Follows where FollowerID = "${followerID}"`
     );
     return result;
   }
-  async getFollowersCount(followingID) {
+  async getFollowers(followingID) {
     var result = await select(
-      `SELECT count(*) FROM abbankDB.Follows where FollowingID = "${followingID}"`
+      `SELECT * FROM abbankDB.Follows where FollowingID = "${followingID}"`
     );
     return result;
   }

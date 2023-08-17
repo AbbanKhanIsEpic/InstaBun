@@ -1,7 +1,7 @@
 const { select } = require("./DB");
 const { update } = require("./DB");
 
-class User {
+class UserManager {
   updateDisplayName(username, newDisplayName) {
     const query = `UPDATE abbankDB.Users SET DisplayName = "${newDisplayName}" WHERE (Username = "${username}");`;
     update(query);
@@ -21,10 +21,17 @@ class User {
     return result;
   }
 
+  async getUserProfileIconLink(userID) {
+    var result = await select(
+      `SELECT ProfileIconLink FROM abbankDB.Users where UserID = "${userID}";`
+    );
+    return result;
+  }
+
   async getListOfUsernames(userID, searchingUsername) {
     var result = await select(
       `SELECT Username,DisplayName,ProfileIconLink  FROM abbankDB.Users where Username Like "${
-        searchingUsername + "%"
+        "%" + searchingUsername + "%"
       }" AND UserID !=  "${userID}";`
     );
     return result;
@@ -52,4 +59,4 @@ class User {
   }
 }
 
-module.exports = User;
+module.exports = UserManager;

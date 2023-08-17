@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const { createConnection } = require("./DB");
 
-const User = require("./User");
+const UserManager = require("./UserManager");
 const Follow = require("./Follow");
 
 app.use(cors()); // Enable CORS for all routes
@@ -28,7 +28,7 @@ connectToDatabase();
 app.get("/api/user/login", (req, res) => {
   const { username, password } = req.query;
 
-  let user = new User();
+  let user = new UserManager();
 
   user
     .userLogin(username, password)
@@ -44,7 +44,7 @@ app.get("/api/user/login", (req, res) => {
 app.get("/api/user/email", (req, res) => {
   const { email } = req.query;
 
-  let user = new User();
+  let user = new UserManager();
 
   user
     .doesEmailExist(email)
@@ -60,7 +60,7 @@ app.get("/api/user/email", (req, res) => {
 app.get("/api/user/username", (req, res) => {
   const { username } = req.query;
 
-  let user = new User();
+  let user = new UserManager();
 
   user
     .doesUsernameExist(username)
@@ -76,7 +76,7 @@ app.get("/api/user/username", (req, res) => {
 app.get("/api/user/userID", (req, res) => {
   const { username } = req.query;
 
-  let user = new User();
+  let user = new UserManager();
 
   user
     .getUserID(username)
@@ -92,7 +92,7 @@ app.get("/api/user/userID", (req, res) => {
 app.get("/api/user/search", (req, res) => {
   const { userID, searchUser } = req.query;
 
-  let user = new User();
+  let user = new UserManager();
 
   user
     .getListOfUsernames(userID, searchUser)
@@ -108,10 +108,26 @@ app.get("/api/user/search", (req, res) => {
 app.get("/api/user/profile", (req, res) => {
   const { userID } = req.query;
 
-  let user = new User();
+  let user = new UserManager();
 
   user
     .getUserProfile(userID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/user/profileIcon", (req, res) => {
+  const { userID } = req.query;
+
+  let user = new UserManager();
+
+  user
+    .getUserProfileIconLink(userID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -143,7 +159,7 @@ app.get("/api/follow/followerCount", (req, res) => {
   let follow = new Follow();
 
   follow
-    .getFollowersCount(profileID)
+    .getFollowers(profileID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -159,7 +175,7 @@ app.get("/api/follow/followingCount", (req, res) => {
   let follow = new Follow();
 
   follow
-    .getFolloweringCount(profileID)
+    .getFollowering(profileID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

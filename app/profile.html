@@ -24,11 +24,11 @@
         </span>
         <span class="ms-5 d-flex flex-row">
             <span class="d-flex flex-column text-center">
-                <span role="button">Followers</span>
+                <span role="button" data-bs-toggle="modal" data-bs-target="#followersModal">Followers</span>
                 <span id="followersCount">100M</span>
             </span>
             <span class="d-flex justify-content-center align-content-center flex-column text-center ms-4">
-                <span role="button">Following</span>
+                <span role="button" data-bs-toggle="modal" data-bs-target="#followingModal">Following</span>
                 <span id="followingCount">1</span>
             </span>
             <span class="ms-4" id="rowOfInteractive">
@@ -47,6 +47,30 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-black">First user</div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="followersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-black">Followers</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-black" id="listOfFollowers"></div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="followingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-black">Following</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-black" id="listOfFollowering"></div>
                 <div class="modal-footer"></div>
             </div>
         </div>
@@ -102,9 +126,8 @@
         </div>
         <div role="button" class="bg-white rounded-circle d-flex align-items-center justify-content-center "
             style="width: 40px; height: 40px;" id="navProfile">
-            <img alt="killerbunny1619's profile picture" draggable="false"
-                src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
-                width="30px" height="30px" class="rounded-circle" />
+            <img id="navProfileIcon" alt="" draggable="false" src="" width="30px" height="30px"
+                class="rounded-circle" />
         </div>
     </footer>
 </body>

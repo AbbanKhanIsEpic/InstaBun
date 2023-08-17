@@ -109,11 +109,11 @@ function displayScreen(display) {
     }
   });
 
-  // Create the second <label> element for "Description:"
-  const labelDescription = document.createElement("label");
-  labelDescription.setAttribute("for", "description");
-  labelDescription.className = "h2 text-center mt-3";
-  labelDescription.textContent = "Description:";
+  // Create the second <label> element for "Title:"
+  const labelTitle = document.createElement("label");
+  labelTitle.setAttribute("for", "description");
+  labelTitle.className = "h2 text-center mt-3";
+  labelTitle.textContent = "Title:";
 
   // Create the <input> element for description
   const inputDescription = document.createElement("input");
@@ -182,7 +182,7 @@ function displayScreen(display) {
   divTag.appendChild(spanTag);
   sectionElement.appendChild(divTag);
   sectionElement.appendChild(showDivTags);
-  sectionElement.appendChild(labelDescription);
+  sectionElement.appendChild(labelTitle);
   sectionElement.appendChild(inputDescription);
   divElement.appendChild(button1);
   divElement.appendChild(button2);
