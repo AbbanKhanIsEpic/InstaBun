@@ -8,20 +8,32 @@ console.log(username);
 const currentUser = getCookie("userID");
 
 let profileUserID;
+let profileUsername;
+let profileBio;
+let profileProfileIcon;
+let profileDisplayName;
+let tempDMLimit;
+let tempPostVis;
+let DMLimit;
+let PostVis;
 
-const profileIcon = document.querySelector("#profileIcon");
-const profileUsername = document.querySelector("#profileUsername");
-const profileDisplayName = document.querySelector("#profileDisplayName");
-const bio = document.querySelector("#bio");
+const profileIconElement = document.querySelector("#profileIcon");
+const profileUsernameElement = document.querySelector("#profileUsername");
+const profileDisplayNameElement = document.querySelector("#profileDisplayName");
+const bioElement = document.querySelector("#bio");
+const showLimit = document.querySelector("#showLimit");
+const showVis = document.querySelector("#showVis");
 
 const rowOfInteractive = document.querySelector("#rowOfInteractive");
 
 if (username == null) {
   profileUserID = currentUser;
-  attachSetting();
   setProfile();
   getFollowings();
   getFollowers();
+  getVisibility();
+  getDMLimit();
+  attachSetting();
 } else {
   fetch(`http://127.0.0.1:5000/api/user/userID?username=${username}`)
     .then((response) => response.json())
@@ -30,10 +42,12 @@ if (username == null) {
       setProfile();
       getFollowings();
       getFollowers();
+      getVisibility();
+      getDMLimit();
       if (currentUser == profileUserID) {
         attachSetting();
       } else {
-        attachFollow();
+        attachFollowAndDMButton();
       }
     })
     .catch((error) => {
@@ -53,6 +67,57 @@ function getCookie(name) {
   return null;
 }
 
+function getVisibility() {
+  fetch(`http://127.0.0.1:5000/api/user/visibility?userID=${profileUserID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      PostVis = data[0].Visibility;
+      switch (PostVis) {
+        case 0:
+          showVis.textContent = "Everyone";
+          break;
+        case 1:
+          showVis.textContent = "Followers";
+          break;
+        case 2:
+          showVis.textContent = "Mutural";
+          break;
+        case 3:
+          showVis.textContent = "No one";
+          break;
+      }
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+function getDMLimit() {
+  fetch(`http://127.0.0.1:5000/api/user/dmlimit?userID=${profileUserID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      DMLimit = data[0].DMLimit;
+      switch (DMLimit) {
+        case 0:
+          showLimit.textContent = "Everyone";
+          break;
+        case 1:
+          showLimit.textContent = "Followers";
+          break;
+        case 2:
+          showLimit.textContent = "Mutural";
+          break;
+        case 3:
+          showLimit.textContent = "No one";
+          break;
+      }
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
 function attachSetting() {
   // Create the <span> element
   const spanElement = document.createElement("span");
@@ -60,6 +125,77 @@ function attachSetting() {
   spanElement.role = "button";
   spanElement.dataset.bsToggle = "modal";
   spanElement.dataset.bsTarget = "#settings";
+
+  spanElement.addEventListener("click", function () {
+    const profileIconPreview = document.querySelector("#profileIconPreview");
+    profileIconPreview.src = profileProfileIcon;
+
+    const changeBio = document.querySelector("#changeBio");
+    changeBio.value = profileBio;
+
+    const changeDisplayName = document.querySelector("#changeDisplayName");
+    changeDisplayName.value = profileDisplayName;
+
+    const limitEveryone = document.querySelector("#limitEveryone");
+    const limitFollowers = document.querySelector("#limitFollowers");
+    const limitMutural = document.querySelector("#limitMutural");
+    const limitNoOne = document.querySelector("#limitNoOne");
+
+    limitEveryone.addEventListener("click", function () {
+      showLimit.textContent = "Everyone";
+      tempDMLimit = 0;
+    });
+    limitFollowers.addEventListener("click", function () {
+      showLimit.textContent = "Followers";
+      tempDMLimit = 1;
+    });
+    limitMutural.addEventListener("click", function () {
+      showLimit.textContent = "Mutural";
+      tempDMLimit = 2;
+    });
+    limitNoOne.addEventListener("click", function () {
+      showLimit.textContent = "No one";
+      tempDMLimit = 3;
+    });
+
+    const visEveryone = document.querySelector("#visEveryone");
+    const visFollowers = document.querySelector("#visFollowers");
+    const visMutural = document.querySelector("#visMutural");
+    const visNoOne = document.querySelector("#visNoOne");
+
+    visEveryone.addEventListener("click", function () {
+      showVis.textContent = "Everyone";
+      tempPostVis = 0;
+    });
+    visFollowers.addEventListener("click", function () {
+      showVis.textContent = "Followers";
+      tempPostVis = 1;
+    });
+    visMutural.addEventListener("click", function () {
+      showVis.textContent = "Mutural";
+      tempPostVis = 2;
+    });
+    visNoOne.addEventListener("click", function () {
+      showVis.textContent = "No one";
+      tempPostVis = 3;
+    });
+
+    const uploadImagesVideosGIFs = document.querySelector(
+      "#uploadImagesVideosGIFs"
+    );
+    uploadImagesVideosGIFs.addEventListener("change", function () {
+      const file = event.target.files[0];
+      if (file.type.match("image.*")) {
+        const reader = new FileReader();
+        reader.addEventListener("load", (event) => {
+          profileIconPreview.src = event.target.result;
+        });
+        reader.readAsDataURL(file);
+      } else {
+        alert("Sorry, only images");
+      }
+    });
+  });
 
   // Create the <svg> element
   const svgElement = document.createElementNS(
@@ -117,11 +253,15 @@ function setProfile() {
   fetch(`http://127.0.0.1:5000/api/user/profile?userID=${profileUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      profileIcon.src = data[0].ProfileIconLink;
-      profileIcon.alt = `${data[0].Username}'s profile picture`;
-      profileUsername.textContent = data[0].Username;
-      profileDisplayName.textContent = data[0].DisplayName;
-      bio.textContent = data[0].Bio;
+      profileDisplayName = data[0].DisplayName;
+      profileUsername = data[0].Username;
+      profileProfileIcon = data[0].ProfileIconLink;
+      profileBio = data[0].Bio;
+      profileIconElement.src = profileProfileIcon;
+      profileIconElement.alt = `${profileUsername}'s profile picture`;
+      profileUsername.textContent = profileUsername;
+      profileDisplayNameElement.textContent = profileDisplayName;
+      bioElement.textContent = profileBio;
     })
     .catch((error) => {
       // Handle any errors that occurred during the request
@@ -129,7 +269,7 @@ function setProfile() {
     });
 }
 
-function attachFollow() {
+function attachFollowAndDMButton() {
   fetch(
     `http://127.0.0.1:5000/api/follow/following?currentID=${currentUser}&profileID=${profileUserID}`
   )
@@ -142,7 +282,7 @@ function attachFollow() {
       sendDMButton.dataset.bsTarget = "#sendDMModal";
       sendDMButton.textContent = "Send DM";
       const sendDMHeader = document.querySelector("#sendDMHeader");
-      sendDMHeader.textContent = `Sending message to: ${profileUsername.textContent}`
+      sendDMHeader.textContent = `Sending message to: ${profileUsername}`;
       let follow = data[0]["count(*)"] == 0 ? "Follow" : "Unfollow";
       //create follow button
       const followButton = document.createElement("button");
@@ -158,8 +298,8 @@ function attachFollow() {
           followButton.textContent = "Follow";
         }
       });
-      rowOfInteractive.appendChild(sendDMButton); 
-      rowOfInteractive.appendChild(followButton); 
+      rowOfInteractive.appendChild(sendDMButton);
+      rowOfInteractive.appendChild(followButton);
     })
     .catch((error) => {
       // Handle any errors that occurred during the request
@@ -293,7 +433,6 @@ function getFollowings() {
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       const followingCount = document.querySelector("#followingCount");
       followingCount.textContent = data.length;
       data.forEach(function (element) {

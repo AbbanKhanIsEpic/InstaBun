@@ -17,7 +17,7 @@
 <body>
     <header class="d-flex justify-content-center align-items-center">
         <span>
-            <img alt="killerbunny1619's profile picture" draggable="false" src="" width="100px" height="100px"
+            <img alt="killerbunny1619's profile picture" draggable="false" width="100px" height="100px"
                 class="rounded-circle" id="profileIcon" />
             <span class="lead" id="profileUsername"> Killerbunny1619 </span>
             <span id="profileDisplayName"> Killerbunny1619 </span>
@@ -86,39 +86,50 @@
                     <div class="input-group d-flex flex-column ">
                         <div aria-label="Display name">
                             <span class="input-group-text">Display name:</span>
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control" id="changeDisplayName">
                         </div>
                         <div aria-label="Bio" class="mt-4">
                             <span class="input-group-text">Bio:</span>
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control text-black" id="changeBio">
+                        </div>
+                        <div aria-label="Profile Icon" class="mt-4">
+                            <span class="input-group-text">Profile</span>
+                            <img alt="killerbunny1619's profile picture" draggable="false" src="" width="100px"
+                                height="100px" class="rounded-circle mt-4" id="profileIconPreview" />
+                            <span class="ms-4">
+                                <input type="file" id="uploadImagesVideosGIFs" aria-label="user upload files"
+                                    class="position-absolute visually-hidden" />
+                                <label for="uploadImagesVideosGIFs" class="btn btn-primary rounded text-center"
+                                    role="button">Upload</label>
+                            </span>
                         </div>
                         <div aria-label="Visbility" class="mt-4">
-                            <span class="input-group-text">Who can see your posts and story:</span>
-                            <div class="btn-group dropend mt-3"><button type="button"
-                                    class="btn btn-primary">Everyone</button><button type="button"
+                            <span class="input-group-text">Who can see your posts:</span>
+                            <div class="btn-group dropend mt-3"><button type="button" class="btn btn-primary"
+                                    id="showVis">Everyone</button><button type="button"
                                     class="btn btn-primary dropdown-toggle dropdown-toggle-split"
                                     data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle
                                         Dropend</span></button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item">Everyone</a></li>
-                                    <li><a class="dropdown-item">Followers</a></li>
-                                    <li><a class="dropdown-item">Mutural</a></li>
-                                    <li><a class="dropdown-item">No one</a></li>
+                                    <li><a class="dropdown-item" role="button" id="visEveryone">Everyone</a></li>
+                                    <li><a class="dropdown-item" role="button" id="visFollowers">Followers</a></li>
+                                    <li><a class="dropdown-item" role="button" id="visMutural">Mutural</a></li>
+                                    <li><a class="dropdown-item" role="button" id="visNoOne">No one</a></li>
                                 </ul>
                             </div>
                         </div>
                         <div aria-label="Limits" class="mt-4 mb-4">
                             <span class="input-group-text">Who you want to recieve dm from:</span>
-                            <div class="btn-group dropend mt-3"><button type="button"
-                                    class="btn btn-primary">Everyone</button><button type="button"
+                            <div class="btn-group dropend mt-3"><button type="button" class="btn btn-primary"
+                                    id="showLimit">Everyone</button><button type="button"
                                     class="btn btn-primary dropdown-toggle dropdown-toggle-split"
                                     data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle
                                         Dropend</span></button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item">Everyone</a></li>
-                                    <li><a class="dropdown-item">Followers</a></li>
-                                    <li><a class="dropdown-item">Mutural</a></li>
-                                    <li><a class="dropdown-item">No one</a></li>
+                                    <li><a class="dropdown-item" role="button" id="limitEveryone">Everyone</a></li>
+                                    <li><a class="dropdown-item" role="button" id="limitFollowers">Followers</a></li>
+                                    <li><a class="dropdown-item" role="button" id="limitMutural">Mutural</a></li>
+                                    <li><a class="dropdown-item" role="button" id="limitNoOne">No one</a></li>
                                 </ul>
                             </div>
                         </div>
