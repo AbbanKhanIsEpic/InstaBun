@@ -58,6 +58,8 @@ function attachSetting() {
   const spanElement = document.createElement("span");
   spanElement.className = "ms-3 mt-1";
   spanElement.role = "button";
+  spanElement.dataset.bsToggle = "modal";
+  spanElement.dataset.bsTarget = "#settings";
 
   // Create the <svg> element
   const svgElement = document.createElementNS(
@@ -133,11 +135,18 @@ function attachFollow() {
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log(data[0]["count(*)"] == 0);
+      const sendDMButton = document.createElement("button");
+      sendDMButton.className = "ms-3 btn btn-primary";
+      sendDMButton.id = "sendDMButton";
+      sendDMButton.dataset.bsToggle = "modal";
+      sendDMButton.dataset.bsTarget = "#sendDMModal";
+      sendDMButton.textContent = "Send DM";
+      const sendDMHeader = document.querySelector("#sendDMHeader");
+      sendDMHeader.textContent = `Sending message to: ${profileUsername.textContent}`
       let follow = data[0]["count(*)"] == 0 ? "Follow" : "Unfollow";
       //create follow button
       const followButton = document.createElement("button");
-      followButton.className = "btn btn-primary";
+      followButton.className = "ms-3 btn btn-primary";
       followButton.id = "followButton";
       followButton.textContent = follow;
       followButton.addEventListener("click", function () {
@@ -149,7 +158,8 @@ function attachFollow() {
           followButton.textContent = "Follow";
         }
       });
-      rowOfInteractive.appendChild(followButton);
+      rowOfInteractive.appendChild(sendDMButton); 
+      rowOfInteractive.appendChild(followButton); 
     })
     .catch((error) => {
       // Handle any errors that occurred during the request

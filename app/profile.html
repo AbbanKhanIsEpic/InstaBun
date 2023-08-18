@@ -75,6 +75,82 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="settings" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-black" id="sendDMHeader">Settings</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-black">
+                    <div class="input-group d-flex flex-column ">
+                        <div aria-label="Display name">
+                            <span class="input-group-text">Display name:</span>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div aria-label="Bio" class="mt-4">
+                            <span class="input-group-text">Bio:</span>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div aria-label="Visbility" class="mt-4">
+                            <span class="input-group-text">Who can see your posts and story:</span>
+                            <div class="btn-group dropend mt-3"><button type="button"
+                                    class="btn btn-primary">Everyone</button><button type="button"
+                                    class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                                    data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle
+                                        Dropend</span></button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item">Everyone</a></li>
+                                    <li><a class="dropdown-item">Followers</a></li>
+                                    <li><a class="dropdown-item">Mutural</a></li>
+                                    <li><a class="dropdown-item">No one</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div aria-label="Limits" class="mt-4 mb-4">
+                            <span class="input-group-text">Who you want to recieve dm from:</span>
+                            <div class="btn-group dropend mt-3"><button type="button"
+                                    class="btn btn-primary">Everyone</button><button type="button"
+                                    class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                                    data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">Toggle
+                                        Dropend</span></button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item">Everyone</a></li>
+                                    <li><a class="dropdown-item">Followers</a></li>
+                                    <li><a class="dropdown-item">Mutural</a></li>
+                                    <li><a class="dropdown-item">No one</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="input-group">
+                                <button class="w-100 btn btn-primary ">
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="sendDMModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-black" id="sendDMHeader">Sending message to: </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-black">
+                    <div class="input-group">
+                        <input type="text" class="form-control">
+                        <span class="input-group-text" role="button">Send</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </header>
     <main class="d-flex flex-column overflow-auto">
         <div class="border border-2 border-white w-75 h-25 align-self-center mb-4" id="bio">
             This is a bio
@@ -96,8 +172,10 @@
             <svg aria-label="Explore" color="rgb(245, 245, 245)" fill="rgb(245, 245, 245)" height="24" role="img"
                 viewBox="0 0 24 24" width="24">
                 <polygon fill="none" points="13.941 13.953 7.581 16.424 10.06 10.056 16.42 7.585 13.941 13.953"
-                    stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polygon>
-                <polygon fill-rule="evenodd" points="10.06 10.056 13.949 13.945 7.581 16.424 10.06 10.056"></polygon>
+                    stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                </polygon>
+                <polygon fill-rule="evenodd" points="10.06 10.056 13.949 13.945 7.581 16.424 10.06 10.056">
+                </polygon>
                 <circle cx="12.001" cy="12.005" fill="none" r="10.5" stroke="currentColor" stroke-linecap="round"
                     stroke-linejoin="round" stroke-width="2"></circle>
             </svg>
