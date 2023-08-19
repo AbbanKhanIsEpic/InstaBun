@@ -1,9 +1,18 @@
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
+import { initFirebase } from "/app/js/firebase-setup.js";
+
+const app = initFirebase();
+const storage = getStorage(app);
+
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
 const username = urlParams.get("Username");
-
-console.log(username);
 
 const currentUser = getCookie("userID");
 
@@ -16,6 +25,7 @@ let tempDMLimit;
 let tempPostVis;
 let DMLimit;
 let PostVis;
+let selectedFile;
 
 const profileIconElement = document.querySelector("#profileIcon");
 const profileUsernameElement = document.querySelector("#profileUsername");
@@ -180,20 +190,25 @@ function attachSetting() {
       tempPostVis = 3;
     });
 
-    const uploadImagesVideosGIFs = document.querySelector(
-      "#uploadImagesVideosGIFs"
-    );
-    uploadImagesVideosGIFs.addEventListener("change", function () {
-      const file = event.target.files[0];
-      if (file.type.match("image.*")) {
+    const uploadProfileIcon = document.querySelector("#uploadProfileIcon");
+
+    uploadProfileIcon.addEventListener("change", function () {
+      selectedFile = event.target.files[0];
+      if (selectedFile.type.match("image.*")) {
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
           profileIconPreview.src = event.target.result;
         });
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(selectedFile);
       } else {
         alert("Sorry, only images");
       }
+    });
+
+    const updateProfile = document.querySelector("#updateProfile");
+
+    updateProfile.addEventListener("click", function () {
+      uploadFirebase();
     });
   });
 
@@ -249,6 +264,58 @@ function attachSetting() {
   rowOfInteractive.appendChild(spanElement);
 }
 
+function updateProfile(url) {
+  var dataObject = {
+    userID: currentUser,
+    newDisplayName: changeDisplayName.value,
+    newBio: changeBio.value,
+    newProfileIconLink: url,
+    newVisibility: tempPostVis,
+    newDMLimit: tempDMLimit,
+  };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  console.log(jsonObject);
+
+  fetch("http://127.0.0.1:5000/api/user/profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      window.location.reload();
+      alert("Profile updated");
+      console.log("Response:", responseData);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+function uploadFirebase() {
+  const url = `/profileIcon/${currentUser}:${profileUsername}`;
+  const storageRef = ref(storage, url);
+  uploadBytes(storageRef, selectedFile)
+    .then((snapshot) => {
+      console.log("Image uploaded successfully!");
+      getDownloadURL(storageRef)
+        .then((url) => {
+          updateProfile(url);
+        })
+        .catch((error) => {
+          console.error("Error getting video URL:", error);
+        });
+    })
+    .catch((error) => {
+      console.error("Error uploading image:", error);
+    });
+}
+
 function setProfile() {
   fetch(`http://127.0.0.1:5000/api/user/profile?userID=${profileUserID}`)
     .then((response) => response.json())
@@ -259,7 +326,7 @@ function setProfile() {
       profileBio = data[0].Bio;
       profileIconElement.src = profileProfileIcon;
       profileIconElement.alt = `${profileUsername}'s profile picture`;
-      profileUsername.textContent = profileUsername;
+      profileUsernameElement.textContent = profileUsername;
       profileDisplayNameElement.textContent = profileDisplayName;
       bioElement.textContent = profileBio;
     })
@@ -323,6 +390,8 @@ function becomeFollower() {
     .then((response) => response.text())
     .then((responseData) => {
       console.log("Response:", responseData);
+      const followersCount = document.querySelector("#followersCount");
+      followersCount.textContent = parseInt(followersCount.textContent) + 1;
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -347,6 +416,8 @@ function unfollow() {
     .then((response) => response.text())
     .then((responseData) => {
       console.log("Response:", responseData);
+      const followersCount = document.querySelector("#followersCount");
+      followersCount.textContent = followersCount.textContent - 1;
     })
     .catch((error) => {
       console.error("Error:", error);

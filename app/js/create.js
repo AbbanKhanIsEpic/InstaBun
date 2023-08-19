@@ -224,6 +224,7 @@ function displayScreen(display) {
         if (showDivTags.children.length != 3) {
           alert("Must have three tags");
         } else {
+          uploadButton.disabled = true;
           fetch(`http://127.0.0.1:5000/api/post/total?userID=${currentUser}`)
             .then((response) => response.json())
             .then((data) => {
@@ -236,6 +237,7 @@ function displayScreen(display) {
             });
         }
       } else {
+        uploadButton.disabled = true;
         fetch(`http://127.0.0.1:5000/api/story/total?userID=${currentUser}`)
           .then((response) => response.json())
           .then((data) => {
@@ -291,9 +293,13 @@ function uploadStory(url) {
   })
     .then((response) => response.text())
     .then((responseData) => {
+      window.location.reload();
+      alert("Story created");
       console.log("Response:", responseData);
     })
     .catch((error) => {
+      window.location.reload();
+      alert("Story not created");
       console.error("Error:", error);
     });
 }
@@ -317,9 +323,13 @@ function uploadPost(url) {
   })
     .then((response) => response.text())
     .then((responseData) => {
+      window.location.reload();
+      alert("Post created");
       console.log("Response:", responseData);
     })
     .catch((error) => {
+      window.location.reload();
+      alert("Post not created");
       console.error("Error:", error);
     });
 }

@@ -2,11 +2,11 @@ const messageOutput = document.querySelector("#messageOutput");
 const sendMessage = document.querySelector("#sendMessage");
 const inputText = document.querySelector("#inputMessage");
 const selectGroups = document.querySelector("#selectGroups");
-const selectFriends = document.querySelector("#selectFriends");
+const selectDirect = document.querySelector("#selectDirect");
 const userSelection = document.querySelector("#userSelection");
 
-selectFriends.addEventListener("click", function () {
-  userSelection.textContent = "Friends";
+selectDirect.addEventListener("click", function () {
+  userSelection.textContent = "Direct";
 });
 
 selectGroups.addEventListener("click", function () {
@@ -101,7 +101,7 @@ sendMessage.addEventListener("click", function () {
 
     // Create the content div
     const contentDiv = document.createElement("div");
-    contentDiv.className="text-break";
+    contentDiv.className = "text-break";
     contentDiv.textContent = inputText.value;
 
     // Append the span elements and content div to the inner div

@@ -41,6 +41,8 @@ function getCookie(name) {
   return null;
 }
 
+function searchPost(userID, search) {}
+
 function searchUsers(userID, search) {
   const server = "http://127.0.0.1:5000/api/user/search";
   const query = `?userID=${userID}&searchUser=${search}`;

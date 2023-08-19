@@ -171,6 +171,26 @@ app.get("/api/user/dmlimit", (req, res) => {
     });
 });
 
+app.post("/api/user/profile", (req, res) => {
+  const userID = req.body.userID;
+  const newDisplayName = req.body.newDisplayName;
+  const newBio = req.body.newBio;
+  const newProfileIconLink = req.body.newProfileIconLink;
+  const newVisibility = req.body.newVisibility;
+  const newDMLimit = req.body.newDMLimit;
+
+  let user = new UserManager();
+  user.updateProfile(
+    userID,
+    newDisplayName,
+    newBio,
+    newProfileIconLink,
+    newVisibility,
+    newDMLimit
+  );
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.get("/api/follow/following", (req, res) => {
   const { currentID, profileID } = req.query;
 

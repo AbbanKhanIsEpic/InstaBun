@@ -9,7 +9,6 @@ class PostManager {
     return result;
   }
   async upload(userID, postLink, title, tags) {
-    console.log(tags);
     const tagPromises = tags.map(async (tag) => {
       const doesTagExist = (await this.doesTagExist(tag))[0]["count(*)"] == 1;
       if (!doesTagExist) {
@@ -58,6 +57,7 @@ class PostManager {
     const query = `INSERT INTO abbankDB.PostTags (postID,tagID) VALUES ("${postID}","${tagID}");`;
     update(query);
   }
+  async getPostViaTags(tags) {}
 }
 
 module.exports = PostManager;
