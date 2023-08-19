@@ -16,7 +16,7 @@ class FollowManager {
     );
     return result;
   }
-  async getFollowering(followerID) {
+  async getFollowings(followerID) {
     var result = await select(
       `SELECT * FROM abbankDB.Follows where FollowerID = "${followerID}"`
     );
@@ -29,9 +29,10 @@ class FollowManager {
     return result;
   }
   //ChatGPT said for "word for you follow a person and the person follow you" is Mutal
-  async getMutual(userID) {
+  async isMutural(viewingUserID, showingUserID) {
+    //I am really bad with naming convension
     var result = await select(
-      `SELECT FollowingID as Friends FROM abbankDB.Follows Where FollowerID  = "${userID}" OR FollowingID = "${userID}" AND FollowerID = FollowingID;`
+      `SELECT count(*) FROM abbankDB.Follows Where (FollowerID = "${viewingUserID}" AND FollowingID = "${showingUserID}") or (FollowerID = "${showingUserID}" AND FollowingID = "${viewingUserID}");`
     );
     return result;
   }

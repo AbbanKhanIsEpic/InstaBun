@@ -21,6 +21,13 @@ class UserManager {
     return result;
   }
 
+  async getUsername(userID) {
+    var result = await select(
+      `SELECT Username FROM abbankDB.Users where UserID = "${userID}"`
+    );
+    return result;
+  }
+
   async getUserProfile(userID) {
     var result = await select(
       `SELECT Username,DisplayName,ProfileIconLink,Bio  FROM abbankDB.Users where UserID = "${userID}";`

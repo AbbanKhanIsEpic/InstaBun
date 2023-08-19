@@ -229,7 +229,7 @@ app.get("/api/follow/listOfFollowings", (req, res) => {
   let follow = new FollowManager();
 
   follow
-    .getFollowering(profileID)
+    .getFollowings(profileID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -283,6 +283,28 @@ app.post("/api/post/createPost", (req, res) => {
   let post = new PostManager();
   post.upload(userID, postLink, title, tags);
   res.json({ message: "Data received and processed successfully" });
+});
+
+app.get("/api/post/viaTags", (req, res) => {
+  const { userID, tags } = req.query;
+
+  console.log(tags);
+
+  const tagsArray = tags.split(",");
+
+  console.log(tagsArray);
+
+  let post = new PostManager();
+
+  post
+    .getPostViaTags(userID, tagsArray)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
 });
 
 app.get("/api/story/total", (req, res) => {
