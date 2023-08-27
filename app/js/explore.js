@@ -5,6 +5,11 @@ const search = document.querySelector("#search");
 const searchInput = document.querySelector("#SearchInput");
 const showcase = document.querySelector("#showcase");
 
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+
+const username = urlParams.get("postID");
+
 searchForUsers.addEventListener("click", function () {
   display.textContent = "Users";
   clear();
@@ -22,56 +27,60 @@ function clear() {
 }
 
 search.addEventListener("click", function () {
-  const userID = getCookie("userID");
   const search = searchInput.value;
   if (display.textContent == "Users") {
-    searchUsers(userID, search);
+    searchUsers(search);
   } else {
-    searchPost(userID, search);
+    searchPost(search);
   }
 });
 
-function getCookie(name) {
-  const cookies = document.cookie.split("; ");
-  for (const cookie of cookies) {
-    const [cookieName, cookieValue] = cookie.split("=");
-    if (cookieName === name) {
-      return decodeURIComponent(cookieValue);
-    }
-  }
-  return null;
-}
-
-function searchPost(userID, search) {
-  const tags = search.replace(/ /g, ",");
-  console.log(tags);
-  console.log(search);
-  const server = "http://127.0.0.1:5000/api/post/viaTags";
-  const query = `?userID=${userID}&tags=${tags}`;
+function searchPost(search) {
+  clear();
+  const tagsArray = search.trim().split(" ");
+  let tagsWithQuotes = "";
+  tagsArray.map((tag) => {
+    console.log(tag);
+    tagsWithQuotes += `"${tag}" `;
+  });
+  console.log(tagsWithQuotes);
+  tagsWithQuotes = tagsWithQuotes.trim().replace(/ /g, ",");
+  console.log(tagsWithQuotes);
+  const server = "http://127.0.0.1:5000/api/post/search";
+  const query = `?userID=${userID}&tags=${tagsWithQuotes}`;
 
   fetch(server + query)
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      if (!data) {
+        alert("Can not find post");
+      }
       data.map((post) => {
-        console.log(post);
-        const details = post[1][0];
-        console.log(details);
-        const postID = post[0];
-        const likeCount = details.LikeCount;
-        const postLink = details.PostLink;
-        const shareCount = details.ShareCount;
-        const title = details.Title;
-        const username = post[2][0].Username;
-        const profileIconLink = post[3][0].ProfileIconLink;
+        console.log(data);
+        const postID = post["postID"];
+
+        const uploadDetail = post["uploadDetail"][0];
+        const PostLink = uploadDetail["PostLink"];
+        const Title = uploadDetail["Title"];
+        const commentCount = uploadDetail["commentCount"];
+        const didUserLike = uploadDetail["didUserLike"];
+        const likeCount = uploadDetail["likeCount"];
+        const shareCount = uploadDetail["shareCount"];
+
+        const uploaderDetail = post["uploaderDetail"][0];
+        const Username = uploaderDetail["Username"];
+        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+
         appendPost(
           postID,
+          PostLink,
+          Title,
+          commentCount,
+          didUserLike,
           likeCount,
-          postLink,
           shareCount,
-          title,
-          username,
-          profileIconLink
+          Username,
+          ProfileIconLink
         );
       });
     })
@@ -83,10 +92,12 @@ function searchPost(userID, search) {
 
 function appendPost(
   postID,
-  likeCount,
   postLink,
-  shareCount,
   title,
+  commentCount,
+  didUserLike,
+  likeCount,
+  shareCount,
   username,
   profileIconLink
 ) {
@@ -150,7 +161,8 @@ function appendPost(
   heartSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   heartSvg.setAttribute("width", "30");
   heartSvg.setAttribute("height", "30");
-  heartSvg.setAttribute("fill", "white");
+  let heartColour = didUserLike == 1 ? "red" : "white";
+  heartSvg.setAttribute("fill", heartColour);
   heartSvg.setAttribute("viewBox", "0 0 16 16");
   heartSvg.setAttribute("class", "bi bi-heart-fill");
   const heartPath = document.createElementNS(
@@ -166,6 +178,54 @@ function appendPost(
 
   heartSvg.appendChild(heartPath);
   heartSpan.appendChild(heartSvg);
+
+  heartSpan.addEventListener("click", function () {
+    var dataObject = {
+      postID: postID,
+      userID: userID,
+    };
+    // Convert the JavaScript object to a JSON string
+    var jsonObject = JSON.stringify(dataObject);
+
+    if (heartSvg.getAttribute("fill") == "white") {
+      heartColour = "red";
+      likeCount++;
+
+      fetch("http://127.0.0.1:5000/api/post/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        body: jsonObject,
+      })
+        .then((response) => response.text())
+        .then((responseData) => {
+          console.log("Response:", responseData);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    } else {
+      heartColour = "white";
+      likeCount--;
+      fetch("http://127.0.0.1:5000/api/post/unlike", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        body: jsonObject,
+      })
+        .then((response) => response.text())
+        .then((responseData) => {
+          console.log("Response:", responseData);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+    heartSvg.setAttribute("fill", heartColour);
+    likeCountSpan.textContent = likeCount;
+  });
 
   const likeCountSpan = document.createElement("span");
   likeCountSpan.textContent = likeCount;
@@ -202,8 +262,8 @@ function appendPost(
   commentSpan.appendChild(commentSvg);
 
   const commentCountSpan = document.createElement("span");
-  commentCountSpan.className = "text center";
-  commentCountSpan.textContent = "1M";
+  commentCountSpan.textContent = commentCount;
+  commentCountSpan.className = "text-center";
 
   const modalDiv = document.createElement("div");
   modalDiv.className = "modal fade";
@@ -234,7 +294,7 @@ function appendPost(
 
   const modalBody = document.createElement("div");
   modalBody.className = "modal-body text-black";
-  modalBody.textContent = postID;
+  modalBody.textContent = "";
 
   const modalFooter = document.createElement("div");
   modalFooter.className = "modal-footer";
@@ -250,6 +310,42 @@ function appendPost(
   sendSpan.className = "input-group-text";
   sendSpan.role = "button";
   sendSpan.textContent = "Send";
+
+  sendSpan.addEventListener("click", function () {
+    const divContainer = document.createElement("div");
+
+    const divText = document.createElement("div");
+    divText.innerText = inputField.value;
+    divText.className = "mb-4 text-break";
+
+    const divElement = document.createElement("div");
+    divElement.style.width = "400px";
+    divElement.style.height = "70px";
+    divElement.className = "mb-4";
+    divElement.role = "button";
+
+    // Create an img element
+    const imgElement = document.createElement("img");
+    imgElement.alt = `${userID}'s profile picture`;
+    imgElement.draggable = false;
+    imgElement.src =
+      "https://lh3.googleusercontent.com/a/AAcHTtcCI2crJSMQeJ2g0ThV1OpSn16MvSWwyFe828OeLZxD=s96-c";
+    imgElement.setAttribute("width", "60px");
+    imgElement.setAttribute("height", "60px");
+    imgElement.className = "rounded-circle";
+
+    // Create the first span element
+    const spanElement1 = document.createElement("span");
+    spanElement1.className = "ms-2 display-6";
+    spanElement1.textContent = "Username";
+
+    // Append all elements to the div
+    divElement.appendChild(imgElement);
+    divElement.appendChild(spanElement1);
+    divContainer.appendChild(divElement);
+    divContainer.appendChild(divText);
+    modalBody.appendChild(divContainer);
+  });
 
   inputGroup.appendChild(inputField);
   inputGroup.appendChild(sendSpan);
@@ -282,6 +378,18 @@ function appendPost(
   );
   shareSvg.appendChild(sharePath);
   shareSpan.appendChild(shareSvg);
+
+  shareSpan.addEventListener("click", async function () {
+    try {
+      await navigator.clipboard.writeText(
+        `http://127.0.0.1:5501/app/explore.html?postID=${postID}`
+      );
+      alert("Copied the link to the post");
+    } catch (error) {
+      console.error("Failed to copy: ", error);
+    }
+  });
+
   const shareCountSpan = document.createElement("span");
   shareCountSpan.className = "text-center";
   shareCountSpan.textContent = shareCount;
@@ -303,7 +411,7 @@ function appendPost(
   showcase.appendChild(mainContainer);
 }
 
-function searchUsers(userID, search) {
+function searchUsers(search) {
   const server = "http://127.0.0.1:5000/api/user/search";
   const query = `?userID=${userID}&searchUser=${search}`;
 

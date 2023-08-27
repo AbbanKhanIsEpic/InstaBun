@@ -23,6 +23,7 @@ let profileProfileIcon;
 let profileDisplayName;
 let tempDMLimit;
 let tempPostVis;
+let tempProfileProfileIcon;
 let DMLimit;
 let PostVis;
 let selectedFile;
@@ -140,6 +141,7 @@ function attachSetting() {
 
   spanElement.addEventListener("click", function () {
     const profileIconPreview = document.querySelector("#profileIconPreview");
+    tempProfileProfileIcon = profileProfileIcon;
     profileIconPreview.src = profileProfileIcon;
 
     const changeBio = document.querySelector("#changeBio");
@@ -200,6 +202,7 @@ function attachSetting() {
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
           profileIconPreview.src = event.target.result;
+          uploadFirebase();
         });
         reader.readAsDataURL(selectedFile);
       } else {
@@ -210,7 +213,7 @@ function attachSetting() {
     const updateProfile = document.querySelector("#updateProfile");
 
     updateProfile.addEventListener("click", function () {
-      uploadFirebase();
+      updateUserProfile();
     });
   });
 
@@ -266,14 +269,14 @@ function attachSetting() {
   rowOfInteractive.appendChild(spanElement);
 }
 
-function updateProfile(url) {
+function updateUserProfile() {
   PostVis = tempPostVis;
   DMLimit = tempDMLimit;
   var dataObject = {
     userID: currentUser,
     newDisplayName: changeDisplayName.value,
     newBio: changeBio.value,
-    newProfileIconLink: url,
+    newProfileIconLink: tempProfileProfileIcon,
     newVisibility: tempPostVis,
     newDMLimit: tempDMLimit,
   };
@@ -309,7 +312,7 @@ function uploadFirebase() {
       console.log("Image uploaded successfully!");
       getDownloadURL(storageRef)
         .then((url) => {
-          updateProfile(url);
+          tempProfileProfileIcon = url;
         })
         .catch((error) => {
           console.error("Error getting video URL:", error);

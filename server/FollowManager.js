@@ -14,8 +14,7 @@ class FollowManager {
     var result = await select(
       `SELECT count(*) FROM abbankDB.Follows where FollowerID = "${followerID}" AND FollowingID = "${followingID}"`
     );
-    //return true or false
-    return result[0]["count(*)"] == 1;
+    return result;
   }
   async getFollowings(followerID) {
     var result = await select(

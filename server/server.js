@@ -285,7 +285,7 @@ app.post("/api/post/createPost", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
-app.get("/api/post/viaTags", (req, res) => {
+app.get("/api/post/search", (req, res) => {
   const { userID, tags } = req.query;
 
   const tagsArray = tags.split(",");
@@ -301,6 +301,26 @@ app.get("/api/post/viaTags", (req, res) => {
       console.error(error);
       res.status(500).send("Error occurred");
     });
+});
+
+app.post("/api/post/like", (req, res) => {
+  const postID = req.body.postID;
+  const userID = req.body.userID;
+
+  const post = new PostManager();
+  post.like(postID, userID);
+
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/post/unlike", (req, res) => {
+  const postID = req.body.postID;
+  const userID = req.body.userID;
+
+  const post = new PostManager();
+  post.unlike(postID, userID);
+
+  res.json({ message: "Data received and processed successfully" });
 });
 
 app.get("/api/story/total", (req, res) => {

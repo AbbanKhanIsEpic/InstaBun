@@ -1,6 +1,5 @@
 const { select } = require("./DB");
 const { update } = require("./DB");
-
 class PostManager {
   //This is used for the naming convension for uploading files to firebase
   async total(userID) {
@@ -19,6 +18,7 @@ class PostManager {
       //Check if that tag exits
       //If not: create it
       if (!doesTagExist) {
+        tag = `"${tag}"`;
         this.#createTag(tag);
       }
     });
@@ -35,7 +35,7 @@ class PostManager {
   //This is a private method because only need to run this when a post is being uploaded
   async #doesTagExist(tag) {
     var result = await select(
-      `SELECT count(*) FROM abbankDB.Tag where TagName = "${tag}";`
+      `SELECT count(*) FROM abbankDB.Tag where TagName = ${tag};`
     );
     return result[0]["count(*)"] == 1;
   }
@@ -91,23 +91,58 @@ class PostManager {
 
   //get the posts from the tags the user entered
   async getPostViaTags(userID, tags) {
-    const tagIDsArray = await this.#getTagIDs(tags);
+    //It is a promise because this needs to run first
+    //Because we might have a post attached to the tag the user search for
+    const tagPromises = tags.map(async (tag) => {
+      //Look through each of the tags
+      console.log(tags);
+      console.log(tag);
+      const doesTagExist = await this.#doesTagExist(tag);
+      console.log(doesTagExist);
+      //Check if that tag exits
+      if (!doesTagExist) {
+        tags.pop(tag);
+      }
+    });
 
-    console.log(tagIDsArray);
+    await Promise.all(tagPromises);
 
-    const postIDsJson = await this.#getPostIDs(tagIDsArray);
+    if (tags.length != 0) {
+      const tagIDsArray = await this.#getTagIDs(tags);
 
-    const postIDsArray = postIDsJson.map((element) => element.postID);
+      const postIDsJson = await this.#getPostIDs(tagIDsArray);
 
-    const postDetailsArray = await this.#getPostDetails(userID, postIDsArray);
+      const postIDsArray = postIDsJson.map((element) => element.postID);
 
-    return postDetailsArray;
+      const postDetailsArray = await this.#getPostDetails(userID, postIDsArray);
+
+      return postDetailsArray;
+    }
+    return false;
   }
 
   async #filterPost(userID, postIDsArray) {
     var filteringPost = await select(
-      `SELECT Post.idPost,Users.UserID, Users.Visibility, (SELECT COUNT(*) FROM abbankDB.Follows WHERE (FollowerID = ${userID} AND FollowingID = Users.UserID) OR (FollowerID = Users.UserID AND FollowingID = ${userID})) AS Status
-      FROM abbankDB.Post INNER JOIN Users ON Users.UserID = Post.UserID WHERE Post.idPost IN (${postIDsArray}) HAVING Status >= Users.Visibility;`
+      `SELECT 
+      Post.idPost,
+      Users.UserID,
+      Users.Visibility,
+      (SELECT 
+              COUNT(*)
+          FROM
+              abbankDB.Follows
+          WHERE
+              (FollowerID = ${userID}
+                  AND FollowingID = Users.UserID)
+                  OR (FollowerID = Users.UserID
+                  AND FollowingID = ${userID})) AS Status
+  FROM
+      abbankDB.Post
+          INNER JOIN
+      Users ON Users.UserID = Post.UserID
+  WHERE
+      Post.idPost IN (${postIDsArray})
+  HAVING Status >= Users.Visibility;`
     );
 
     const postIDAndUserIDArray = filteringPost.map((element) => {
@@ -133,14 +168,57 @@ class PostManager {
       const upload = element.postID;
 
       const uploaderDetail = await select(
-        `SELECT DisplayName,ProfileIconLink FROM abbankDB.Users WHERE UserID = ${uploader};`
+        `SELECT Username,ProfileIconLink FROM abbankDB.Users WHERE UserID = ${uploader};`
       );
 
       const uploadDetail = await select(
-        `SELECT PostLink,Title,(SELECT count(*) FROM abbankDB.PostShare where PostShare.postID = ${upload}) as commentCount,(SELECT  COUNT(*) FROM abbankDB.PostShare WHERE PostShare.postID = ${upload}) AS shareCount, (SELECT  COUNT(*) FROM abbankDB.PostLike WHERE PostLike.postID = ${upload}) AS likeCount FROM abbankDB.Post;`
+        `SELECT 
+        PostLink,
+        Title,
+        (SELECT 
+                COUNT(*)
+            FROM
+                PostLike
+            WHERE
+                PostLike.postID = ${upload}
+                    AND PostLike.userID = ${userID}) AS didUserLike,
+        (SELECT 
+                COUNT(*)
+            FROM
+                PostLike
+                    INNER JOIN
+                Post ON PostLike.postID = Post.idPost
+            WHERE
+                Post.idPost = ${upload}) AS likeCount,
+        (SELECT 
+                COUNT(*)
+            FROM
+                PostShare
+                    INNER JOIN
+                Post ON PostShare.postID = Post.idPost
+            WHERE
+                Post.idPost = ${upload}) AS shareCount,
+        (SELECT 
+                COUNT(*)
+            FROM
+                PostComment
+                    INNER JOIN
+                Post ON PostComment.postID = Post.idPost
+            WHERE
+                Post.idPost = ${upload}) AS commentCount
+    FROM
+        Post
+    WHERE
+        Post.idPost = ${upload}`
       );
 
-      postDetailsArray.push([uploadDetail, uploaderDetail]);
+      const details = {
+        postID: upload,
+        uploadDetail: uploadDetail,
+        uploaderDetail: uploaderDetail,
+      };
+
+      postDetailsArray.push(details);
     });
 
     await Promise.all(extractDetailsPromise);
@@ -155,6 +233,15 @@ class PostManager {
     //Convert the json into an array of ids
     const idsArray = result.map((element) => element.idTag);
     return idsArray;
+  }
+
+  like(postID, userID) {
+    const query = `Insert into PostLike(postID,userID) Values("${postID}","${userID}");`;
+    update(query);
+  }
+  unlike(postID, userID) {
+    const query = `Delete from PostLike where postID = "${postID}" AND userID = "${userID}"`;
+    update(query);
   }
 }
 
