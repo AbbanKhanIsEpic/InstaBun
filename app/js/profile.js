@@ -267,6 +267,8 @@ function attachSetting() {
 }
 
 function updateProfile(url) {
+  PostVis = tempPostVis;
+  DMLimit = tempDMLimit;
   var dataObject = {
     userID: currentUser,
     newDisplayName: changeDisplayName.value,
