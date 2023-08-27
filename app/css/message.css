@@ -1,0 +1,27 @@
+section {
+  height: 90%;
+}
+#selectionDiv {
+  width: 20%;
+}
+#messageOutput,
+#messageInput {
+  width: 80%;
+  position: absolute;
+  right: 0;
+}
+#messageOutput {
+  height: 90%;
+}
+#messageInput {
+  height: 10%;
+  bottom: 0;
+}
+#inputMessage {
+  width: 700px;
+  height: 40px;
+}
+.interactive {
+  width: 100px;
+  height: 40px;
+}

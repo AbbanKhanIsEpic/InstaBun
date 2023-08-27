@@ -44,6 +44,8 @@ function getCookie(name) {
 
 function searchPost(userID, search) {
   const tags = search.replace(/ /g, ",");
+  console.log(tags);
+  console.log(search);
   const server = "http://127.0.0.1:5000/api/post/viaTags";
   const query = `?userID=${userID}&tags=${tags}`;
 
@@ -98,14 +100,14 @@ function appendPost(
   firstInnerDiv.className = "d-flex flex-column";
   if (postLink.charAt(79) == "v") {
     const video = document.createElement("video");
+    video.className = "post";
     video.src = postLink;
     video.controls = true;
     firstInnerDiv.appendChild(video);
   } else {
     const image = document.createElement("img");
+    image.className = "post";
     image.src = postLink;
-    image.width = "500";
-    image.height = "400";
     firstInnerDiv.append(image);
   }
 

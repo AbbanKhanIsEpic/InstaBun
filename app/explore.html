@@ -9,7 +9,7 @@
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/app/css/template.css" />
-    <link rel="stylesheet" href="/app/css/video.css" />
+    <link rel="stylesheet" href="/app/css/post.css" />
     <title>Explore</title>
 </head>
 
@@ -21,10 +21,10 @@
                 <span class="visually-hidden">Toggle Dropstart</span>
             </button>
             <ul class="dropdown-menu">
-                <li class="text-center" id="searchForUsers" role="button">
+                <li class="text-center" id="searchForUsers">
                     Users
                 </li>
-                <li class="text-center" id="searchForPosts" role="button">
+                <li class="text-center" id="searchForPosts">
                     Posts
                 </li>
             </ul>
@@ -81,7 +81,7 @@
                     stroke="currentColor" stroke-linejoin="round" stroke-width="2"></polygon>
             </svg>
         </div>
-        <div role="button" id="navProfile">
+        <div role="button" id="navProfile" aria-label="user profile">
             <img id="navProfileIcon" alt="" draggable="false" width="30px" height="30px" class="rounded-circle">
         </div>
 

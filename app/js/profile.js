@@ -82,6 +82,7 @@ function getVisibility() {
     .then((response) => response.json())
     .then((data) => {
       PostVis = data[0].Visibility;
+      tempPostVis = PostVis;
       switch (PostVis) {
         case 0:
           showVis.textContent = "Everyone";
@@ -107,6 +108,7 @@ function getDMLimit() {
     .then((response) => response.json())
     .then((data) => {
       DMLimit = data[0].DMLimit;
+      tempDMLimit = DMLimit;
       switch (DMLimit) {
         case 0:
           showLimit.textContent = "Everyone";

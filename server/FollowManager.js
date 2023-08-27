@@ -14,7 +14,8 @@ class FollowManager {
     var result = await select(
       `SELECT count(*) FROM abbankDB.Follows where FollowerID = "${followerID}" AND FollowingID = "${followingID}"`
     );
-    return result;
+    //return true or false
+    return result[0]["count(*)"] == 1;
   }
   async getFollowings(followerID) {
     var result = await select(
@@ -25,14 +26,6 @@ class FollowManager {
   async getFollowers(followingID) {
     var result = await select(
       `SELECT * FROM abbankDB.Follows where FollowingID = "${followingID}"`
-    );
-    return result;
-  }
-  //ChatGPT said for "word for you follow a person and the person follow you" is Mutal
-  async isMutural(viewingUserID, showingUserID) {
-    //I am really bad with naming convension
-    var result = await select(
-      `SELECT count(*) FROM abbankDB.Follows Where (FollowerID = "${viewingUserID}" AND FollowingID = "${showingUserID}") or (FollowerID = "${showingUserID}" AND FollowingID = "${viewingUserID}");`
     );
     return result;
   }

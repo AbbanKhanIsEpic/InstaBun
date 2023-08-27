@@ -288,11 +288,7 @@ app.post("/api/post/createPost", (req, res) => {
 app.get("/api/post/viaTags", (req, res) => {
   const { userID, tags } = req.query;
 
-  console.log(tags);
-
   const tagsArray = tags.split(",");
-
-  console.log(tagsArray);
 
   let post = new PostManager();
 

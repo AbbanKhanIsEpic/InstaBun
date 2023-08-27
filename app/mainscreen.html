@@ -10,7 +10,7 @@
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/app/css/template.css" />
     <link rel="stylesheet" href="/app/css/storyGradient.css" />
-    <link rel="stylesheet" href="/app/css/video.css" />
+    <link rel="stylesheet" href="/app/css/post.css" />
     <title>InstaBun</title>
 </head>
 
@@ -26,7 +26,7 @@
             <div class="d-flex flex-column">
                 <video
                     src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/goatVideo.mp4?alt=media&token=3298c36a-621f-4481-ae88-b4cd9ea42fe5"
-                    controls></video>
+                    controls class="post"></video>
                 <div role="button">
                     <img alt="killerbunny1619's profile picture" draggable="false"
                         src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div label="videoInterative" class="d-flex flex-column px-4 ms-2">
-                <span role="button">
+                <span role="button" aria-label="like post">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="red" class="bi bi-heart-fill"
                         viewBox="0 0 16 16">
                         <path fill-rule="evenodd"
@@ -44,7 +44,8 @@
                     </svg>
                 </span>
                 <span>40M</span>
-                <span data-bs-toggle="modal" data-bs-target="#commentModal" role="button" class="mt-3">
+                <span data-bs-toggle="modal" data-bs-target="#commentModal" role="button" class="mt-3"
+                    aria-label="comment post">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white"
                         class="bi bi-chat-right-dots-fill" viewBox="0 0 16 16">
                         <path
@@ -72,7 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <span role="button">
+                <span role="button" aria-label="share post">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" class="bi bi-share-fill"
                         viewBox="0 0 16 16">
                         <path
@@ -124,8 +125,8 @@
                     stroke="currentColor" stroke-linejoin="round" stroke-width="2"></polygon>
             </svg>
         </div>
-        <div role="button" id="navProfile">
-            <img id="navProfileIcon" alt="" draggable="false" src="" width="30px" height="30px" class="rounded-circle">
+        <div role="button" id="navProfile" aria-label="user profile">
+            <img id="navProfileIcon" alt="" draggable="false" width="30px" height="30px" class="rounded-circle">
         </div>
     </footer>
 </body>

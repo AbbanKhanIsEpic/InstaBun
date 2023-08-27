@@ -9,12 +9,13 @@
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/app/css/template.css">
+    <link rel="stylesheet" href="/app/css/message.css">
     <title>Messages</title>
 </head>
 
 <body>
-    <section style="height: 90%" class="w-100 position-absolute top-0 d-flex flex-row">
-        <div style="width: 20%;" class="d-flex flex-column h-100">
+    <section class="w-100 position-absolute top-0 d-flex flex-row">
+        <div class="d-flex flex-column h-100" id="selectionDiv">
             <div class="mt-4 d-flex justify-content-center align-items-center">
                 <div class="btn-group dropend">
                     <button type="button" class="btn btn-primary" id="userSelection">
@@ -25,8 +26,8 @@
                         <span class="visually-hidden">Toggle Dropend</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li class="text-center" id="selectDirect" role="button">Direct</li>
-                        <li class="text-center" id="selectGroups" role="button">Groups</li>
+                        <li class="text-center" id="selectDirect">Direct</li>
+                        <li class="text-center" id="selectGroups">Groups</li>
                     </ul>
                 </div>
             </div>
@@ -53,8 +54,7 @@
                 <span></span>
             </div>
         </div>
-        <div class="border-2 border-start border-white overflow-auto "
-            style="width: 80%; right:0;position:absolute; height: 90%;" id="messageOutput">
+        <div class="border-2 border-start border-white overflow-auto " id="messageOutput">
             <div class="me-4 ms-4 mt-4 d-flex align-items-end flex-column bg-success rounded" aria-label="message send">
                 <div class="d-flex align-items-end flex-column ps-2 pe-2 pt-1">
                     <span class="d-flex justify-content-between w-100">
@@ -93,22 +93,19 @@
                 </div>
             </div>
         </div>
-        <div id="messageInput" style="width: 80%; height: 10%; position: absolute; bottom: 0; right: 0;"
-            class="d-flex align-items-center">
+        <div id="messageInput" class="d-flex align-items-center">
             <form>
                 <div class="form-group d-flex flex-row align-items-center">
-                    <input type="text" aria-label="inputMessage" style="width: 700px; height: 40px;" class="rounded"
-                        id="inputMessage">
+                    <input type="text" aria-label="inputMessage" class="rounded" id="inputMessage">
                     <div class="d-flex flex-row align-items-center position-absolute end-0 me-4">
-                        <span class="btn btn-primary rounded ms-4" style="width: 100px;height: 40px;">Emoji</span>
+                        <span class="btn btn-primary rounded ms-4 interactive" id="selectEmoji">Emoji</span>
                         <div class="ms-2">
                             <input type="file" id="uploadImagesVideosGIFs" aria-label="user upload files"
                                 class="position-absolute visually-hidden" />
-                            <label for="uploadImagesVideosGIFs" class="bg-primary rounded text-center pt-2"
-                                role="button" style="width: 100px;height: 40px;">Upload</label>
+                            <label for="uploadImagesVideosGIFs" class="bg-primary rounded text-center pt-2 interactive"
+                                role="button" id="inputFileUpload">Upload</label>
                         </div>
-                        <span class="btn btn-primary rounded ms-2" style="width: 100px;height: 40px;"
-                            id="sendMessage">Send</span>
+                        <span class="btn btn-primary rounded ms-2 interactive" id="sendMessage">Send</span>
                     </div>
                 </div>
             </form>
@@ -154,8 +151,8 @@
                     fill-rule="evenodd"></path>
             </svg>
         </div>
-        <div role="button" id="navProfile">
-            <img id="navProfileIcon" alt="" draggable="false" src="" width="30px" height="30px" class="rounded-circle">
+        <div role="button" id="navProfile" aria-label="user profile">
+            <img id="navProfileIcon" alt="" draggable="false" width="30px" height="30px" class="rounded-circle">
         </div>
     </footer>
 </body>
