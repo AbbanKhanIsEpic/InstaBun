@@ -18,13 +18,13 @@ class FollowManager {
   }
   async getFollowings(followerID) {
     var result = await select(
-      `SELECT * FROM abbankDB.Follows where FollowerID = "${followerID}"`
+      `SELECT FollowingID FROM abbankDB.Follows where FollowerID = "${followerID}"`
     );
     return result;
   }
   async getFollowers(followingID) {
     var result = await select(
-      `SELECT * FROM abbankDB.Follows where FollowingID = "${followingID}"`
+      `SELECT FollowerID FROM abbankDB.Follows where FollowingID = "${followingID}"`
     );
     return result;
   }

@@ -5,6 +5,8 @@ const navMessage = document.querySelector("#navMessage");
 const navProfile = document.querySelector("#navProfile");
 const navProfileIcon = document.querySelector("#navProfileIcon");
 
+let currentUserProfileLink = "";
+
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
   for (const cookie of cookies) {
@@ -21,7 +23,7 @@ const userID = getCookie("userID");
 fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${userID}`)
   .then((response) => response.json())
   .then((data) => {
-    const currentUserProfileLink = data[0].ProfileIconLink;
+    currentUserProfileLink = data[0].ProfileIconLink;
     navProfileIcon.src = currentUserProfileLink;
   })
   .catch((error) => {

@@ -8,7 +8,7 @@ const showcase = document.querySelector("#showcase");
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
-const username = urlParams.get("postID");
+const postID = urlParams.get("postID");
 
 searchForUsers.addEventListener("click", function () {
   display.textContent = "Users";
@@ -312,27 +312,26 @@ function appendPost(
   sendSpan.textContent = "Send";
 
   sendSpan.addEventListener("click", function () {
-    const divContainer = document.createElement("div");
+    const commentContainer = document.createElement("div");
 
-    const divText = document.createElement("div");
-    divText.innerText = inputField.value;
-    divText.className = "mb-4 text-break";
+    const commentText = document.createElement("div");
+    commentText.innerText = inputField.value;
+    commentText.className = "mb-4 text-break";
 
-    const divElement = document.createElement("div");
-    divElement.style.width = "400px";
-    divElement.style.height = "70px";
-    divElement.className = "mb-4";
-    divElement.role = "button";
+    const whoComment = document.createElement("div");
+    whoComment.style.width = "400px";
+    whoComment.style.height = "70px";
+    whoComment.className = "mb-4";
+    whoComment.role = "button";
 
     // Create an img element
-    const imgElement = document.createElement("img");
-    imgElement.alt = `${userID}'s profile picture`;
-    imgElement.draggable = false;
-    imgElement.src =
-      "https://lh3.googleusercontent.com/a/AAcHTtcCI2crJSMQeJ2g0ThV1OpSn16MvSWwyFe828OeLZxD=s96-c";
-    imgElement.setAttribute("width", "60px");
-    imgElement.setAttribute("height", "60px");
-    imgElement.className = "rounded-circle";
+    const commentProfileIcon = document.createElement("img");
+    commentProfileIcon.alt = `${userID}'s profile picture`;
+    commentProfileIcon.draggable = false;
+    commentProfileIcon.src = currentUserProfileLink;
+    commentProfileIcon.setAttribute("width", "60px");
+    commentProfileIcon.setAttribute("height", "60px");
+    commentProfileIcon.className = "rounded-circle";
 
     // Create the first span element
     const spanElement1 = document.createElement("span");
@@ -340,11 +339,11 @@ function appendPost(
     spanElement1.textContent = "Username";
 
     // Append all elements to the div
-    divElement.appendChild(imgElement);
-    divElement.appendChild(spanElement1);
-    divContainer.appendChild(divElement);
-    divContainer.appendChild(divText);
-    modalBody.appendChild(divContainer);
+    whoComment.appendChild(commentProfileIcon);
+    whoComment.appendChild(spanElement1);
+    commentContainer.appendChild(whoComment);
+    commentContainer.appendChild(commentText);
+    modalBody.appendChild(commentContainer);
   });
 
   inputGroup.appendChild(inputField);

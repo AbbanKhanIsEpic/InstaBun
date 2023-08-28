@@ -110,6 +110,7 @@ function displayScreen(display) {
     "d-flex justify-content-center align-items-center gap-2 flex-column pt-2";
 
   spanTag.addEventListener("click", function () {
+    inputTags.value = inputTags.value.trim();
     if (showDivTags.children.length < 3) {
       if (inputTags.value.length < 3) {
         alert("The tag is too short");
@@ -118,13 +119,15 @@ function displayScreen(display) {
         console.log(text.charAt(79));
       } else if (inputTags.value.length > 100) {
         alert("The tag is too long");
+      } else if (/\s/.test(inputTags.value)) {
+        alert("Tags can not have space/s");
       } else {
         //Create an <input> element to show the tag
         const uneditableTagShowcase = document.createElement("input");
         uneditableTagShowcase.className = "form-control text-dark";
         uneditableTagShowcase.readOnly = "true";
         uneditableTagShowcase.value = inputTags.value;
-        uploadTags[showDivTags.children.length] = inputTags.value;
+        uploadTags[showDivTags.children.length] = `"${inputTags.value}"`;
         console.log(uploadTags);
         showDivTags.appendChild(uneditableTagShowcase);
       }

@@ -274,6 +274,22 @@ app.get("/api/post/total", (req, res) => {
     });
 });
 
+app.get("/api/post/followings", (req, res) => {
+  const { userID } = req.query;
+
+  let post = new PostManager();
+
+  post
+    .getFollowingPost(userID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
 app.post("/api/post/createPost", (req, res) => {
   const userID = req.body.userID;
   const postLink = req.body.postLink;
@@ -330,6 +346,22 @@ app.get("/api/story/total", (req, res) => {
 
   story
     .total(userID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/story/following", (req, res) => {
+  const { userID } = req.query;
+
+  let story = new StoryManager();
+
+  story
+    .getStories(userID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

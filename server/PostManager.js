@@ -1,5 +1,7 @@
 const { select } = require("./DB");
 const { update } = require("./DB");
+const FollowManager = require("./FollowManager");
+
 class PostManager {
   //This is used for the naming convension for uploading files to firebase
   async total(userID) {
@@ -18,14 +20,13 @@ class PostManager {
       //Check if that tag exits
       //If not: create it
       if (!doesTagExist) {
-        tag = `"${tag}"`;
         this.#createTag(tag);
       }
     });
     await Promise.all(tagPromises);
 
     //Create the post
-    const query = `INSERT INTO abbankDB.Post (UserID, PostLink,Title,LikeCount,ShareCount) VALUES ("${userID}", "${postLink}", "${title}","0","0");`;
+    const query = `INSERT INTO abbankDB.Post (UserID, PostLink,Title) VALUES ("${userID}", "${postLink}", "${title}");`;
     update(query);
     //Since this is the latest post, we can get its ID
     const postID = await this.#getCurrentPostID(userID);
@@ -42,15 +43,8 @@ class PostManager {
 
   //This is a private method because only need to run this when a post is being uploaded
   #createTag(tag) {
-    const query = `INSERT INTO abbankDB.Tag (TagName) VALUES ("${tag}");`;
+    const query = `INSERT INTO abbankDB.Tag (TagName) VALUES (${tag});`;
     update(query);
-  }
-
-  async getTagID(tag) {
-    var result = await select(
-      `SELECT idTag FROM abbankDB.Tag where TagName = "${tag}";`
-    );
-    return result;
   }
 
   async #getPostIDs(tagID) {
@@ -60,18 +54,6 @@ class PostManager {
     return result;
   }
 
-  async getUserID(postID) {
-    var result = await select(
-      `SELECT UserID FROM abbankDB.Post where idPost = "${postID}";`
-    );
-    return result;
-  }
-  async getDetails(postID) {
-    var result = await select(
-      `SELECT PostLink,Title,LikeCount,ShareCount FROM abbankDB.Post where idPost = "${postID}";`
-    );
-    return result;
-  }
   async #getCurrentPostID(userID) {
     var result = await select(
       `SELECT idPost FROM abbankDB.Post where UserID = "${userID}" Order by idPost DESC Limit 1;`
@@ -142,7 +124,8 @@ class PostManager {
       Users ON Users.UserID = Post.UserID
   WHERE
       Post.idPost IN (${postIDsArray})
-  HAVING Status >= Users.Visibility;`
+  HAVING Status >= Users.Visibility
+  ORDER BY Post.idPost DESC;`
     );
 
     const postIDAndUserIDArray = filteringPost.map((element) => {
@@ -239,9 +222,30 @@ class PostManager {
     const query = `Insert into PostLike(postID,userID) Values("${postID}","${userID}");`;
     update(query);
   }
+
   unlike(postID, userID) {
     const query = `Delete from PostLike where postID = "${postID}" AND userID = "${userID}"`;
     update(query);
+  }
+
+  async getFollowingPost(userID) {
+    const follow = new FollowManager();
+    const result = await follow.getFollowings(userID);
+    const followingArray = result.map((followingID) => {
+      return `"${followingID["FollowingID"]}"`;
+    });
+
+    const followingsPostID = await select(
+      `SELECT idPost FROM abbankDB.Post WHERE UserID in (${followingArray});`
+    );
+    const followingsPostIDArray = followingsPostID.map((postID) => {
+      return `"${postID["idPost"]}"`;
+    });
+    const filteredPost = await this.#getPostDetails(
+      userID,
+      followingsPostIDArray
+    );
+    return filteredPost;
   }
 }
 
