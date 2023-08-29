@@ -319,6 +319,34 @@ app.get("/api/post/search", (req, res) => {
     });
 });
 
+app.get("/api/post/comment", (req, res) => {
+  const {postID } = req.query;
+
+  let post = new PostManager();
+
+  post
+    .getPostViaTags(userID, tagsArray)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+
+app.post("/api/post/comment", (req, res) => {
+  const postID = req.body.postID;
+  const userID = req.body.userID;
+  const comment = req.body.comment;
+
+  const post = new PostManager();
+  post.comment(postID,userID,comment);
+
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.post("/api/post/like", (req, res) => {
   const postID = req.body.postID;
   const userID = req.body.userID;

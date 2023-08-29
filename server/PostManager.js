@@ -247,6 +247,12 @@ class PostManager {
     );
     return filteredPost;
   }
+
+  comment(postID, userID,comment) {
+    const query = `INSERT INTO abbankDB.PostComment (PostID, Commenter, Comment) VALUES ("${postID}", "${userID}", "${comment}");`;
+    update(query);
+  }
+ 
 }
 
 module.exports = PostManager;

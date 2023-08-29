@@ -344,6 +344,30 @@ function appendPost(
     commentContainer.appendChild(whoComment);
     commentContainer.appendChild(commentText);
     modalBody.appendChild(commentContainer);
+
+    var dataObject = { postID: postID, userID: userID, comment: inputField.value };
+
+    // Convert the JavaScript object to a JSON string
+    var jsonObject = JSON.stringify(dataObject);
+  
+    console.log(jsonObject);
+  
+    fetch("http://127.0.0.1:5000/api/post/comment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: jsonObject,
+    })
+      .then((response) => response.text())
+      .then((responseData) => {
+        console.log("Response:", responseData);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
+
   });
 
   inputGroup.appendChild(inputField);
