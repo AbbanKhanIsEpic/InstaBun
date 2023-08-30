@@ -1,3 +1,5 @@
+//This gets all the user related data of the user
+//Also set the nav bar
 const navHome = document.querySelector("#navHome");
 const navExplore = document.querySelector("#navExplore");
 const navCreate = document.querySelector("#navCreate");
@@ -6,6 +8,8 @@ const navProfile = document.querySelector("#navProfile");
 const navProfileIcon = document.querySelector("#navProfileIcon");
 
 let currentUserProfileLink = "";
+let currentUserUsername = "";
+let currentUserDisplayName = "";
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
@@ -18,13 +22,14 @@ function getCookie(name) {
   return null;
 }
 
-const userID = getCookie("userID");
+const currentUserUserID = getCookie("userID");
 
-fetch(`http://127.0.0.1:5000/api/user/profile?userID=${userID}`)
+fetch(`http://127.0.0.1:5000/api/user/profile?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    console.log(data);
     currentUserProfileLink = data[0]["ProfileIconLink"];
+    currentUserDisplayName = data[0]["DisplayName"];
+    currentUserUsername = data[0]["Username"];
     navProfileIcon.src = currentUserProfileLink;
   })
   .catch((error) => {

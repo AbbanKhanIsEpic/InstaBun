@@ -47,7 +47,7 @@ function searchPost(search) {
   tagsWithQuotes = tagsWithQuotes.trim().replace(/ /g, ",");
   console.log(tagsWithQuotes);
   const server = "http://127.0.0.1:5000/api/post/search";
-  const query = `?userID=${userID}&tags=${tagsWithQuotes}`;
+  const query = `?userID=${currentUserUserID}&tags=${tagsWithQuotes}`;
 
   fetch(server + query)
     .then((response) => response.json())
@@ -182,7 +182,7 @@ function appendPost(
   heartSpan.addEventListener("click", function () {
     var dataObject = {
       postID: postID,
-      userID: userID,
+      userID: currentUserUserID,
     };
     // Convert the JavaScript object to a JSON string
     var jsonObject = JSON.stringify(dataObject);
@@ -261,26 +261,25 @@ function appendPost(
   commentSvg.appendChild(commentPath);
   commentSpan.appendChild(commentSvg);
 
-  commentSpan.addEventListener("click",function(){
+  commentSpan.addEventListener("click", function () {
     const server = "http://127.0.0.1:5000/api/post/comment";
     const query = `?postID=${postID}`;
-  
+
     fetch(server + query)
       .then((response) => response.json())
       .then((data) => {
-          data.map((comment)=>{
-            const text = comment["Comment"];
-            const profileIcon = comment["ProfileIconLink"];
-            const username = comment["Username"]
-            addComment(userID,username,profileIcon,text);
-          })
-          
+        data.map((comment) => {
+          const text = comment["Comment"];
+          const profileIcon = comment["ProfileIconLink"];
+          const username = comment["Username"];
+          addComment(currentUserUserID, username, profileIcon, text);
+        });
       })
       .catch((error) => {
         // Handle any errors that occurred during the request
         console.error(error);
       });
-  })
+  });
 
   const commentCountSpan = document.createElement("span");
   commentCountSpan.textContent = commentCount;
@@ -333,16 +332,24 @@ function appendPost(
   sendSpan.textContent = "Send";
 
   sendSpan.addEventListener("click", function () {
+    addComment(
+      currentUserUserID,
+      "Username",
+      currentUserProfileLink,
+      inputField.value
+    );
 
-    addComment(userID,"Username",currentUserProfileLink,inputField.value);
-
-    var dataObject = { postID: postID, userID: userID, comment: inputField.value };
+    var dataObject = {
+      postID: postID,
+      userID: currentUserUserID,
+      comment: inputField.value,
+    };
 
     // Convert the JavaScript object to a JSON string
     var jsonObject = JSON.stringify(dataObject);
-  
+
     console.log(jsonObject);
-  
+
     fetch("http://127.0.0.1:5000/api/post/comment", {
       method: "POST",
       headers: {
@@ -357,11 +364,9 @@ function appendPost(
       .catch((error) => {
         console.error("Error:", error);
       });
-
-
   });
 
-  function addComment(userID,username,currentUserProfileLink,text){
+  function addComment(userID, username, currentUserProfileLink, text) {
     const commentContainer = document.createElement("div");
 
     const commentText = document.createElement("div");
@@ -462,7 +467,7 @@ function appendPost(
 
 function searchUsers(search) {
   const server = "http://127.0.0.1:5000/api/user/search";
-  const query = `?userID=${userID}&searchUser=${search}`;
+  const query = `?userID=${currentUserUserID}&searchUser=${search}`;
 
   fetch(server + query)
     .then((response) => response.json())
