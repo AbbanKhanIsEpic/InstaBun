@@ -261,6 +261,27 @@ function appendPost(
   commentSvg.appendChild(commentPath);
   commentSpan.appendChild(commentSvg);
 
+  commentSpan.addEventListener("click",function(){
+    const server = "http://127.0.0.1:5000/api/post/comment";
+    const query = `?postID=${postID}`;
+  
+    fetch(server + query)
+      .then((response) => response.json())
+      .then((data) => {
+          data.map((comment)=>{
+            const text = comment["Comment"];
+            const profileIcon = comment["ProfileIconLink"];
+            const username = comment["Username"]
+            addComment(userID,username,profileIcon,text);
+          })
+          
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
+      });
+  })
+
   const commentCountSpan = document.createElement("span");
   commentCountSpan.textContent = commentCount;
   commentCountSpan.className = "text-center";
@@ -312,38 +333,8 @@ function appendPost(
   sendSpan.textContent = "Send";
 
   sendSpan.addEventListener("click", function () {
-    const commentContainer = document.createElement("div");
 
-    const commentText = document.createElement("div");
-    commentText.innerText = inputField.value;
-    commentText.className = "mb-4 text-break";
-
-    const whoComment = document.createElement("div");
-    whoComment.style.width = "400px";
-    whoComment.style.height = "70px";
-    whoComment.className = "mb-4";
-    whoComment.role = "button";
-
-    // Create an img element
-    const commentProfileIcon = document.createElement("img");
-    commentProfileIcon.alt = `${userID}'s profile picture`;
-    commentProfileIcon.draggable = false;
-    commentProfileIcon.src = currentUserProfileLink;
-    commentProfileIcon.setAttribute("width", "60px");
-    commentProfileIcon.setAttribute("height", "60px");
-    commentProfileIcon.className = "rounded-circle";
-
-    // Create the first span element
-    const spanElement1 = document.createElement("span");
-    spanElement1.className = "ms-2 display-6";
-    spanElement1.textContent = "Username";
-
-    // Append all elements to the div
-    whoComment.appendChild(commentProfileIcon);
-    whoComment.appendChild(spanElement1);
-    commentContainer.appendChild(whoComment);
-    commentContainer.appendChild(commentText);
-    modalBody.appendChild(commentContainer);
+    addComment(userID,"Username",currentUserProfileLink,inputField.value);
 
     var dataObject = { postID: postID, userID: userID, comment: inputField.value };
 
@@ -369,6 +360,41 @@ function appendPost(
 
 
   });
+
+  function addComment(userID,username,currentUserProfileLink,text){
+    const commentContainer = document.createElement("div");
+
+    const commentText = document.createElement("div");
+    commentText.innerText = text;
+    commentText.className = "mb-4 text-break";
+
+    const whoComment = document.createElement("div");
+    whoComment.style.width = "400px";
+    whoComment.style.height = "70px";
+    whoComment.className = "mb-4";
+    whoComment.role = "button";
+
+    // Create an img element
+    const commentProfileIcon = document.createElement("img");
+    commentProfileIcon.alt = `${userID}'s profile picture`;
+    commentProfileIcon.draggable = false;
+    commentProfileIcon.src = currentUserProfileLink;
+    commentProfileIcon.setAttribute("width", "60px");
+    commentProfileIcon.setAttribute("height", "60px");
+    commentProfileIcon.className = "rounded-circle";
+
+    // Create the first span element
+    const spanElement1 = document.createElement("span");
+    spanElement1.className = "ms-2 display-6";
+    spanElement1.textContent = username;
+
+    // Append all elements to the div
+    whoComment.appendChild(commentProfileIcon);
+    whoComment.appendChild(spanElement1);
+    commentContainer.appendChild(whoComment);
+    commentContainer.appendChild(commentText);
+    modalBody.appendChild(commentContainer);
+  }
 
   inputGroup.appendChild(inputField);
   inputGroup.appendChild(sendSpan);

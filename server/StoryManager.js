@@ -4,7 +4,7 @@ const FollowManager = require("./FollowManager");
 
 class StoryManager {
   upload(userID, StoryLink, Title) {
-    const query = `INSERT INTO abbankDB.Story (UserID, StoryLink,Title) VALUES ("${userID}", "${StoryLink}", "${Title}");`;
+    const query = `INSERT INTO abbankDB.Story (UserID, StoryLink,Title,uploadDateTime) VALUES ("${userID}", "${StoryLink}", "${Title}",now());`;
     update(query);
   }
 
@@ -24,6 +24,7 @@ class StoryManager {
 
     const followingsStories = await select(
       `SELECT 
+      timestampdiff(HOUR,Story.uploadDateTime,now()) as hoursOlD,
       Story.UserID,
       Story.idStory,
       Story.StoryLink,
@@ -35,7 +36,8 @@ class StoryManager {
           INNER JOIN
       Users ON Users.UserID = Story.UserID
   WHERE
-      Story.UserID in (${followingArray});`
+      Story.UserID in (${followingArray})
+ Having hoursOlD <= 24;`
     );
 
     return followingsStories;

@@ -252,6 +252,21 @@ class PostManager {
     const query = `INSERT INTO abbankDB.PostComment (PostID, Commenter, Comment) VALUES ("${postID}", "${userID}", "${comment}");`;
     update(query);
   }
+
+  async getComments(postID){
+    const comment = await select(`SELECT 
+    PostComment.Comment,
+    Users.Username,
+    Users.DisplayName,
+    Users.ProfileIconLink
+FROM
+    abbankDB.PostComment
+        INNER JOIN
+    Users ON Users.UserID = PostComment.Commenter
+Where PostID = ${postID};`)
+
+return comment;
+  }
  
 }
 

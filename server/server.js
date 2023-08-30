@@ -319,13 +319,13 @@ app.get("/api/post/search", (req, res) => {
     });
 });
 
+
 app.get("/api/post/comment", (req, res) => {
   const {postID } = req.query;
 
   let post = new PostManager();
 
-  post
-    .getPostViaTags(userID, tagsArray)
+  post.getComments(postID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
