@@ -306,6 +306,22 @@ app.get("/api/post/followings", (req, res) => {
     });
 });
 
+app.get("/api/post/profile", (req, res) => {
+  const { userID, profileUserID } = req.query;
+
+  let post = new PostManager();
+
+  post
+    .getProfilePost(userID, profileUserID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
 app.post("/api/post/createPost", (req, res) => {
   const userID = req.body.userID;
   const postLink = req.body.postLink;
@@ -342,6 +358,40 @@ app.get("/api/post/comment", (req, res) => {
 
   post
     .getComments(postID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/post/placeholder", (req, res) => {
+  const { userID } = req.query;
+
+  let post = new PostManager();
+
+  post
+    .getPostBasedLike(userID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/post/select", (req, res) => {
+  const { userID, postID } = req.query;
+
+  let post = new PostManager();
+
+  console.log(postID);
+
+  post
+    .getSingularPost(userID, postID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

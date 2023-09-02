@@ -166,59 +166,8 @@
         <div class="border border-2 border-white w-75 h-25 align-self-center mb-4" id="bio">
             This is a bio
         </div>
-        <div class="d-flex justify-content-center align-items-center">
-            <div class="d-flex flex-column">
-                <img alt="killerbunny1619's profile picture" draggable="false" class="mt-4 post"
-                    src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/profileIcon%2F13%3Anull?alt=media&token=326259c6-b61a-4cca-b993-97b83d60d2c5" />
-                <span class="ms-2"></span>
-            </div>
-            <div label="videoInterative" class="d-flex flex-column px-4 ms-2">
-                <span role="button" aria-label="like post">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="red" class="bi bi-heart-fill"
-                        viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
-                    </svg>
-                </span>
-                <span>40M</span>
-                <span data-bs-toggle="modal" data-bs-target="#commentModal" role="button" class="mt-3"
-                    aria-label="comment post">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white"
-                        class="bi bi-chat-right-dots-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353V2zM5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 1a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
-                    </svg>
-                </span>
-                <span>1M</span>
-                <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5 text-black" id="exampleModalLabel">
-                                    King Khan's post
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-black">commens</div>
-                            <div class="modal-footer">
-                                <div class="input-group">
-                                    <input type="text" class="form-control">
-                                    <span class="input-group-text" role="button">Send</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <span role="button" aria-label="share post">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" class="bi bi-share-fill"
-                        viewBox="0 0 16 16">
-                        <path
-                            d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z" />
-                    </svg>
-                </span>
-                <span>500k</span>
-            </div>
+        <div class="d-flex justify-content-center align-items-center flex-column gap-3 " id="showcase">
+
         </div>
     </main>
     <footer class="d-flex justify-content-center align-items-center gap-5">
@@ -271,7 +220,7 @@
     </footer>
 </body>
 <script src="/app/js/isUserLogin.js"></script>
-<script src="/app/js/nav.js"></script>
-<script src="/app/js/profile.js" type="module"></script>
+<script src="/app/js/init.js"></script>
+<script src="/app/js/profileScreen.js" type="module"></script>
 
 </html>

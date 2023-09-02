@@ -1,96 +1,4 @@
-const searchForUsers = document.querySelector("#searchForUsers");
-const searchForPosts = document.querySelector("#searchForPosts");
-const display = document.querySelector("#display");
-const search = document.querySelector("#search");
-const searchInput = document.querySelector("#SearchInput");
-const showcase = document.querySelector("#showcase");
-
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-
-const postID = urlParams.get("postID");
-
-searchForUsers.addEventListener("click", function () {
-  display.textContent = "Users";
-  clear();
-});
-
-searchForPosts.addEventListener("click", function () {
-  display.textContent = "Posts";
-  clear();
-});
-
-function clear() {
-  while (showcase.firstChild) {
-    showcase.removeChild(showcase.firstChild);
-  }
-}
-
-search.addEventListener("click", function () {
-  const search = searchInput.value;
-  if (display.textContent == "Users") {
-    searchUsers(search);
-  } else {
-    searchPost(search);
-  }
-});
-
-function searchPost(search) {
-  clear();
-  const tagsArray = search.trim().split(" ");
-  let tagsWithQuotes = "";
-  tagsArray.map((tag) => {
-    console.log(tag);
-    tagsWithQuotes += `"${tag}" `;
-  });
-  console.log(tagsWithQuotes);
-  tagsWithQuotes = tagsWithQuotes.trim().replace(/ /g, ",");
-  console.log(tagsWithQuotes);
-  const server = "http://127.0.0.1:5000/api/post/search";
-  const query = `?userID=${currentUserUserID}&tags=${tagsWithQuotes}`;
-
-  fetch(server + query)
-    .then((response) => response.json())
-    .then((data) => {
-      if (!data) {
-        alert("Can not find post");
-      }
-      data.map((post) => {
-        console.log(data);
-        const postID = post["postID"];
-
-        const uploadDetail = post["uploadDetail"][0];
-        const PostLink = uploadDetail["PostLink"];
-        const Title = uploadDetail["Title"];
-        const commentCount = uploadDetail["commentCount"];
-        const didUserLike = uploadDetail["didUserLike"];
-        const likeCount = uploadDetail["likeCount"];
-        const shareCount = uploadDetail["shareCount"];
-
-        const uploaderDetail = post["uploaderDetail"][0];
-        const Username = uploaderDetail["Username"];
-        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
-
-        appendPost(
-          postID,
-          PostLink,
-          Title,
-          commentCount,
-          didUserLike,
-          likeCount,
-          shareCount,
-          Username,
-          ProfileIconLink
-        );
-      });
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
-}
-
-function appendPost(
+export function appendPost(
   postID,
   postLink,
   title,
@@ -261,6 +169,10 @@ function appendPost(
   commentSvg.appendChild(commentPath);
   commentSpan.appendChild(commentSvg);
 
+  const commentCountSpan = document.createElement("span");
+  commentCountSpan.textContent = commentCount;
+  commentCountSpan.className = "text-center";
+
   commentSpan.addEventListener("click", function () {
     const server = "http://127.0.0.1:5000/api/post/comment";
     const query = `?postID=${postID}`;
@@ -280,10 +192,6 @@ function appendPost(
         console.error(error);
       });
   });
-
-  const commentCountSpan = document.createElement("span");
-  commentCountSpan.textContent = commentCount;
-  commentCountSpan.className = "text-center";
 
   const modalDiv = document.createElement("div");
   modalDiv.className = "modal fade";
@@ -332,13 +240,6 @@ function appendPost(
   sendSpan.textContent = "Send";
 
   sendSpan.addEventListener("click", function () {
-    addComment(
-      currentUserUserID,
-      "Username",
-      currentUserProfileLink,
-      inputField.value
-    );
-
     var dataObject = {
       postID: postID,
       userID: currentUserUserID,
@@ -359,7 +260,14 @@ function appendPost(
     })
       .then((response) => response.text())
       .then((responseData) => {
-        console.log("Response:", responseData);
+        addComment(
+          currentUserUserID,
+          currentUserUsername,
+          currentUserProfileLink,
+          inputField.value
+        );
+        commentCount++;
+        commentCountSpan.textContent = commentCount;
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -401,6 +309,12 @@ function appendPost(
     modalBody.appendChild(commentContainer);
   }
 
+  modalDiv.addEventListener("hidden.bs.modal", function () {
+    while (modalBody.childNodes[0]) {
+      modalBody.removeChild(modalBody.childNodes[0]);
+    }
+  });
+
   inputGroup.appendChild(inputField);
   inputGroup.appendChild(sendSpan);
   modalFooter.appendChild(inputGroup);
@@ -440,6 +354,7 @@ function appendPost(
       );
       alert("Copied the link to the post");
     } catch (error) {
+      alert("Failed to copy link");
       console.error("Failed to copy: ", error);
     }
   });
@@ -463,62 +378,4 @@ function appendPost(
   // Append the main container to the showcase
   const showcase = document.querySelector("#showcase");
   showcase.appendChild(mainContainer);
-}
-
-function searchUsers(search) {
-  const server = "http://127.0.0.1:5000/api/user/search";
-  const query = `?userID=${currentUserUserID}&searchUser=${search}`;
-
-  fetch(server + query)
-    .then((response) => response.json())
-    .then((data) => {
-      data.forEach(function (element) {
-        // Create a div element
-        const divElement = document.createElement("div");
-        divElement.style.width = "400px";
-        divElement.style.height = "70px";
-        divElement.className = "mb-4";
-        divElement.role = "button";
-
-        // Create an img element
-        const imgElement = document.createElement("img");
-        imgElement.alt = `${element.Username}'s profile picture`;
-        imgElement.draggable = false;
-        imgElement.src = element.ProfileIconLink;
-        imgElement.setAttribute("width", "60px");
-        imgElement.setAttribute("height", "60px");
-        imgElement.className = "rounded-circle";
-
-        // Create the first span element
-        const spanElement1 = document.createElement("span");
-        spanElement1.className = "ms-2 display-6";
-        spanElement1.textContent = element.Username;
-
-        // Create the second span element
-        const spanElement2 = document.createElement("span");
-        spanElement2.textContent = element.DisplayName;
-        spanElement2.className = "ms-2";
-
-        // Append all elements to the div
-        divElement.appendChild(imgElement);
-        divElement.appendChild(spanElement1);
-        divElement.appendChild(spanElement2);
-
-        // Append the div to the main's first child
-        showcase.appendChild(divElement);
-
-        //Add event listener to send user to the profile screen of the clicked user
-        divElement.addEventListener("click", function (event) {
-          const selectedUser = event.currentTarget.childNodes[1].textContent;
-          window.open(
-            `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
-            "_blank"
-          );
-        });
-      });
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
 }

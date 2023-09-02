@@ -103,6 +103,62 @@ class PostManager {
     return false;
   }
 
+  async getPostBasedLike(userID) {
+    const tagIDsJson = await select(`SELECT 
+    PostTags.tagID, COUNT(PostTags.tagID) AS total
+FROM
+    PostLike
+        INNER JOIN
+    PostTags ON PostTags.postID = PostLike.postID
+        INNER JOIN
+    Tag ON PostTags.tagID = Tag.idTag
+WHERE
+    PostLike.userID = ${userID}
+GROUP BY PostTags.tagID
+ORDER BY total DESC
+LIMIT 10;`);
+
+    const tagIDsArray = tagIDsJson.map((element) => element.tagID);
+
+    const postIDsJson = await this.#getPostIDs(tagIDsArray);
+
+    const postIDsArray = postIDsJson.map((element) => element.postID);
+
+    const filteredPost = await this.#filterPostForAll(postIDsArray);
+
+    const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
+
+    return postDetailsArray;
+  }
+
+  async #filterPostForAll(postIDsArray) {
+    var filteringPost = await select(
+      `SELECT 
+      Post.idPost,
+      Users.UserID,
+      Users.Visibility
+  FROM
+      abbankDB.Post
+          INNER JOIN
+      Users ON Users.UserID = Post.UserID
+  WHERE
+      Post.idPost IN (${postIDsArray}) AND Users.Visibility = 0
+  ORDER BY Post.idPost DESC;`
+    );
+
+    const postIDAndUserIDArray = filteringPost.map((element) => {
+      const postID = element.idPost;
+      const userID = element.UserID;
+      const postIDAndUserID = {
+        postID: postID,
+        userID: userID,
+      };
+      return postIDAndUserID;
+    });
+
+    return postIDAndUserIDArray;
+  }
+
   async #filterPost(userID, postIDsArray) {
     var filteringPost = await select(
       `SELECT 
@@ -141,9 +197,15 @@ class PostManager {
     return postIDAndUserIDArray;
   }
 
-  async #getPostDetails(userID, postIDsArray) {
-    const filteredPost = await this.#filterPost(userID, postIDsArray);
+  async getSingularPost(userID, postID) {
+    const filteredPost = await this.#filterPost(postID);
 
+    const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
+
+    return postDetailsArray;
+  }
+
+  async #getPostDetails(userID, filteredPost) {
     const postDetailsArray = [];
 
     const extractDetailsPromise = filteredPost.map(async (element) => {
@@ -248,12 +310,26 @@ class PostManager {
     return filteredPost;
   }
 
-  comment(postID, userID,comment) {
+  async getProfilePost(viewerID, profileUserID) {
+    const postIDsJson = await select(
+      `SELECT Post.idPost FROM abbankDB.Users INNER JOIN Post ON Post.UserID = Users.UserID WHERE Users.UserID = ${profileUserID};`
+    );
+
+    const postIDsArray = postIDsJson.map((element) => element["idPost"]);
+
+    const filteredPost = await this.#filterPost(postIDsArray);
+
+    const postDetailsArray = await this.#getPostDetails(viewerID, filteredPost);
+
+    return postDetailsArray;
+  }
+
+  comment(postID, userID, comment) {
     const query = `INSERT INTO abbankDB.PostComment (PostID, Commenter, Comment) VALUES ("${postID}", "${userID}", "${comment}");`;
     update(query);
   }
 
-  async getComments(postID){
+  async getComments(postID) {
     const comment = await select(`SELECT 
     PostComment.Comment,
     Users.Username,
@@ -263,11 +339,10 @@ FROM
     abbankDB.PostComment
         INNER JOIN
     Users ON Users.UserID = PostComment.Commenter
-Where PostID = ${postID};`)
+Where PostID = ${postID};`);
 
-return comment;
+    return comment;
   }
- 
 }
 
 module.exports = PostManager;
