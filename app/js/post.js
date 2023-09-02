@@ -354,7 +354,7 @@ export function appendPost(
       );
       alert("Copied the link to the post");
     } catch (error) {
-      alert("Failed to copy link");
+      alert("Failed to copy");
       console.error("Failed to copy: ", error);
     }
   });

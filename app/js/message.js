@@ -1,3 +1,5 @@
+import { textAndEmojiToText } from "./emoji.js";
+
 const messageOutput = document.querySelector("#messageOutput");
 const sendMessage = document.querySelector("#sendMessage");
 const inputText = document.querySelector("#inputMessage");
@@ -102,21 +104,28 @@ sendMessage.addEventListener("click", function () {
     // Create the content div
     const contentDiv = document.createElement("div");
     contentDiv.className = "text-break";
-    contentDiv.textContent = inputText.value;
+    const message = textAndEmojiToText();
+    if (message.length > 1100) {
+      alert("Over the limit: 1100");
+    } else {
+      for (let i = 0; i <= inputText.childElementCount; i++) {
+        let nextCloneNode = inputText.childNodes[i];
+        contentDiv.append(nextCloneNode.cloneNode(true));
+      }
+      // Append the span elements and content div to the inner div
+      innerDiv.appendChild(spanElement);
+      innerDiv.appendChild(leadDiv);
+      innerDiv.appendChild(contentDiv);
 
-    // Append the span elements and content div to the inner div
-    innerDiv.appendChild(spanElement);
-    innerDiv.appendChild(leadDiv);
-    innerDiv.appendChild(contentDiv);
+      // Append the inner div to the main div
+      mainDiv.appendChild(innerDiv);
 
-    // Append the inner div to the main div
-    mainDiv.appendChild(innerDiv);
+      // Append the main div to the message output
+      messageOutput.appendChild(mainDiv);
 
-    // Append the main div to the message output
-    messageOutput.appendChild(mainDiv);
-
-    deleteButton.addEventListener("click", function () {
-      messageOutput.removeChild(mainDiv);
-    });
+      deleteButton.addEventListener("click", function () {
+        messageOutput.removeChild(mainDiv);
+      });
+    }
   }
 });

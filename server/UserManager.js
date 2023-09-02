@@ -44,7 +44,7 @@ class UserManager {
 
   async getListOfUsernames(userID, searchingUsername) {
     var result = await select(
-      `SELECT Username,DisplayName,ProfileIconLink  FROM abbankDB.Users where Username Like "${
+      `SELECT Username,DisplayName,ProfileIconLink FROM abbankDB.Users where Username Like "${
         "%" + searchingUsername + "%"
       }" AND UserID !=  "${userID}";`
     );

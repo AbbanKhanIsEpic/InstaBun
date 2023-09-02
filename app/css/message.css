@@ -19,7 +19,7 @@ section {
 }
 #inputMessage {
   width: 700px;
-  height: 40px;
+  min-height: 40px;
 }
 .interactive {
   width: 100px;

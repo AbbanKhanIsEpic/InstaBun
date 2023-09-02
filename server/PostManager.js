@@ -96,7 +96,9 @@ class PostManager {
 
       const postIDsArray = postIDsJson.map((element) => element.postID);
 
-      const postDetailsArray = await this.#getPostDetails(userID, postIDsArray);
+      const filteredPost = await this.#filterPostForAll(postIDsArray);
+
+      const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
 
       return postDetailsArray;
     }
@@ -132,7 +134,7 @@ LIMIT 10;`);
   }
 
   async #filterPostForAll(postIDsArray) {
-    var filteringPost = await select(
+    const filteringPost = await select(
       `SELECT 
       Post.idPost,
       Users.UserID,
@@ -147,6 +149,7 @@ LIMIT 10;`);
     );
 
     const postIDAndUserIDArray = filteringPost.map((element) => {
+      console.log(element);
       const postID = element.idPost;
       const userID = element.UserID;
       const postIDAndUserID = {
@@ -160,7 +163,7 @@ LIMIT 10;`);
   }
 
   async #filterPost(userID, postIDsArray) {
-    var filteringPost = await select(
+    const filteringPost = await select(
       `SELECT 
       Post.idPost,
       Users.UserID,
@@ -198,7 +201,7 @@ LIMIT 10;`);
   }
 
   async getSingularPost(userID, postID) {
-    const filteredPost = await this.#filterPost(postID);
+    const filteredPost = await this.#filterPost(userID, postID);
 
     const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
 
@@ -303,11 +306,10 @@ LIMIT 10;`);
     const followingsPostIDArray = followingsPostID.map((postID) => {
       return `"${postID["idPost"]}"`;
     });
-    const filteredPost = await this.#getPostDetails(
-      userID,
-      followingsPostIDArray
-    );
-    return filteredPost;
+    const filteredPost = await this.#filterPost(userID, followingsPostIDArray);
+    const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
+
+    return postDetailsArray;
   }
 
   async getProfilePost(viewerID, profileUserID) {
