@@ -105,7 +105,7 @@ function appendUsernameInput() {
   function doesUsernameExist() {
     const usernameErrorMessage = document.querySelector("#usernameError");
     const usernameInput = document.querySelector("#usernameInput");
-    const server = "http://127.0.0.1:5000/api/user/username";
+    const server = "http://127.0.0.1:5000/api/user/usernameExist";
     const query = `?username=${usernameInput.value}`;
 
     fetch(server + query)

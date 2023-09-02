@@ -59,13 +59,29 @@ app.get("/api/user/email", (req, res) => {
     });
 });
 
-app.get("/api/user/username", (req, res) => {
+app.get("/api/user/usernameExist", (req, res) => {
   const { username } = req.query;
 
   let user = new UserManager();
 
   user
     .doesUsernameExist(username)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/user/username", (req, res) => {
+  const { userID } = req.query;
+
+  let user = new UserManager();
+
+  user
+    .getUsername(userID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -319,13 +335,13 @@ app.get("/api/post/search", (req, res) => {
     });
 });
 
-
 app.get("/api/post/comment", (req, res) => {
-  const {postID } = req.query;
+  const { postID } = req.query;
 
   let post = new PostManager();
 
-  post.getComments(postID)
+  post
+    .getComments(postID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -335,14 +351,13 @@ app.get("/api/post/comment", (req, res) => {
     });
 });
 
-
 app.post("/api/post/comment", (req, res) => {
   const postID = req.body.postID;
   const userID = req.body.userID;
   const comment = req.body.comment;
 
   const post = new PostManager();
-  post.comment(postID,userID,comment);
+  post.comment(postID, userID, comment);
 
   res.json({ message: "Data received and processed successfully" });
 });

@@ -9,7 +9,6 @@ const navProfileIcon = document.querySelector("#navProfileIcon");
 
 let currentUserProfileLink = "";
 let currentUserUsername = "";
-let currentUserDisplayName = "";
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
@@ -24,13 +23,21 @@ function getCookie(name) {
 
 const currentUserUserID = getCookie("userID");
 
-fetch(`http://127.0.0.1:5000/api/user/profile?userID=${currentUserUserID}`)
+fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
     currentUserProfileLink = data[0]["ProfileIconLink"];
-    currentUserDisplayName = data[0]["DisplayName"];
-    currentUserUsername = data[0]["Username"];
     navProfileIcon.src = currentUserProfileLink;
+  })
+  .catch((error) => {
+    // Handle any errors that occurred during the request
+    console.error(error);
+  });
+
+fetch(`http://127.0.0.1:5000/api/user/username?userID=${currentUserUserID}`)
+  .then((response) => response.json())
+  .then((data) => {
+    currentUserUsername = data[0]["Username"];
   })
   .catch((error) => {
     // Handle any errors that occurred during the request

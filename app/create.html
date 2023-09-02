@@ -15,13 +15,34 @@
 
 <body>
     <main class="container-fluid d-flex justify-content-center align-items-center flex-row">
-        <div class="d-flex flex-column ">
-            <img width="250px" height="400px" src="/app/image/default.png" id="showImage"/>
+        <div class="d-flex flex-column">
+            <img width="300px" height="400px" src="/app/image/default.png" id="showUpload"
+                alt="please select something to upload" />
             <input type="file" id="uploadImagesVideosGIFs" aria-label="user upload files"
-            class="position-absolute visually-hidden" />
-        <label for="uploadImagesVideosGIFs" class="btn btn-primary rounded text-center mt-3" role="button">Change</label>
+                class="position-absolute visually-hidden" />
+            <label for="uploadImagesVideosGIFs" class="btn btn-primary rounded text-center mt-3"
+                role="button">Change</label>
         </div>
-        <section class="d-flex justify-content-center align-content-center flex-column ms-3">
+        <section class="d-flex justify-content-center align-content-center flex-column ms-5">
+            <label for="title" class="h2 text-center mt-3">Title:</label>
+            <div class="input-group">
+                <input type="text" id="title" class="form-control" />
+            </div>
+            <div class="btn-group dropend mt-3">
+                <button type="button" class="btn btn-primary" id="showSelect">Post</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Toggle Dropend</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" id="selectPost">Post</a></li>
+                    <li><a class="dropdown-item" id="selectStory">Story</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-primary mt-3" id="createButton">Create</button>
+            <button class="btn btn-primary mt-3" id="cancelButton">Cancel</button>
+        </section>
+        <section class="d-flex justify-content-center align-content-center flex-column ms-5" id="tagsSection">
             <div>
                 <label for="tags" class="h2 text-center">Enter tags</label>
                 <div class="input-group">
@@ -30,24 +51,7 @@
                 </div>
             </div>
             <div class="d-flex gap-2 flex-column pt-2" id="displayTags">
-                <input class="form-control text-dark " readonly>
-        </div>
-        </section>
-        <section class="d-flex justify-content-center align-content-center flex-column ms-3">
-            <label for="description" class="h2 text-center mt-3">Title:</label><input type="text" id="title" />
-            <div class="btn-group dropend mt-3">
-                <button type="button" class="btn btn-primary">Post</button><button type="button"
-                    class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <span class="visually-hidden">Toggle Dropend</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item">Post</a></li>
-                    <li><a class="dropdown-item">Story</a></li>
-                </ul>
             </div>
-            <button class="btn btn-primary mt-3">Cancel</button>
-            <button class="btn btn-primary mt-3">Create</button>
         </section>
     </main>
     <footer class="d-flex justify-content-center align-items-center gap-5">
@@ -92,7 +96,7 @@
     </footer>
 </body>
 <script src="/app/js/isUserLogin.js"></script>
-<script src="/app/js/nav.js"></script>
-<script src="/app/js/createScreen.js" type="module"></script>
+<script src="/app/js/init.js"></script>
+<script type="module" src="/app/js/createScreen.js"></script>
 
 </html>

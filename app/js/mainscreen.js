@@ -1,10 +1,11 @@
-fetch(`http://127.0.0.1:5000/api/post/followings?userID=${userID}`)
+fetch(`http://127.0.0.1:5000/api/post/followings?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
     if (!data) {
       alert("Can not find post");
     }
     data.map((post) => {
+      console.log(data);
       const postID = post["postID"];
 
       const uploadDetail = post["uploadDetail"][0];
@@ -37,7 +38,7 @@ fetch(`http://127.0.0.1:5000/api/post/followings?userID=${userID}`)
     console.error(error);
   });
 
-fetch(`http://127.0.0.1:5000/api/story/following?userID=${userID}`)
+fetch(`http://127.0.0.1:5000/api/story/following?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
     if (!data) {
