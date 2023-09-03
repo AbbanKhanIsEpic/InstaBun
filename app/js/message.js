@@ -1,131 +1,292 @@
-import { textAndEmojiToText } from "./emoji.js";
+import { textToTextAndEmoji } from "./emoji.js";
 
 const messageOutput = document.querySelector("#messageOutput");
-const sendMessage = document.querySelector("#sendMessage");
-const inputText = document.querySelector("#inputMessage");
-const selectGroups = document.querySelector("#selectGroups");
-const selectDirect = document.querySelector("#selectDirect");
-const userSelection = document.querySelector("#userSelection");
 
-selectDirect.addEventListener("click", function () {
-  userSelection.textContent = "Direct";
-});
+let directMessageWorker;
 
-selectGroups.addEventListener("click", function () {
-  userSelection.textContent = "Groups";
-});
+let currentUserDisplayName;
 
-let prevSelectFriend = null;
+fetch(`http://127.0.0.1:5000/api/user/displayName?userID=${currentUserUserID}`)
+  .then((response) => response.json())
+  .then((data) => {
+    currentUserDisplayName = data[0]["DisplayName"];
+  })
+  .catch((error) => {
+    // Handle any errors that occurred during the request
+    console.error(error);
+  });
 
-var elements = document.getElementsByClassName("ps-4 mt-4 w-100");
-for (var i = 0, len = elements.length; i < len; i++) {
-  elements[i].id = "friend" + i;
-  elements[i].addEventListener("click", function (event) {
-    if (prevSelectFriend == null) {
-      event.currentTarget.className = "ps-4 mt-4 w-100 bg-info";
-      prevSelectFriend = event.currentTarget.id;
-    } else {
-      event.currentTarget.className = "ps-4 mt-4 w-100 bg-info";
-      let prevSelect = document.getElementById(prevSelectFriend);
-      prevSelect.className = "ps-4 mt-4 w-100";
-      prevSelectFriend = event.currentTarget.id;
-    }
+export function sendDirectMessage(recieverID, message) {
+  message = message
+    .replace(/"/g, '\\"')
+    .replace(/'/g, "\\'")
+    .replace(/\\/g, "\\\\");
+
+  console.log(message);
+  fetch(
+    `http://127.0.0.1:5000/api/direct/permission?senderID=${currentUserUserID}&receiverID=${recieverID}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      if (data) {
+        var dataObject = {
+          senderID: currentUserUserID,
+          receiverID: recieverID,
+          message: message,
+          messageType: 0,
+        };
+
+        // Convert the JavaScript object to a JSON string
+        var jsonObject = JSON.stringify(dataObject);
+
+        fetch("http://127.0.0.1:5000/api/direct/message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: jsonObject,
+        })
+          .then((response) => response.text())
+          .then((responseData) => {
+            alert("Message sent");
+          })
+          .catch((error) => {
+            alert("Unable to send message");
+          });
+      } else {
+        alert("You do not have permission to send message");
+      }
+    })
+    .catch((error) => {
+      alert("Unable to send message");
+      console.error(error);
+    });
+}
+
+export function showDirectMessage(
+  currentUserID,
+  receiverID,
+  receiverProfileIcon,
+  receiverDisplayName
+) {
+  if (typeof directMessageWorker == "undefined") {
+    directMessageWorker = new Worker("/app/js/directMessageThread.js");
+    directMessageWorker.onmessage = function (messages) {
+      messages.data.map((message) => {
+        console.log(message);
+        const messageSent = message["Message"];
+        const messageID = message["MessageID"];
+        const messageType = message["MessageType"];
+        const senderID = message["SenderID"];
+        const time = message["Time"];
+        if (messageType == 0) {
+          if (senderID == currentUserID) {
+            showSenderMessage(messageID, messageSent, time);
+          } else {
+            showReceiverMessage(
+              messageSent,
+              time,
+              receiverProfileIcon,
+              receiverDisplayName
+            );
+          }
+        }
+      });
+    };
+    const communicatorData = {
+      senderID: currentUserID,
+      receiverID: receiverID,
+    };
+    directMessageWorker.postMessage(communicatorData);
+  }
+}
+
+function showSenderMessage(messageID, messageSent, time) {
+  // Create the main div element
+  const mainDiv = document.createElement("div");
+  mainDiv.classList.add(
+    "me-4",
+    "ms-4",
+    "mt-4",
+    "d-flex",
+    "align-items-end",
+    "flex-column",
+    "bg-success",
+    "rounded"
+  );
+  mainDiv.setAttribute("aria-label", "message send");
+
+  // Create the inner div element
+  const innerDiv = document.createElement("div");
+  innerDiv.classList.add(
+    "d-flex",
+    "align-items-end",
+    "flex-column",
+    "ps-2",
+    "pe-2",
+    "pt-1",
+    "w-100"
+  );
+
+  // Create the delete button
+  const deleteButton = document.createElement("span");
+  deleteButton.classList.add("btn", "btn-primary");
+  deleteButton.textContent = "Delete";
+
+  // Create the profile picture image
+  const profileImage = document.createElement("img");
+  profileImage.alt = "killerbunny1619's profile picture";
+  profileImage.draggable = false;
+  profileImage.src = currentUserProfileLink;
+  profileImage.width = "30";
+  profileImage.height = "30";
+  profileImage.classList.add("rounded-circle");
+
+  // Append the delete button and profile image to a div element
+  const spanElement = document.createElement("div");
+  spanElement.classList.add("d-flex", "justify-content-between", "w-100");
+
+  spanElement.appendChild(deleteButton);
+  spanElement.appendChild(profileImage);
+
+  // Create the lead div
+  const leadDiv = document.createElement("div");
+  leadDiv.classList.add("lead");
+
+  // Create the username and timestamp spans within the lead div
+  const displayNameSpan = document.createElement("span");
+  displayNameSpan.textContent = currentUserDisplayName + "\t";
+
+  const timestampSpan = document.createElement("span");
+  timestampSpan.classList.add("small");
+  var inputDatetime = new Date(time);
+
+  var outputDatetimeStr =
+    inputDatetime.getFullYear() +
+    "/" +
+    ("0" + (inputDatetime.getMonth() + 1)).slice(-2) +
+    "/" +
+    ("0" + inputDatetime.getDate()).slice(-2) +
+    " " +
+    ("0" + inputDatetime.getHours()).slice(-2) +
+    ":" +
+    ("0" + inputDatetime.getMinutes()).slice(-2) +
+    ":" +
+    ("0" + inputDatetime.getSeconds()).slice(-2) +
+    " " +
+    (inputDatetime.getHours() >= 12 ? "pm" : "am");
+  timestampSpan.textContent = outputDatetimeStr;
+
+  leadDiv.appendChild(displayNameSpan);
+  leadDiv.appendChild(timestampSpan);
+
+  const message = textToTextAndEmoji(messageSent);
+
+  innerDiv.appendChild(spanElement);
+  innerDiv.appendChild(leadDiv);
+  innerDiv.appendChild(message);
+
+  mainDiv.appendChild(innerDiv);
+
+  messageOutput.appendChild(mainDiv);
+
+  deleteButton.addEventListener("click", function () {
+    deleteMessage(messageID);
+    messageOutput.removeChild(mainDiv);
   });
 }
 
-sendMessage.addEventListener("click", function () {
-  if (inputText.value == "") {
-    alert("It is better to have something to send");
-  } else {
-    // Create the main div element
-    const mainDiv = document.createElement("div");
-    mainDiv.classList.add(
-      "me-4",
-      "ms-4",
-      "mt-4",
-      "d-flex",
-      "align-items-end",
-      "flex-column",
-      "bg-success",
-      "rounded"
-    );
-    mainDiv.setAttribute("aria-label", "message send");
+function deleteMessage(messageID) {
+  var dataObject = {
+    messageID: messageID,
+  };
 
-    // Create the inner div element
-    const innerDiv = document.createElement("div");
-    innerDiv.classList.add(
-      "d-flex",
-      "align-items-end",
-      "flex-column",
-      "ps-2",
-      "pe-2",
-      "pt-1",
-      "w-100"
-    );
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
 
-    // Create the delete button
-    const deleteButton = document.createElement("span");
-    deleteButton.classList.add("btn", "btn-primary");
-    deleteButton.textContent = "Delete";
+  fetch("http://127.0.0.1:5000/api/direct/deleteMessage", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      alert("Message sent");
+    })
+    .catch((error) => {
+      alert("Unable to send message");
+    });
+}
 
-    // Create the profile picture image
-    const profileImage = document.createElement("img");
-    profileImage.alt = "killerbunny1619's profile picture";
-    profileImage.draggable = false;
-    profileImage.src =
-      "https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea";
-    profileImage.width = "30";
-    profileImage.height = "30";
-    profileImage.classList.add("rounded-circle");
+function showReceiverMessage(
+  messageSent,
+  time,
+  receiverProfileIcon,
+  receiverDisplayName
+) {
+  // Create a div element with the class "me-4 ms-4 mt-4 bg-secondary rounded"
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "me-4 ms-4 mt-4 bg-secondary rounded";
+  messageDiv.setAttribute("aria-label", "message recieve");
 
-    // Append the delete button and profile image to a div element
-    const spanElement = document.createElement("div");
-    spanElement.classList.add("d-flex", "justify-content-between", "w-100");
-    spanElement.appendChild(deleteButton);
-    spanElement.appendChild(profileImage);
+  // Create the inner elements and set their attributes and content
+  const innerDiv = document.createElement("div");
+  innerDiv.className = "ps-2 pt-2";
 
-    // Create the lead div
-    const leadDiv = document.createElement("div");
-    leadDiv.classList.add("lead");
+  const profileImage = document.createElement("img");
+  profileImage.setAttribute("alt", `${receiverDisplayName}'s profile picture`);
+  profileImage.setAttribute("draggable", "false");
+  profileImage.setAttribute("src", receiverProfileIcon);
+  profileImage.setAttribute("width", "30px");
+  profileImage.setAttribute("height", "30px");
+  profileImage.className = "rounded-circle";
 
-    // Create the username and timestamp spans within the lead div
-    const usernameSpan = document.createElement("span");
-    usernameSpan.textContent = "killerbunny1619";
+  const leadDiv = document.createElement("div");
+  leadDiv.className = "lead";
 
-    const timestampSpan = document.createElement("span");
-    timestampSpan.classList.add("small");
-    const now = moment().format("MMMM Do YYYY, h:mm:ss a");
-    timestampSpan.textContent = "  " + now;
+  const usernameSpan = document.createElement("span");
+  usernameSpan.textContent = receiverDisplayName + "\t";
 
-    // Append username and timestamp spans to the lead div
-    leadDiv.appendChild(usernameSpan);
-    leadDiv.appendChild(timestampSpan);
+  const dateSpan = document.createElement("span");
+  dateSpan.className = "small";
+  var inputDatetime = new Date(time);
 
-    // Create the content div
-    const contentDiv = document.createElement("div");
-    contentDiv.className = "text-break";
-    const message = textAndEmojiToText();
-    if (message.length > 1100) {
-      alert("Over the limit: 1100");
-    } else {
-      for (let i = 0; i <= inputText.childElementCount; i++) {
-        let nextCloneNode = inputText.childNodes[i];
-        contentDiv.append(nextCloneNode.cloneNode(true));
-      }
-      // Append the span elements and content div to the inner div
-      innerDiv.appendChild(spanElement);
-      innerDiv.appendChild(leadDiv);
-      innerDiv.appendChild(contentDiv);
+  var outputDatetimeStr =
+    inputDatetime.getFullYear() +
+    "/" +
+    ("0" + (inputDatetime.getMonth() + 1)).slice(-2) +
+    "/" +
+    ("0" + inputDatetime.getDate()).slice(-2) +
+    " " +
+    ("0" + inputDatetime.getHours()).slice(-2) +
+    ":" +
+    ("0" + inputDatetime.getMinutes()).slice(-2) +
+    ":" +
+    ("0" + inputDatetime.getSeconds()).slice(-2) +
+    " " +
+    (inputDatetime.getHours() >= 12 ? "pm" : "am");
+  dateSpan.textContent = outputDatetimeStr;
 
-      // Append the inner div to the main div
-      mainDiv.appendChild(innerDiv);
+  const message = textToTextAndEmoji(messageSent);
 
-      // Append the main div to the message output
-      messageOutput.appendChild(mainDiv);
+  // Append the inner elements to the appropriate parent elements
+  leadDiv.appendChild(usernameSpan);
+  leadDiv.appendChild(dateSpan);
 
-      deleteButton.addEventListener("click", function () {
-        messageOutput.removeChild(mainDiv);
-      });
-    }
+  innerDiv.appendChild(profileImage);
+  innerDiv.appendChild(leadDiv);
+  innerDiv.appendChild(message);
+
+  messageDiv.appendChild(innerDiv);
+
+  messageOutput.appendChild(messageDiv);
+}
+
+export function stopShowingDirectMessage() {
+  if (directMessageWorker != undefined) {
+    directMessageWorker.terminate();
   }
-});
+  directMessageWorker = undefined;
+}

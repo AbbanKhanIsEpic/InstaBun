@@ -93,22 +93,23 @@ if (sharedPost == null) {
 }
 
 searchForUsers.addEventListener("click", function () {
-  display.textContent = "Users";
   clear();
+  display.textContent = "Users";
 });
 
 searchForPosts.addEventListener("click", function () {
-  display.textContent = "Posts";
   clear();
+  display.textContent = "Posts";
 });
 
 function clear() {
-  while (showcase.firstChild) {
-    showcase.removeChild(showcase.firstChild);
+  while (showcase.childNodes[0]) {
+    showcase.removeChild(showcase.childNodes[0]);
   }
 }
 
 search.addEventListener("click", function () {
+  clear();
   const search = searchInput.value;
   if (display.textContent == "Users") {
     searchUsers(search);

@@ -249,8 +249,6 @@ export function appendPost(
     // Convert the JavaScript object to a JSON string
     var jsonObject = JSON.stringify(dataObject);
 
-    console.log(jsonObject);
-
     fetch("http://127.0.0.1:5000/api/post/comment", {
       method: "POST",
       headers: {
@@ -347,21 +345,58 @@ export function appendPost(
   shareSvg.appendChild(sharePath);
   shareSpan.appendChild(shareSvg);
 
+  const shareCountSpan = document.createElement("span");
+  shareCountSpan.className = "text-center";
+  shareCountSpan.textContent = shareCount;
+
   shareSpan.addEventListener("click", async function () {
     try {
       await navigator.clipboard.writeText(
         `http://127.0.0.1:5501/app/explore.html?postID=${postID}`
       );
       alert("Copied the link to the post");
+      const server = "http://127.0.0.1:5000/api/post/share";
+      const query = `?userID=${currentUserUserID}&postID=${postID}`;
+
+      fetch(server + query)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data[0]["count(*)"] == 0) {
+            shareCount++;
+            shareCountSpan.textContent = shareCount;
+
+            var dataObject = {
+              userID: currentUserUserID,
+              postID: postID,
+            };
+
+            var jsonObject = JSON.stringify(dataObject);
+
+            fetch("http://127.0.0.1:5000/api/post/share", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+              },
+              body: jsonObject,
+            })
+              .then((response) => response.text())
+              .then((responseData) => {
+                console.log(responseData);
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          }
+        })
+        .catch((error) => {
+          // Handle any errors that occurred during the request
+          console.error(error);
+        });
     } catch (error) {
       alert("Failed to copy");
       console.error("Failed to copy: ", error);
     }
   });
-
-  const shareCountSpan = document.createElement("span");
-  shareCountSpan.className = "text-center";
-  shareCountSpan.textContent = shareCount;
 
   // Append elements to their respective parent containers
   secondInnerDiv.appendChild(heartSpan);

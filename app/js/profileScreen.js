@@ -5,6 +5,8 @@ import {
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
 import { initFirebase } from "/app/js/firebase-setup.js";
+import { appendPost } from "./post.js";
+import { sendDirectMessage } from "./message.js";
 
 const app = initFirebase();
 const storage = getStorage(app);
@@ -13,8 +15,6 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
 const username = urlParams.get("Username");
-
-const currentUser = getCookie("userID");
 
 let profileUserID;
 let profileUsername;
@@ -34,17 +34,20 @@ const profileDisplayNameElement = document.querySelector("#profileDisplayName");
 const bioElement = document.querySelector("#bio");
 const showLimit = document.querySelector("#showLimit");
 const showVis = document.querySelector("#showVis");
+const sendMessageButton = document.querySelector("#sendMessage");
+const sendMessageInput = document.querySelector("#sendMessageInput");
 
 const rowOfInteractive = document.querySelector("#rowOfInteractive");
 
 if (username == null) {
-  profileUserID = currentUser;
+  profileUserID = currentUserUserID;
   setProfile();
   getFollowings();
   getFollowers();
   getVisibility();
   getDMLimit();
   attachSetting();
+  showPost();
 } else {
   fetch(`http://127.0.0.1:5000/api/user/userID?username=${username}`)
     .then((response) => response.json())
@@ -55,10 +58,13 @@ if (username == null) {
       getFollowers();
       getVisibility();
       getDMLimit();
-      if (currentUser == profileUserID) {
+      showPost();
+      console.log(profileUserID);
+      if (currentUserUserID == profileUserID) {
         attachSetting();
       } else {
         attachFollowAndDMButton();
+        attachBlockButton();
       }
     })
     .catch((error) => {
@@ -67,15 +73,48 @@ if (username == null) {
     });
 }
 
-function getCookie(name) {
-  const cookies = document.cookie.split("; ");
-  for (const cookie of cookies) {
-    const [cookieName, cookieValue] = cookie.split("=");
-    if (cookieName === name) {
-      return decodeURIComponent(cookieValue);
-    }
-  }
-  return null;
+function showPost() {
+  fetch(
+    `http://127.0.0.1:5000/api/post/profile?userID=${currentUserUserID}&profileUserID=${profileUserID}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data) {
+        alert("Can not find post");
+      }
+      data.map((post) => {
+        console.log(data);
+        const postID = post["postID"];
+
+        const uploadDetail = post["uploadDetail"][0];
+        const PostLink = uploadDetail["PostLink"];
+        const Title = uploadDetail["Title"];
+        const commentCount = uploadDetail["commentCount"];
+        const didUserLike = uploadDetail["didUserLike"];
+        const likeCount = uploadDetail["likeCount"];
+        const shareCount = uploadDetail["shareCount"];
+
+        const uploaderDetail = post["uploaderDetail"][0];
+        const Username = uploaderDetail["Username"];
+        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+
+        appendPost(
+          postID,
+          PostLink,
+          Title,
+          commentCount,
+          didUserLike,
+          likeCount,
+          shareCount,
+          Username,
+          ProfileIconLink
+        );
+      });
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
 }
 
 function getVisibility() {
@@ -273,7 +312,7 @@ function updateUserProfile() {
   PostVis = tempPostVis;
   DMLimit = tempDMLimit;
   var dataObject = {
-    userID: currentUser,
+    userID: currentUserUserID,
     newDisplayName: changeDisplayName.value,
     newBio: changeBio.value,
     newProfileIconLink: tempProfileProfileIcon,
@@ -305,7 +344,7 @@ function updateUserProfile() {
 }
 
 function uploadFirebase() {
-  const url = `/profileIcon/${currentUser}:${profileUsername}`;
+  const url = `/profileIcon/${currentUserUserID}:${profileUsername}`;
   const storageRef = ref(storage, url);
   uploadBytes(storageRef, selectedFile)
     .then((snapshot) => {
@@ -345,18 +384,17 @@ function setProfile() {
 
 function attachFollowAndDMButton() {
   fetch(
-    `http://127.0.0.1:5000/api/follow/following?currentID=${currentUser}&profileID=${profileUserID}`
+    `http://127.0.0.1:5000/api/follow/following?currentID=${currentUserUserID}&profileID=${profileUserID}`
   )
     .then((response) => response.json())
     .then((data) => {
       const sendDMButton = document.createElement("button");
       sendDMButton.className = "ms-3 btn btn-primary";
-      sendDMButton.id = "sendDMButton";
       sendDMButton.dataset.bsToggle = "modal";
       sendDMButton.dataset.bsTarget = "#sendDMModal";
       sendDMButton.textContent = "Send DM";
       const sendDMHeader = document.querySelector("#sendDMHeader");
-      sendDMHeader.textContent = `Sending message to: ${profileUsername}`;
+      sendDMHeader.textContent = `Sending message to: ${username}`;
       let follow = data[0]["count(*)"] == 0 ? "Follow" : "Unfollow";
       //create follow button
       const followButton = document.createElement("button");
@@ -374,6 +412,16 @@ function attachFollowAndDMButton() {
       });
       rowOfInteractive.appendChild(sendDMButton);
       rowOfInteractive.appendChild(followButton);
+
+      sendMessageButton.addEventListener("click", function () {
+        if (sendMessageInput.value.length > 1100) {
+          alert("The message is too long");
+        } else if (sendMessageInput.value.length == 0) {
+          alert("Better have something to send");
+        } else {
+          sendDirectMessage(profileUserID, sendMessageInput.value);
+        }
+      });
     })
     .catch((error) => {
       // Handle any errors that occurred during the request
@@ -382,7 +430,7 @@ function attachFollowAndDMButton() {
 }
 
 function becomeFollower() {
-  var dataObject = { currentID: currentUser, profileID: profileUserID };
+  var dataObject = { currentID: currentUserUserID, profileID: profileUserID };
 
   // Convert the JavaScript object to a JSON string
   var jsonObject = JSON.stringify(dataObject);
@@ -406,7 +454,7 @@ function becomeFollower() {
 }
 
 function unfollow() {
-  var dataObject = { currentID: currentUser, profileID: profileUserID };
+  var dataObject = { currentID: currentUserUserID, profileID: profileUserID };
 
   // Convert the JavaScript object to a JSON string
   var jsonObject = JSON.stringify(dataObject);
@@ -576,5 +624,83 @@ function showCaseFollowing(userID) {
     .catch((error) => {
       // Handle any errors that occurred during the request
       console.error(error);
+    });
+}
+
+function attachBlockButton() {
+  fetch(
+    `http://127.0.0.1:5000/api/user/block?userID=${currentUserUserID}&profileUserID=${profileUserID}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      let block = data[0]["count(*)"] == 0 ? "Block" : "Unblock";
+      const blockButton = document.createElement("button");
+      blockButton.className = "ms-3 btn btn-primary";
+      blockButton.id = "blockButton";
+      blockButton.textContent = block;
+      blockButton.addEventListener("click", function () {
+        if (blockButton.textContent == "Block") {
+          blockUser();
+          blockButton.textContent = "Unblock";
+        } else {
+          unBlockUser();
+          blockButton.textContent = "Block";
+        }
+      });
+      rowOfInteractive.appendChild(blockButton);
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
+function unBlockUser() {
+  var dataObject = { userID: currentUserUserID, profileUserID: profileUserID };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  console.log(jsonObject);
+
+  fetch("http://127.0.0.1:5000/api/user/unblock", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      console.log("Response:", responseData);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+function blockUser() {
+  var dataObject = { userID: currentUserUserID, profileUserID: profileUserID };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  console.log(jsonObject);
+
+  fetch("http://127.0.0.1:5000/api/user/block", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      console.log("Response:", responseData);
+      const followersCount = document.querySelector("#followersCount");
+      followersCount.textContent = followersCount.textContent - 1;
+    })
+    .catch((error) => {
+      console.error("Error:", error);
     });
 }

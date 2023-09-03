@@ -9,6 +9,7 @@ const UserManager = require("./UserManager");
 const FollowManager = require("./FollowManager");
 const PostManager = require("./PostManager");
 const StoryManager = require("./StoryManager");
+const DirectMessage = require("./DirectMessage");
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -41,6 +42,59 @@ app.get("/api/user/login", (req, res) => {
       console.error(error);
       res.status(500).send("Error occurred");
     });
+});
+
+app.get("/api/user/displayName", (req, res) => {
+  const { userID } = req.query;
+
+  let user = new UserManager();
+
+  user
+    .getDisplayName(userID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/user/block", (req, res) => {
+  const { userID, profileUserID } = req.query;
+
+  let user = new UserManager();
+
+  user
+    .isUserBlocked(userID, profileUserID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.post("/api/user/block", (req, res) => {
+  const userID = req.body.userID;
+  const profileUserID = req.body.profileUserID;
+
+  let user = new UserManager();
+  let follow = new FollowManager();
+
+  follow.unfollow(userID, profileUserID);
+  user.block(userID, profileUserID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/user/unblock", (req, res) => {
+  const userID = req.body.userID;
+  const profileUserID = req.body.profileUserID;
+
+  let user = new UserManager();
+  user.unblock(userID, profileUserID);
+  res.json({ message: "Data received and processed successfully" });
 });
 
 app.get("/api/user/email", (req, res) => {
@@ -432,6 +486,31 @@ app.post("/api/post/unlike", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+app.get("/api/post/share", (req, res) => {
+  const { userID, postID } = req.query;
+
+  let post = new PostManager();
+
+  post
+    .hasShared(userID, postID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.post("/api/post/share", (req, res) => {
+  const userID = req.body.userID;
+  const postID = req.body.postID;
+
+  let post = new PostManager();
+  post.share(userID, postID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.get("/api/story/total", (req, res) => {
   const { userID } = req.query;
 
@@ -472,6 +551,73 @@ app.post("/api/story/createStory", (req, res) => {
   let story = new StoryManager();
   story.upload(userID, storyLink, title);
   res.json({ message: "Data received and processed successfully" });
+});
+
+app.get("/api/direct/permission", (req, res) => {
+  const { senderID, receiverID } = req.query;
+
+  let directMessage = new DirectMessage();
+
+  directMessage
+    .hasAbilityToSend(senderID, receiverID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.post("/api/direct/message", (req, res) => {
+  const senderID = req.body.senderID;
+  const receiverID = req.body.receiverID;
+  const message = req.body.message;
+  const messageType = req.body.messageType;
+
+  let directMessage = new DirectMessage();
+  directMessage.sendMessage(senderID, receiverID, message, messageType);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/direct/deleteMessage", (req, res) => {
+  const messageID = req.body.messageID;
+
+  let directMessage = new DirectMessage();
+  directMessage.deleteMessage(messageID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.get("/api/direct/list", (req, res) => {
+  const { userID } = req.query;
+
+  let directMessage = new DirectMessage();
+
+  directMessage
+    .getDirectList(userID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/direct/message", (req, res) => {
+  const { senderID, receiverID, messageID } = req.query;
+
+  let directMessage = new DirectMessage();
+
+  directMessage
+    .getMessage(senderID, receiverID, messageID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

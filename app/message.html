@@ -32,66 +32,12 @@
                 </div>
             </div>
             <br>
-            <div class="ps-4 mt-4 w-100" role="button">
-                <img alt="killerbunny1619's profile picture" draggable="false"
-                    src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
-                    width="30px" height="30px" class="rounded-circle">
-                <span>killerbunny1619</span>
-                <span></span>
-            </div>
-            <div class="ps-4 mt-4 w-100" role="button">
-                <img alt="killerbunny1619's profile picture" draggable="false"
-                    src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
-                    width="30px" height="30px" class="rounded-circle">
-                <span>killerbunny1619</span>
-                <span></span>
-            </div>
-            <div class="ps-4 mt-4 w-100" role="button">
-                <img alt="killerbunny1619's profile picture" draggable="false"
-                    src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
-                    width="30px" height="30px" class="rounded-circle">
-                <span>killerbunny1619</span>
-                <span></span>
+            <div class="overflow-y-auto" id="displayInteractions">
+
             </div>
         </div>
         <div class="border-2 border-start border-white overflow-auto " id="messageOutput">
-            <div class="me-4 ms-4 mt-4 d-flex align-items-end flex-column bg-success rounded" aria-label="message send">
-                <div class="d-flex align-items-end flex-column ps-2 pe-2 pt-1">
-                    <span class="d-flex justify-content-between w-100">
-                        <span class="btn btn-primary">Delete</span>
-                        <img alt="killerbunny1619's profile picture" draggable="false"
-                            src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
-                            width="30px" height="30px" class="rounded-circle">
-                    </span>
-                    <div class="lead">
-                        <span>killerbunny1619</span>
-                        <span class="small">14/08/2023 16:31</span>
-                    </div>
-                    <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea sequi quaerat consequuntur
-                        asperiores
-                        voluptates ipsum sunt quisquam nihil beatae ut distinctio reiciendis ab, ducimus recusandae.
-                        Perferendis incidunt necessitatibus rem cum.
-                    </div>
-                </div>
-            </div>
-            <div class="me-4 ms-4 mt-4 bg-secondary rounded" aria-label="message recieve">
-                <div class="ps-2 pt-2">
-                    <img alt="killerbunny1619's profile picture" draggable="false"
-                        src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/milk-cat.jfif?alt=media&token=86576da3-dc0a-40a6-89d2-e4037f2380ea"
-                        width="30px" height="30px" class="rounded-circle">
-                    <div class="lead">
-                        <span>killerbunny1619</span>
-                        <span class="small">14/08/2023 16:31</span>
-                    </div>
-                    <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea sequi quaerat consequuntur
-                        asperiores
-                        voluptates ipsum sunt quisquam nihil beatae ut distinctio reiciendis ab, ducimus recusandae.
-                        Perferendis incidunt necessitatibus rem cum.
-                    </div>
-                </div>
-            </div>
+
         </div>
         <div id="messageInput" class="d-flex align-items-center">
             <form>
@@ -108,7 +54,7 @@
                             <label for="uploadImagesVideosGIFs" class="bg-primary rounded text-center pt-2 interactive"
                                 role="button" id="inputFileUpload">Upload</label>
                         </div>
-                        <span class="btn btn-primary rounded ms-2 interactive" id="sendMessage">Send</span>
+                        <span class="btn btn-primary rounded ms-2 interactive" id="sendMessageButton">Send</span>
                     </div>
                 </div>
             </form>
@@ -178,10 +124,13 @@
     </footer>
 </body>
 <script src="https://momentjs.com/downloads/moment.min.js"></script>
+<script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
 <script src="/app/js/isUserLogin.js"></script>
 <script src="/app/js/init.js"></script>
+<script type="module" src="/app/js/message.js"></script>
+<script src="/app/js/directMessageThread.js"></script>
 <script type="module" src="/app/js/emoji.js"></script>
 <script type="module" src="/app/js/firebase-setup.js"></script>
-<script type="module" src="/app/js/message.js"></script>
+<script type="module" src="/app/js/messageScreen.js"></script>
 
 </html>

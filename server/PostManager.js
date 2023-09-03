@@ -319,11 +319,47 @@ LIMIT 10;`);
 
     const postIDsArray = postIDsJson.map((element) => element["idPost"]);
 
-    const filteredPost = await this.#filterPost(postIDsArray);
+    if (postIDsArray.length != 0) {
+      if (viewerID != profileUserID) {
+        const filteredPost = await this.#filterPost(viewerID, postIDsArray);
 
-    const postDetailsArray = await this.#getPostDetails(viewerID, filteredPost);
+        const postDetailsArray = await this.#getPostDetails(
+          viewerID,
+          filteredPost
+        );
 
-    return postDetailsArray;
+        return postDetailsArray;
+      } else {
+        const filteringPost = await select(
+          `SELECT 
+          Post.idPost,
+          Users.UserID
+      FROM
+          abbankDB.Post
+              INNER JOIN
+          Users ON Users.UserID = Post.UserID
+      WHERE
+          Post.idPost IN (${postIDsArray})
+      ORDER BY Post.idPost DESC;`
+        );
+
+        const postIDAndUserIDArray = filteringPost.map((element) => {
+          const postID = element.idPost;
+          const userID = element.UserID;
+          const postIDAndUserID = {
+            postID: postID,
+            userID: userID,
+          };
+          return postIDAndUserID;
+        });
+        const postDetailsArray = await this.#getPostDetails(
+          viewerID,
+          postIDAndUserIDArray
+        );
+
+        return postDetailsArray;
+      }
+    }
   }
 
   comment(postID, userID, comment) {
@@ -344,6 +380,19 @@ FROM
 Where PostID = ${postID};`);
 
     return comment;
+  }
+
+  async hasShared(userID, postID) {
+    const result = await select(
+      `SELECT count(*) FROM abbankDB.PostShare where postID = ${postID} AND userID = ${userID};`
+    );
+
+    return result;
+  }
+
+  share(userID, postID) {
+    const query = `INSERT INTO PostShare(postID,userID) Values(${postID},${userID})`;
+    update(query);
   }
 }
 

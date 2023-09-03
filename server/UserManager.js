@@ -14,6 +14,24 @@ class UserManager {
     update(query);
   }
 
+  async isUserBlocked(blockerUserID, blockedUserID) {
+    var result = await select(
+      `SELECT count(*) FROM abbankDB.BlockUser where BlockerUserID = ${blockerUserID} AND BlockedUserID = ${blockedUserID};`
+    );
+
+    return result;
+  }
+
+  block(blockerUserID, blockedUserID) {
+    const query = `INSERT INTO BlockUser(BlockerUserID,BlockedUserID) VALUE(${blockerUserID},${blockedUserID});`;
+    update(query);
+  }
+
+  unblock(blockerUserID, blockedUserID) {
+    const query = `DELETE FROM BlockUser WHERE BlockerUserID = ${blockerUserID} AND BlockedUserID = ${blockedUserID};`;
+    update(query);
+  }
+
   async getUserID(username) {
     var result = await select(
       `SELECT UserID FROM abbankDB.Users where Username = "${username}"`
@@ -24,6 +42,13 @@ class UserManager {
   async getUsername(userID) {
     var result = await select(
       `SELECT Username FROM abbankDB.Users where UserID = "${userID}"`
+    );
+    return result;
+  }
+
+  async getDisplayName(userID) {
+    var result = await select(
+      `SELECT DisplayName FROM abbankDB.Users where UserID = "${userID}"`
     );
     return result;
   }
