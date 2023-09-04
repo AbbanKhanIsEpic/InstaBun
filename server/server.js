@@ -574,10 +574,9 @@ app.post("/api/direct/message", (req, res) => {
   const senderID = req.body.senderID;
   const receiverID = req.body.receiverID;
   const message = req.body.message;
-  const messageType = req.body.messageType;
 
   let directMessage = new DirectMessage();
-  directMessage.sendMessage(senderID, receiverID, message, messageType);
+  directMessage.sendMessage(senderID, receiverID, message);
   res.json({ message: "Data received and processed successfully" });
 });
 

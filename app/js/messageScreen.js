@@ -8,39 +8,67 @@ const inputText = document.querySelector("#inputMessage");
 const selectGroups = document.querySelector("#selectGroups");
 const selectDirect = document.querySelector("#selectDirect");
 const userSelection = document.querySelector("#userSelection");
-const displayInteractions = document.querySelector("#displayInteractions");
+const displayList = document.querySelector("#displayInteractions");
 
 let currentlySelected = 0;
 
+getDirectList();
+
 selectDirect.addEventListener("click", function () {
+  clearList();
   userSelection.textContent = "Direct";
+  getDirectList();
 });
 
 selectGroups.addEventListener("click", function () {
+  clearList();
   userSelection.textContent = "Groups";
+  getGroupList();
 });
 
-function clear() {
+function clearList() {
+  while (displayList.childNodes[0]) {
+    displayList.removeChild(displayList.childNodes[0]);
+  }
+}
+
+function clearMessage() {
   while (messageOutput.childNodes[0]) {
     messageOutput.removeChild(messageOutput.childNodes[0]);
   }
 }
 
-fetch(`http://127.0.0.1:5000/api/direct/list?userID=${currentUserUserID}`)
-  .then((response) => response.json())
-  .then((data) => {
-    data.map((user) => {
-      const profileIconLink = user["ProfileIconLink"];
-      const displayName = user["displayName"];
-      const userID = user["userID"];
-      const username = user["username"];
-      appendDirect(userID, username, displayName, profileIconLink);
+function getGroupList() {
+  fetch(`http://127.0.0.1:5000/api/group/groupList?userID=${currentUserUserID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      data.map((group) => {
+        console.log(group);
+      });
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
     });
-  })
-  .catch((error) => {
-    // Handle any errors that occurred during the request
-    console.error(error);
-  });
+}
+
+function getDirectList() {
+  fetch(`http://127.0.0.1:5000/api/direct/list?userID=${currentUserUserID}`)
+    .then((response) => response.json())
+    .then((data) => {
+      data.map((user) => {
+        const profileIconLink = user["ProfileIconLink"];
+        const displayName = user["displayName"];
+        const userID = user["userID"];
+        const username = user["username"];
+        appendDirect(userID, username, displayName, profileIconLink);
+      });
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
 
 function appendDirect(userID, username, displayName, profileIconLink) {
   // Create the parent container div
@@ -66,7 +94,7 @@ function appendDirect(userID, username, displayName, profileIconLink) {
   containerDiv.appendChild(profileImage);
   containerDiv.appendChild(displayNameSpan);
 
-  displayInteractions.appendChild(containerDiv);
+  displayList.appendChild(containerDiv);
 
   containerDiv.addEventListener("dblclick", function () {
     window.open(
@@ -83,9 +111,9 @@ function appendDirect(userID, username, displayName, profileIconLink) {
     if (prev == containerDiv) {
       currentlySelected = 0;
       stopShowingDirectMessage(currentUserUserID, currentlySelected);
-      clear();
+      clearMessage();
     } else {
-      clear();
+      clearMessage();
       stopShowingDirectMessage(currentUserUserID, currentlySelected);
       currentlySelected = userID;
       showDirectMessage(

@@ -33,7 +33,6 @@ export function sendDirectMessage(recieverID, message) {
           senderID: currentUserUserID,
           receiverID: recieverID,
           message: message,
-          messageType: 0,
         };
 
         // Convert the JavaScript object to a JSON string
@@ -47,8 +46,7 @@ export function sendDirectMessage(recieverID, message) {
           body: jsonObject,
         })
           .then((response) => response.text())
-          .then((responseData) => {
-          })
+          .then((responseData) => {})
           .catch((error) => {
             alert("Unable to send message");
           });

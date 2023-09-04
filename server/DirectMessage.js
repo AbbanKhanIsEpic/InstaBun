@@ -4,9 +4,9 @@ const { update } = require("./DB");
 const UserManager = require("./UserManager");
 
 class DirectMessage {
-  sendMessage(senderID, receiverID, message, messageType) {
+  sendMessage(senderID, receiverID, message) {
     update(
-      `INSERT INTO abbankDB.DirectMessages (SenderID, RecieverID, Time, MessageType, Message) VALUES (${senderID}, ${receiverID}, now(), ${messageType}, "${message}");`
+      `INSERT INTO abbankDB.DirectMessages (SenderID, RecieverID, Time, Message) VALUES (${senderID}, ${receiverID}, now(), "${message}");`
     );
   }
   deleteMessage(messageID) {

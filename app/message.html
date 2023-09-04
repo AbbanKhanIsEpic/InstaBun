@@ -16,7 +16,10 @@
 <body>
     <section class="w-100 position-absolute top-0 d-flex flex-row">
         <div class="d-flex flex-column h-100" id="selectionDiv">
-            <div class="mt-4 d-flex justify-content-center align-items-center">
+            <div class="mt-4 d-flex justify-content-center align-items-center gap-3">
+                <button aria-label="create group" class="btn btn-primary ">
+                    Create group
+                </button>
                 <div class="btn-group dropend">
                     <button type="button" class="btn btn-primary" id="userSelection">
                         Direct
@@ -48,12 +51,7 @@
                     <div class="d-flex flex-row align-items-center position-absolute end-0 me-4">
                         <span class="btn btn-primary rounded ms-4 interactive" id="selectEmoji" data-bs-toggle="modal"
                             data-bs-target="#emojiModal">Emoji</span>
-                        <div class="ms-2">
-                            <input type="file" id="uploadImagesVideosGIFs" aria-label="user upload files"
-                                class="position-absolute visually-hidden" />
-                            <label for="uploadImagesVideosGIFs" class="bg-primary rounded text-center pt-2 interactive"
-                                role="button" id="inputFileUpload">Upload</label>
-                        </div>
+                        <span class="btn btn-primary rounded ms-2 interactive" id="clearMessage">Clear</span>
                         <span class="btn btn-primary rounded ms-2 interactive" id="sendMessageButton">Send</span>
                     </div>
                 </div>
@@ -124,7 +122,6 @@
     </footer>
 </body>
 <script src="https://momentjs.com/downloads/moment.min.js"></script>
-<script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
 <script src="/app/js/isUserLogin.js"></script>
 <script src="/app/js/init.js"></script>
 <script type="module" src="/app/js/message.js"></script>
