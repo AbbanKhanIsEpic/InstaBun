@@ -24,10 +24,17 @@ class GroupManager {
         update(query);
     }
 
-    createGroup(groupName,groupIcon,groupMembers){
+    createGroup(createrUserID,groupName,groupIcon,groupMembers){
+        const createGroup = `INSERT INTO Collective (OwnerID,GroupName, GroupIconLink) VALUES (${createrUserID},${groupName}, ${groupIcon});`
+    }
+
+    addMember(){
 
     }
 
+    removeMemeber(){
+
+    }
 
 
 }

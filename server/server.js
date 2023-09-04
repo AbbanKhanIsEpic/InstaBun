@@ -10,6 +10,7 @@ const FollowManager = require("./FollowManager");
 const PostManager = require("./PostManager");
 const StoryManager = require("./StoryManager");
 const DirectMessage = require("./DirectMessage");
+const GroupManager = require("./GroupManager");
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -611,6 +612,21 @@ app.get("/api/direct/message", (req, res) => {
 
   directMessage
     .getMessage(senderID, receiverID, messageID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.get("/api/group/groupList", (req, res) => {
+  const { userID } = req.query;
+
+  let groupManager = new GroupManager();
+  groupManager
+    .getGroupList(userID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
