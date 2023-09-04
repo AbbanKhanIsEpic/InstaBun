@@ -48,7 +48,6 @@ export function sendDirectMessage(recieverID, message) {
         })
           .then((response) => response.text())
           .then((responseData) => {
-            alert("Message sent");
           })
           .catch((error) => {
             alert("Unable to send message");
