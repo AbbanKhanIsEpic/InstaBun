@@ -9,6 +9,12 @@ export function appendPost(
   username,
   profileIconLink
 ) {
+  const sendSpan = document.querySelector("#sendComment");
+  const modalBody = document.querySelector("#comments");
+  const commentInputField = document.querySelector("#commentInput");
+  const commentTitle = document.querySelector("#title");
+  commentTitle.textContent = title;
+
   // Create the main container div
   const mainContainer = document.createElement("div");
   mainContainer.className = "d-flex justify-content-center align-items-center";
@@ -139,8 +145,6 @@ export function appendPost(
   likeCountSpan.textContent = likeCount;
   likeCountSpan.className = "text-center";
 
-  const modalCommentID = "commentModal" + postID;
-
   const commentSpan = document.createElement("span");
   commentSpan.role = "button";
   const commentSvg = document.createElementNS(
@@ -154,7 +158,7 @@ export function appendPost(
   commentSvg.setAttribute("viewBox", "0 0 16 16");
 
   commentSpan.dataset.bsToggle = "modal";
-  commentSpan.dataset.bsTarget = `#${modalCommentID}`;
+  commentSpan.dataset.bsTarget = `#commentModal`;
 
   const commentPath = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -193,57 +197,11 @@ export function appendPost(
       });
   });
 
-  const modalDiv = document.createElement("div");
-  modalDiv.className = "modal fade";
-  modalDiv.id = modalCommentID;
-  modalDiv.tabIndex = "-1";
-  modalDiv.setAttribute("aria-hidden", "true");
-
-  const modalDialog = document.createElement("div");
-  modalDialog.className = "modal-dialog";
-
-  const modalContent = document.createElement("div");
-  modalContent.className = "modal-content";
-
-  const modalHeader = document.createElement("div");
-  modalHeader.className = "modal-header";
-
-  const modalTitle = document.createElement("h1");
-  modalTitle.className = "modal-title fs-5 text-black";
-  modalTitle.textContent = title;
-
-  const closeButton = document.createElement("button");
-  closeButton.type = "button";
-  closeButton.className = "btn-close";
-  closeButton.setAttribute("data-bs-dismiss", "modal");
-  closeButton.setAttribute("aria-label", "Close");
-  modalHeader.appendChild(modalTitle);
-  modalHeader.appendChild(closeButton);
-
-  const modalBody = document.createElement("div");
-  modalBody.className = "modal-body text-black";
-  modalBody.textContent = "";
-
-  const modalFooter = document.createElement("div");
-  modalFooter.className = "modal-footer";
-
-  const inputGroup = document.createElement("div");
-  inputGroup.className = "input-group";
-
-  const inputField = document.createElement("input");
-  inputField.type = "text";
-  inputField.className = "form-control";
-
-  const sendSpan = document.createElement("span");
-  sendSpan.className = "input-group-text";
-  sendSpan.role = "button";
-  sendSpan.textContent = "Send";
-
   sendSpan.addEventListener("click", function () {
     var dataObject = {
       postID: postID,
       userID: currentUserUserID,
-      comment: inputField.value,
+      comment: commentInputField.value,
     };
 
     // Convert the JavaScript object to a JSON string
@@ -262,7 +220,7 @@ export function appendPost(
           currentUserUserID,
           currentUserUsername,
           currentUserProfileLink,
-          inputField.value
+          commentInputField.value
         );
         commentCount++;
         commentCountSpan.textContent = commentCount;
@@ -294,6 +252,13 @@ export function appendPost(
     commentProfileIcon.setAttribute("height", "60px");
     commentProfileIcon.className = "rounded-circle";
 
+    whoComment.addEventListener("click", function () {
+      window.open(
+        `http://127.0.0.1:5501/app/profile.html?Username=${username}`,
+        "_blank"
+      );
+    });
+
     // Create the first span element
     const spanElement1 = document.createElement("span");
     spanElement1.className = "ms-2 display-6";
@@ -307,20 +272,13 @@ export function appendPost(
     modalBody.appendChild(commentContainer);
   }
 
-  modalDiv.addEventListener("hidden.bs.modal", function () {
+  const commentModal = document.querySelector("#commentModal");
+
+  commentModal.addEventListener("hidden.bs.modal", function () {
     while (modalBody.childNodes[0]) {
       modalBody.removeChild(modalBody.childNodes[0]);
     }
   });
-
-  inputGroup.appendChild(inputField);
-  inputGroup.appendChild(sendSpan);
-  modalFooter.appendChild(inputGroup);
-  modalContent.appendChild(modalHeader);
-  modalContent.appendChild(modalBody);
-  modalContent.appendChild(modalFooter);
-  modalDialog.appendChild(modalContent);
-  modalDiv.appendChild(modalDialog);
 
   const shareSpan = document.createElement("span");
   shareSpan.role = "button";
@@ -403,7 +361,6 @@ export function appendPost(
   secondInnerDiv.appendChild(likeCountSpan);
   secondInnerDiv.appendChild(commentSpan);
   secondInnerDiv.appendChild(commentCountSpan);
-  secondInnerDiv.appendChild(modalDiv);
   secondInnerDiv.appendChild(shareSpan);
   secondInnerDiv.appendChild(shareCountSpan);
 

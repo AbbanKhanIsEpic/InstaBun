@@ -9,6 +9,7 @@ const selectGroups = document.querySelector("#selectGroups");
 const selectDirect = document.querySelector("#selectDirect");
 const userSelection = document.querySelector("#userSelection");
 const displayList = document.querySelector("#displayInteractions");
+const messageOutput = document.querySelector("#messageOutput");
 
 let currentlySelected = 0;
 
@@ -113,8 +114,8 @@ function appendDirect(userID, username, displayName, profileIconLink) {
       stopShowingDirectMessage(currentUserUserID, currentlySelected);
       clearMessage();
     } else {
-      clearMessage();
       stopShowingDirectMessage(currentUserUserID, currentlySelected);
+      clearMessage();
       currentlySelected = userID;
       showDirectMessage(
         currentUserUserID,
@@ -127,16 +128,5 @@ function appendDirect(userID, username, displayName, profileIconLink) {
 }
 
 sendMessageButton.addEventListener("click", function () {
-  if (inputText.textContent.length == 0) {
-    alert("It is better to have something to send");
-  } else if (currentlySelected == 0) {
-    alert("Must select someone / group to send message");
-  } else {
-    const message = textAndEmojiToText();
-    if (message.length > 1100) {
-      alert("Over the limit: 1100");
-    } else {
-      sendDirectMessage(currentlySelected, message);
-    }
-  }
+  console.log(inputText.innerText);
 });

@@ -47,9 +47,7 @@ export function sendDirectMessage(recieverID, message) {
         })
           .then((response) => response.text())
           .then((responseData) => {})
-          .catch((error) => {
-            alert("Unable to send message");
-          });
+          .catch((error) => {});
       } else {
         alert("You do not have permission to send message");
       }
@@ -73,20 +71,17 @@ export function showDirectMessage(
         console.log(message);
         const messageSent = message["Message"];
         const messageID = message["MessageID"];
-        const messageType = message["MessageType"];
         const senderID = message["SenderID"];
         const time = message["Time"];
-        if (messageType == 0) {
-          if (senderID == currentUserID) {
-            showSenderMessage(messageID, messageSent, time);
-          } else {
-            showReceiverMessage(
-              messageSent,
-              time,
-              receiverProfileIcon,
-              receiverDisplayName
-            );
-          }
+        if (senderID == currentUserID) {
+          showSenderMessage(messageID, messageSent, time);
+        } else {
+          showReceiverMessage(
+            messageSent,
+            time,
+            receiverProfileIcon,
+            receiverDisplayName
+          );
         }
       });
     };
@@ -99,6 +94,7 @@ export function showDirectMessage(
 }
 
 function showSenderMessage(messageID, messageSent, time) {
+  console.log("hi");
   // Create the main div element
   const mainDiv = document.createElement("div");
   mainDiv.classList.add(
@@ -209,11 +205,9 @@ function deleteMessage(messageID) {
     body: jsonObject,
   })
     .then((response) => response.text())
-    .then((responseData) => {
-      alert("Message sent");
-    })
+    .then((responseData) => {})
     .catch((error) => {
-      alert("Unable to send message");
+      alert("Unable to delete message");
     });
 }
 
