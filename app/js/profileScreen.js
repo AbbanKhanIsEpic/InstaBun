@@ -505,7 +505,7 @@ function showCaseFollowers(userID) {
         // Create a div element
         const divElement = document.createElement("div");
         divElement.style.width = "400px";
-        divElement.style.height = "70px";
+        divElement.style.minHeight = "70px";
         divElement.className = "mb-4";
         divElement.role = "button";
 
@@ -520,13 +520,13 @@ function showCaseFollowers(userID) {
 
         // Create the first span element
         const spanElement1 = document.createElement("span");
-        spanElement1.className = "ms-2 display-6";
+        spanElement1.className = "ms-2 display-6 text-break";
         spanElement1.textContent = element.Username;
 
         // Create the second span element
         const spanElement2 = document.createElement("span");
         spanElement2.textContent = element.DisplayName;
-        spanElement2.className = "ms-2";
+        spanElement2.className = "ms-2 text-break";
 
         // Append all elements to the div
         divElement.appendChild(imgElement);
@@ -579,8 +579,8 @@ function showCaseFollowing(userID) {
         // Create a div element
         const divElement = document.createElement("div");
         divElement.style.width = "400px";
-        divElement.style.height = "70px";
-        divElement.className = "mb-4";
+        divElement.style.minHeight = "70px";
+        divElement.className = "mb-4 ";
         divElement.role = "button";
 
         // Create an img element
@@ -594,13 +594,13 @@ function showCaseFollowing(userID) {
 
         // Create the first span element
         const spanElement1 = document.createElement("span");
-        spanElement1.className = "ms-2 display-6";
+        spanElement1.className = "ms-2 display-6 text-break";
         spanElement1.textContent = element.Username;
 
         // Create the second span element
         const spanElement2 = document.createElement("span");
         spanElement2.textContent = element.DisplayName;
-        spanElement2.className = "ms-2";
+        spanElement2.className = "ms-2 text-break";
 
         // Append all elements to the div
         divElement.appendChild(imgElement);

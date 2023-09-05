@@ -22,7 +22,7 @@ export function sendDirectMessage(recieverID, message) {
     .replace(/'/g, "\\'")
     .replace(/\\/g, "\\\\");
 
-  console.log(message);
+  console.log(message.length);
   fetch(
     `http://127.0.0.1:5000/api/direct/permission?senderID=${currentUserUserID}&receiverID=${recieverID}`
   )
@@ -68,7 +68,6 @@ export function showDirectMessage(
     directMessageWorker = new Worker("/app/js/directMessageThread.js");
     directMessageWorker.onmessage = function (messages) {
       messages.data.map((message) => {
-        console.log(message);
         const messageSent = message["Message"];
         const messageID = message["MessageID"];
         const senderID = message["SenderID"];
@@ -94,7 +93,6 @@ export function showDirectMessage(
 }
 
 function showSenderMessage(messageID, messageSent, time) {
-  console.log("hi");
   // Create the main div element
   const mainDiv = document.createElement("div");
   mainDiv.classList.add(

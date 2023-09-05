@@ -1,10 +1,9 @@
-import { textAndEmojiToText } from "./emoji.js";
 import { sendDirectMessage } from "./message.js";
+import { textAndEmojiToText } from "./emoji.js";
 import { showDirectMessage } from "./message.js";
 import { stopShowingDirectMessage } from "./message.js";
 
 const sendMessageButton = document.querySelector("#sendMessageButton");
-const inputText = document.querySelector("#inputMessage");
 const selectGroups = document.querySelector("#selectGroups");
 const selectDirect = document.querySelector("#selectDirect");
 const userSelection = document.querySelector("#userSelection");
@@ -31,6 +30,7 @@ function clearList() {
   while (displayList.childNodes[0]) {
     displayList.removeChild(displayList.childNodes[0]);
   }
+  clearMessage();
 }
 
 function clearMessage() {
@@ -128,5 +128,17 @@ function appendDirect(userID, username, displayName, profileIconLink) {
 }
 
 sendMessageButton.addEventListener("click", function () {
-  console.log(inputText.innerText);
+  if (currentlySelected == 0) {
+    alert("Select someone");
+  } else {
+    let message = textAndEmojiToText();
+    console.log(message.length);
+    if (message.length == 0) {
+      alert("Please have something to say");
+    } else if (message.length > 1100) {
+      alert("Woah buddy, too much. Cut that down");
+    } else {
+      sendDirectMessage(currentlySelected, message);
+    }
+  }
 });
