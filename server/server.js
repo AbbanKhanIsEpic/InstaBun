@@ -635,4 +635,19 @@ app.get("/api/group/groupList", (req, res) => {
     });
 });
 
+app.get("/api/group/groupMembers", (req, res) => {
+  const { groupID } = req.query;
+
+  let groupManager = new GroupManager();
+  groupManager
+    .getGroupMembers(groupID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

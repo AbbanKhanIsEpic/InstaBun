@@ -182,12 +182,12 @@ function showSenderMessage(messageID, messageSent, time) {
   messageOutput.appendChild(mainDiv);
 
   deleteButton.addEventListener("click", function () {
-    deleteMessage(messageID);
+    deleteDirectMessage(messageID);
     messageOutput.removeChild(mainDiv);
   });
 }
 
-function deleteMessage(messageID) {
+function deleteDirectMessage(messageID) {
   var dataObject = {
     messageID: messageID,
   };

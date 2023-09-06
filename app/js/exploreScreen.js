@@ -179,7 +179,7 @@ function searchUsers(search) {
   fetch(server + query)
     .then((response) => response.json())
     .then((data) => {
-      data.forEach(function (element) {
+      data.forEach(function (user) {
         // Create a div element
         const divElement = document.createElement("div");
         divElement.style.width = "400px";
@@ -189,9 +189,9 @@ function searchUsers(search) {
 
         // Create an img element
         const imgElement = document.createElement("img");
-        imgElement.alt = `${element.Username}'s profile picture`;
+        imgElement.alt = `${user.Username}'s profile picture`;
         imgElement.draggable = false;
-        imgElement.src = element.ProfileIconLink;
+        imgElement.src = user.ProfileIconLink;
         imgElement.setAttribute("width", "60px");
         imgElement.setAttribute("height", "60px");
         imgElement.className = "rounded-circle";
@@ -199,11 +199,11 @@ function searchUsers(search) {
         // Create the first span element
         const spanElement1 = document.createElement("span");
         spanElement1.className = "ms-2 display-6";
-        spanElement1.textContent = element.Username;
+        spanElement1.textContent = user.Username;
 
         // Create the second span element
         const spanElement2 = document.createElement("span");
-        spanElement2.textContent = element.DisplayName;
+        spanElement2.textContent = user.DisplayName;
         spanElement2.className = "ms-2";
 
         // Append all elements to the div

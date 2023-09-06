@@ -14,6 +14,7 @@
 </head>
 
 <body>
+
     <section class="w-100 position-absolute top-0 d-flex flex-row">
         <div class="d-flex flex-column h-100" id="selectionDiv">
             <div class="mt-4 d-flex justify-content-center align-items-center gap-3">
@@ -37,6 +38,44 @@
             <br>
             <div class="overflow-y-auto" id="displayInteractions">
 
+            </div>
+        </div>
+        <div class="modal fade" id="groupModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5 text-black" id="groupName">Title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            id="closeModal"></button>
+                    </div>
+                    <div class="modal-body text-black" id="modalBody">
+                        <div class="input-group d-flex flex-column ">
+                            <div aria-label="Group name">
+                                <span class="input-group-text">Group name:</span>
+                                <input type="text" class="form-control" id="changeGroupName">
+                            </div>
+                            <div aria-label="Profile Icon" class="mt-4">
+                                <span class="input-group-text  ">Profile</span>
+                                <img alt="killerbunny1619's profile picture" draggable="false" width="100px"
+                                    height="100px" class="rounded-circle mt-4" id="profileIconPreview" />
+                                <span class="ms-4">
+                                    <input type="file" id="uploadProfileIcon" aria-label="user upload files"
+                                        class="position-absolute visually-hidden" />
+                                    <label for="uploadProfileIcon" class="btn btn-primary rounded text-center"
+                                        role="button">Upload</label>
+                                </span>
+                            </div>
+                            <div aria-label="Group memember" class="mt-4" id="showMembers">
+                                <span class="input-group-text">Group members:</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="input-group">
+                            <span class="input-group-text" role="button" id="updateGroup">Update group</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="border-2 border-start border-white overflow-auto " id="messageOutput">

@@ -48,7 +48,7 @@ function getGroupList() {
         const groupID = group["GroupID"];
         const groupIconLink = group["GroupIconLink"];
         const groupName = group["GroupName"];
-        appendGroup(groupID,groupIconLink,groupName)
+        appendGroup(groupID, groupIconLink, groupName);
       });
     })
     .catch((error) => {
@@ -75,7 +75,7 @@ function getDirectList() {
     });
 }
 
-function appendGroup(groupID,groupIconLink,groupName){
+function appendGroup(groupID, groupIconLink, groupName) {
   // Create the parent container div
   const containerDiv = document.createElement("div");
   containerDiv.className = "ps-4 mt-4 w-100";
@@ -93,10 +93,89 @@ function appendGroup(groupID,groupIconLink,groupName){
 
   // Create the first span element for the username
   const groupNameSpan = document.createElement("span");
+
+  const groupModal = document.getElementById("groupModal");
+  const groupHeader = document.getElementById("groupName");
+  const profileIconPreview = document.getElementById("profileIconPreview");
+  const changeGroupName = document.getElementById("changeGroupName");
+  const closeModal = document.getElementById("closeModal");
+
   groupNameSpan.textContent = groupName + " ";
 
-  profileImage.dataset.bsToggle = "modal";
-  profileImage.dataset.bsTarget = "#groupModal";
+  containerDiv.addEventListener("dblclick", function () {
+    containerDiv.className = "ps-4 mt-4 w-100 bg-info";
+    currentlySelectedGroupID = groupID;
+
+    groupModal.classList.add("show");
+    groupModal.style.display = "block";
+    document.body.classList.add("modal-open");
+
+    groupHeader.textContent = groupName;
+    changeGroupName.value = groupName;
+
+    profileIconPreview.src = groupIconLink;
+
+    fetch(`http://127.0.0.1:5000/api/group/groupMembers?groupID=${groupID}`)
+      .then((response) => response.json())
+      .then((data) => {
+        data.map((groupMember) => {
+          const username = groupMember["Username"];
+          const displayName = groupMember["DisplayName"];
+          const profileIcon = groupMember["ProfileIconLink"];
+          appendMember(username, displayName, profileIcon);
+        });
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
+      });
+  });
+
+  function appendMember(username, displayName, profileIcon) {
+    const divElement = document.createElement("div");
+    divElement.className = "input-group-text d-flex align-items-center";
+
+    const memberElement = document.createElement("div");
+    memberElement.style.height = "70px";
+    memberElement.className = "mb-4";
+
+    // Create an img element
+    const imgElement = document.createElement("img");
+    imgElement.alt = `${username}'s profile picture`;
+    imgElement.draggable = false;
+    imgElement.src = profileIcon;
+    imgElement.setAttribute("width", "60px");
+    imgElement.setAttribute("height", "60px");
+    imgElement.className = "rounded-circle";
+
+    // Create the first span element
+    const spanElement1 = document.createElement("span");
+    spanElement1.className = "ms-2 display-6";
+    spanElement1.textContent = username;
+
+    // Create the second span element
+    const spanElement2 = document.createElement("span");
+    spanElement2.textContent = displayName;
+    spanElement2.className = "ms-2";
+
+    // Append all elements to the div
+    memberElement.appendChild(imgElement);
+    memberElement.appendChild(spanElement1);
+    memberElement.appendChild(spanElement2);
+
+    divElement.appendChild(memberElement);
+
+    const showMembers = document.querySelector("#showMembers");
+
+    // Append the div to the main's first child
+    showMembers.appendChild(divElement);
+  }
+
+  closeModal.addEventListener("click", function () {
+    groupModal.classList.remove("show");
+    groupModal.style.display = "none";
+    document.body.classList.remove("modal-open");
+  });
 
   // Append the elements to the parent container div in the desired order
   containerDiv.appendChild(profileImage);
