@@ -10,7 +10,8 @@ const userSelection = document.querySelector("#userSelection");
 const displayList = document.querySelector("#displayInteractions");
 const messageOutput = document.querySelector("#messageOutput");
 
-let currentlySelected = 0;
+let currentlySelectedUserID = 0;
+let currentlySelectedGroupID = 0;
 
 getDirectList();
 
@@ -44,7 +45,10 @@ function getGroupList() {
     .then((response) => response.json())
     .then((data) => {
       data.map((group) => {
-        console.log(group);
+        const groupID = group["GroupID"];
+        const groupIconLink = group["GroupIconLink"];
+        const groupName = group["GroupName"];
+        appendGroup(groupID,groupIconLink,groupName)
       });
     })
     .catch((error) => {
@@ -69,6 +73,51 @@ function getDirectList() {
       // Handle any errors that occurred during the request
       console.error(error);
     });
+}
+
+function appendGroup(groupID,groupIconLink,groupName){
+  // Create the parent container div
+  const containerDiv = document.createElement("div");
+  containerDiv.className = "ps-4 mt-4 w-100";
+  containerDiv.role = "button";
+  containerDiv.id = groupID;
+
+  // Create the profile image element
+  const profileImage = document.createElement("img");
+  profileImage.alt = `${groupName}'s profile picture`;
+  profileImage.draggable = false;
+  profileImage.src = groupIconLink;
+  profileImage.width = "30";
+  profileImage.height = "30";
+  profileImage.className = "rounded-circle";
+
+  // Create the first span element for the username
+  const groupNameSpan = document.createElement("span");
+  groupNameSpan.textContent = groupName + " ";
+
+  profileImage.dataset.bsToggle = "modal";
+  profileImage.dataset.bsTarget = "#groupModal";
+
+  // Append the elements to the parent container div in the desired order
+  containerDiv.appendChild(profileImage);
+  containerDiv.appendChild(groupNameSpan);
+
+  displayList.appendChild(containerDiv);
+
+  containerDiv.addEventListener("click", function () {
+    const prev = document.getElementById(currentlySelectedGroupID);
+    containerDiv.className = "ps-4 mt-4 w-100 bg-info";
+    if (prev != null) {
+      prev.className = "ps-4 mt-4 w-100";
+    }
+    if (prev == containerDiv) {
+      currentlySelectedGroupID = 0;
+      clearMessage();
+    } else {
+      clearMessage();
+      currentlySelectedGroupID = groupID;
+    }
+  });
 }
 
 function appendDirect(userID, username, displayName, profileIconLink) {
@@ -104,22 +153,22 @@ function appendDirect(userID, username, displayName, profileIconLink) {
     );
   });
   containerDiv.addEventListener("click", function () {
-    const prev = document.getElementById(currentlySelected);
+    const prev = document.getElementById(currentlySelectedUserID);
     containerDiv.className = "ps-4 mt-4 w-100 bg-info";
     if (prev != null) {
       prev.className = "ps-4 mt-4 w-100";
     }
     if (prev == containerDiv) {
-      currentlySelected = 0;
-      stopShowingDirectMessage(currentUserUserID, currentlySelected);
+      currentlySelectedUserID = 0;
+      stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
       clearMessage();
     } else {
-      stopShowingDirectMessage(currentUserUserID, currentlySelected);
+      stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
       clearMessage();
-      currentlySelected = userID;
+      currentlySelectedUserID = userID;
       showDirectMessage(
         currentUserUserID,
-        currentlySelected,
+        currentlySelectedUserID,
         profileIconLink,
         displayName
       );
@@ -128,7 +177,7 @@ function appendDirect(userID, username, displayName, profileIconLink) {
 }
 
 sendMessageButton.addEventListener("click", function () {
-  if (currentlySelected == 0) {
+  if (currentlySelectedUserID == 0) {
     alert("Select someone");
   } else {
     let message = textAndEmojiToText();
@@ -138,7 +187,7 @@ sendMessageButton.addEventListener("click", function () {
     } else if (message.length > 1100) {
       alert("Woah buddy, too much. Cut that down");
     } else {
-      sendDirectMessage(currentlySelected, message);
+      sendDirectMessage(currentlySelectedUserID, message);
     }
   }
 });
