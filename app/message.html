@@ -2,23 +2,22 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="/app/css/template.css">
-    <link rel="stylesheet" href="/app/css/message.css">
+    <link rel="stylesheet" href="/app/css/template.css" />
+    <link rel="stylesheet" href="/app/css/message.css" />
     <title>Messages</title>
 </head>
 
 <body>
-
     <section class="w-100 position-absolute top-0 d-flex flex-row">
         <div class="d-flex flex-column h-100" id="selectionDiv">
             <div class="mt-4 d-flex justify-content-center align-items-center gap-3">
-                <button aria-label="create group" class="btn btn-primary ">
+                <button aria-label="create group" class="btn btn-primary">
                     Create group
                 </button>
                 <div class="btn-group dropend">
@@ -35,10 +34,8 @@
                     </ul>
                 </div>
             </div>
-            <br>
-            <div class="overflow-y-auto" id="displayInteractions">
-
-            </div>
+            <br />
+            <div class="overflow-y-auto" id="displayInteractions"></div>
         </div>
         <div class="modal fade" id="groupModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
@@ -49,13 +46,13 @@
                             id="closeModal"></button>
                     </div>
                     <div class="modal-body text-black" id="modalBody">
-                        <div class="input-group d-flex flex-column ">
+                        <div class="input-group d-flex flex-column">
                             <div aria-label="Group name">
                                 <span class="input-group-text">Group name:</span>
-                                <input type="text" class="form-control" id="changeGroupName">
+                                <input type="text" class="form-control" id="changeGroupName" />
                             </div>
                             <div aria-label="Profile Icon" class="mt-4">
-                                <span class="input-group-text  ">Profile</span>
+                                <span class="input-group-text">Profile</span>
                                 <img alt="killerbunny1619's profile picture" draggable="false" width="100px"
                                     height="100px" class="rounded-circle mt-4" id="profileIconPreview" />
                                 <span class="ms-4">
@@ -68,6 +65,13 @@
                             <div aria-label="Group memember" class="mt-4" id="showMembers">
                                 <span class="input-group-text">Group members:</span>
                             </div>
+                            <div aria-label="Add user" class="input-group d-flex flex-row mt-4">
+                                <input type="text" class="form-control" id="addUserInput" />
+                                <span class="btn btn-primary" id="addUser">Add user</span>
+                                <div id="showNewMember">
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -78,15 +82,12 @@
                 </div>
             </div>
         </div>
-        <div class="border-2 border-start border-white overflow-auto " id="messageOutput">
-
-        </div>
+        <div class="border-2 border-start border-white overflow-auto" id="messageOutput"></div>
         <div id="messageInput" class="d-flex align-items-center">
             <form>
                 <div class="form-group d-flex flex-row align-items-center">
                     <div type="textbox" class="rounded bg-white text-black d-flex align-items-center flex-wrap"
-                        id="inputMessage" contenteditable="true">
-                    </div>
+                        id="inputMessage" contenteditable="true"></div>
                     <div class="d-flex flex-row align-items-center position-absolute end-0 me-4">
                         <span class="btn btn-primary rounded ms-4 interactive" id="selectEmoji" data-bs-toggle="modal"
                             data-bs-target="#emojiModal">Emoji</span>
@@ -102,16 +103,15 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5 text-black">
-                        <div class="input-group  d-flex flex-row ">
+                        <div class="input-group d-flex flex-row">
                             <input aria-label="search for emoji" type="text" id="inputPrefixEmoji"
-                                class="text-black form-control " />
+                                class="text-black form-control" />
                             <span class="input-group-text" role="button" id="searchEmoji">search</span>
                         </div>
                     </h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-black d-flex gap-2 flex-wrap" id="listOfEmoji">
-                </div>
+                <div class="modal-body text-black d-flex gap-2 flex-wrap" id="listOfEmoji"></div>
             </div>
         </div>
     </div>
@@ -156,7 +156,7 @@
             </svg>
         </div>
         <div role="button" id="navProfile" aria-label="user profile">
-            <img id="navProfileIcon" alt="" draggable="false" width="30px" height="30px" class="rounded-circle">
+            <img id="navProfileIcon" alt="" draggable="false" width="30px" height="30px" class="rounded-circle" />
         </div>
     </footer>
 </body>
