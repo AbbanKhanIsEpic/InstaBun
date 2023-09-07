@@ -55,11 +55,13 @@ class GroupManager {
 
   async getGroupMembers(groupID) {
     const groupMembers = await select(`SELECT 
-        Users.Username, Users.DisplayName, Users.ProfileIconLink
+       Users.UserID, Users.Username, Users.DisplayName, Users.ProfileIconLink, Collective.OwnerID
     FROM
         abbankDB.GroupMembers
             INNER JOIN
         Users ON Users.UserID = GroupMembers.UserID
+            INNER JOIN
+        Collective ON Collective.GroupID = GroupMembers.GroupID
     WHERE
         GroupMembers.GroupID = ${groupID};`);
 

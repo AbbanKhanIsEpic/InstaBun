@@ -118,11 +118,14 @@ function appendGroup(groupID, groupIconLink, groupName) {
     fetch(`http://127.0.0.1:5000/api/group/groupMembers?groupID=${groupID}`)
       .then((response) => response.json())
       .then((data) => {
+        clearMemberList();
         data.map((groupMember) => {
+          const userID = groupMember["UserID"];
+          const ownerID = groupMember["OwnerID"];
           const username = groupMember["Username"];
           const displayName = groupMember["DisplayName"];
           const profileIcon = groupMember["ProfileIconLink"];
-          appendMember(username, displayName, profileIcon);
+          appendMember(username, displayName, profileIcon,userID,ownerID);
         });
       })
       .catch((error) => {
@@ -131,9 +134,12 @@ function appendGroup(groupID, groupIconLink, groupName) {
       });
   });
 
-  function appendMember(username, displayName, profileIcon) {
+  
+  const showMembers = document.querySelector("#showMembers");
+
+  function appendMember(username, displayName, profileIcon,userID,ownerID) {
     const divElement = document.createElement("div");
-    divElement.className = "input-group-text d-flex align-items-center";
+    divElement.className = "input-group-text d-flex align-items-center flex-column";
 
     const memberElement = document.createElement("div");
     memberElement.style.height = "70px";
@@ -164,8 +170,19 @@ function appendGroup(groupID, groupIconLink, groupName) {
     memberElement.appendChild(spanElement2);
 
     divElement.appendChild(memberElement);
-
-    const showMembers = document.querySelector("#showMembers");
+    if(userID != ownerID){
+      const removeMember = document.createElement("div");
+      removeMember.className = "btn btn-primary input-group";
+      removeMember.textContent = "Remove";
+      removeMember.role = "button";
+  
+      const transferOwnership = document.createElement("div");
+      transferOwnership.className = "btn btn-primary input-group mt-2";
+      transferOwnership.textContent = "Crown";
+      transferOwnership.role = "button";
+      divElement.appendChild(removeMember);
+      divElement.appendChild(transferOwnership);
+    }
 
     // Append the div to the main's first child
     showMembers.appendChild(divElement);
@@ -176,6 +193,12 @@ function appendGroup(groupID, groupIconLink, groupName) {
     groupModal.style.display = "none";
     document.body.classList.remove("modal-open");
   });
+
+  function clearMemberList(){
+    while(showMembers.childNodes[0]){
+      showMembers.removeChild(showMembers.childNodes[0])
+    }
+  }
 
   // Append the elements to the parent container div in the desired order
   containerDiv.appendChild(profileImage);
