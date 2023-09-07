@@ -589,6 +589,15 @@ app.post("/api/direct/deleteMessage", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+app.post("/api/direct/clearMessage", (req, res) => {
+  const senderID = req.body.senderID;
+  const receiverID = req.body.receiverID;
+
+  let directMessage = new DirectMessage();
+  directMessage.clearMessage(senderID, receiverID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.get("/api/direct/list", (req, res) => {
   const { userID } = req.query;
 
@@ -669,6 +678,15 @@ app.post("/api/group/deleteMessage", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+app.post("/api/group/clearMessage", (req, res) => {
+  const userID = req.body.userID;
+  const groupID = req.body.groupID;
+
+  let groupMessage = new GroupMessage();
+  groupMessage.clearMessage(userID, groupID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.get("/api/group/message", (req, res) => {
   const { userID, groupID, messageID } = req.query;
 
@@ -683,6 +701,15 @@ app.get("/api/group/message", (req, res) => {
       console.error(error);
       res.status(500).send("Error occurred");
     });
+});
+
+app.post("/api/group/transferOwnership", (req, res) => {
+  const groupID = req.body.groupID;
+  const newOwnerID = req.body.newOwnerID;
+
+  let groupManager = new GroupManager();
+  groupManager.transferOwnership(groupID, newOwnerID);
+  res.json({ message: "Data received and processed successfully" });
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -67,6 +67,12 @@ class GroupManager {
 
     return groupMembers;
   }
+
+  transferOwnership(groupID, newOwnerID) {
+    update(
+      `UPDATE Collective SET OwnerID = ${newOwnerID} WHERE (GroupID = ${groupID});`
+    );
+  }
 }
 
 module.exports = GroupManager;

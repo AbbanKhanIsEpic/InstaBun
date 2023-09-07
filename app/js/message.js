@@ -367,3 +367,53 @@ function deleteGroupMessage(messageID) {
       alert("Unable to delete message");
     });
 }
+
+export function clearDirectMessage(receiverID) {
+  var dataObject = {
+    senderID: currentUserUserID,
+    receiverID: receiverID,
+  };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  fetch("http://127.0.0.1:5000/api/direct/clearMessage", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      alert("Message cleared");
+    })
+    .catch((error) => {
+      alert("Unable to delete message");
+    });
+}
+
+export function clearGroupMessage(groupID) {
+  var dataObject = {
+    userID: currentUserUserID,
+    groupID: groupID,
+  };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  fetch("http://127.0.0.1:5000/api/group/clearMessage", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      alert("Message cleared");
+    })
+    .catch((error) => {
+      alert("Unable to delete message");
+    });
+}

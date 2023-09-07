@@ -5,6 +5,8 @@ import { stopShowingDirectMessage } from "./message.js";
 import { showGroupMessage } from "./message.js";
 import { stopShowingGroupMessage } from "./message.js";
 import { sendGroupMessage } from "./message.js";
+import { clearGroupMessage } from "./message.js";
+import { clearDirectMessage } from "./message.js";
 
 const sendMessageButton = document.querySelector("#sendMessageButton");
 const selectGroups = document.querySelector("#selectGroups");
@@ -12,6 +14,7 @@ const selectDirect = document.querySelector("#selectDirect");
 const userSelection = document.querySelector("#userSelection");
 const displayList = document.querySelector("#displayInteractions");
 const messageOutput = document.querySelector("#messageOutput");
+const clearMessageConvesation = document.querySelector("#clearMessage");
 
 let currentlySelectedUserID = 0;
 let currentlySelectedGroupID = 0;
@@ -161,6 +164,7 @@ function appendGroup(groupID, groupIconLink, groupName) {
     imgElement.setAttribute("width", "60px");
     imgElement.setAttribute("height", "60px");
     imgElement.className = "rounded-circle";
+    imgElement.role = "button";
 
     // Create the first span element
     const spanElement1 = document.createElement("span");
@@ -177,12 +181,29 @@ function appendGroup(groupID, groupIconLink, groupName) {
     memberElement.appendChild(spanElement1);
     memberElement.appendChild(spanElement2);
 
+    imgElement.addEventListener("click", function () {
+      window.open(
+        `http://127.0.0.1:5501/app/profile.html?Username=${username}`,
+        "_blank"
+      );
+    });
+
     divElement.appendChild(memberElement);
+
     if (userID != ownerID) {
       const removeMember = document.createElement("div");
       removeMember.className = "btn btn-primary input-group";
       removeMember.textContent = "Remove";
       removeMember.role = "button";
+
+      removeMember.addEventListener("click", function () {
+        const numberOfMemebers = showMembers.childNodes.length;
+        if (numberOfMemebers == 3) {
+          alert(
+            "Can not remove member becase group needs a minium of three people"
+          );
+        }
+      });
 
       const transferOwnership = document.createElement("div");
       transferOwnership.className = "btn btn-primary input-group mt-2";
@@ -191,6 +212,10 @@ function appendGroup(groupID, groupIconLink, groupName) {
       divElement.appendChild(removeMember);
       divElement.appendChild(transferOwnership);
     }
+
+    const addUser = document.querySelector("#addUser");
+
+    addUser.addEventListener("click", function () {});
 
     // Append the div to the main's first child
     showMembers.appendChild(divElement);
@@ -316,5 +341,28 @@ sendMessageButton.addEventListener("click", function () {
     } else {
       sendDirectMessage(currentlySelectedUserID, message);
     }
+  }
+});
+
+let confirmClear = false;
+clearMessageConvesation.addEventListener("click", function () {
+  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
+    alert("Select someone");
+    confirmClear = false;
+  } else if (
+    currentlySelectedGroupID == 0 &&
+    userSelection.textContent == "Group"
+  ) {
+    alert("Select a group");
+    confirmClear = false;
+  } else if (!confirmClear) {
+    alert("Are you sure you want to clear all the messages?");
+    confirmClear = true;
+  } else if (currentlySelectedUserID != 0) {
+    clearDirectMessage(currentlySelectedUserID);
+    clearMessage();
+  } else if (currentlySelectedGroupID != 0) {
+    clearGroupMessage(currentlySelectedGroupID);
+    clearMessage();
   }
 });

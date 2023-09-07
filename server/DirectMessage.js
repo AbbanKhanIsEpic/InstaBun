@@ -97,6 +97,20 @@ class DirectMessage {
 
     return result;
   }
+  async clearMessage(senderID, recieverID) {
+    const hasUserClearBefore = await select(
+      `SELECT count(*) FROM abbankDB.ClearDirectMessage WHERE SenderID = ${senderID} AND RecieverID = ${recieverID};`
+    );
+    if (hasUserClearBefore[0]["count(*)"] == 0) {
+      update(
+        `INSERT INTO ClearDirectMessage (SenderID, RecieverID, Time) VALUES (${senderID}, ${recieverID}, now());`
+      );
+    } else {
+      update(
+        `UPDATE ClearDirectMessage SET Time = now() WHERE (SenderID = ${senderID}) and (RecieverID = ${recieverID});`
+      );
+    }
+  }
 }
 
 module.exports = DirectMessage;
