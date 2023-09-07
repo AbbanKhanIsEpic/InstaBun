@@ -5,14 +5,14 @@ let receiverID;
 
 self.onmessage = function (communicatorData) {
   console.log(communicatorData.data);
-  senderID = communicatorData.data["senderID"];
+  userID = communicatorData.data["senderID"];
   receiverID = communicatorData.data["receiverID"];
   getMessages();
 };
 
 function getMessages() {
   const server = "http://127.0.0.1:5000/api/direct/message";
-  const query = `?senderID=${senderID}&receiverID=${receiverID}&messageID=${latestMessageID}`;
+  const query = `?senderID=${userID}&receiverID=${receiverID}&messageID=${latestMessageID}`;
 
   fetch(server + query)
     .then((response) => response.json())

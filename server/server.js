@@ -11,6 +11,7 @@ const PostManager = require("./PostManager");
 const StoryManager = require("./StoryManager");
 const DirectMessage = require("./DirectMessage");
 const GroupManager = require("./GroupManager");
+const GroupMessage = require("./GroupMessage");
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -641,6 +642,40 @@ app.get("/api/group/groupMembers", (req, res) => {
   let groupManager = new GroupManager();
   groupManager
     .getGroupMembers(groupID)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
+app.post("/api/group/message", (req, res) => {
+  const senderID = req.body.senderID;
+  const groupID = req.body.groupID;
+  const message = req.body.message;
+
+  let groupMessage = new GroupMessage();
+  groupMessage.sendMessage(senderID, groupID, message);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/group/deleteMessage", (req, res) => {
+  const messageID = req.body.messageID;
+
+  let groupMessage = new GroupMessage();
+  groupMessage.deleteMessage(messageID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.get("/api/group/message", (req, res) => {
+  const { userID, groupID, messageID } = req.query;
+
+  let groupMessage = new GroupMessage();
+
+  groupMessage
+    .getMessage(userID, groupID, messageID)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

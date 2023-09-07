@@ -39,6 +39,25 @@ fetch("https://api.github.com/emojis")
   .catch((error) => {
     console.error("Error:", error);
   });
+
+for (let i = 0; i < 134; i++) {
+  fetch(`/metadata/page_${i}.json`)
+    .then((response) => response.json())
+    .then((emojis) => {
+      Object.entries(emojis).map((emoji) => {
+        let count = i + 3;
+        let tempKey = emoji[1]["name"].toLowerCase().replace(/_/g, "");
+        const key = emojiMap.has(tempKey) ? tempKey + count : tempKey;
+        const value = emoji[1]["image_url"];
+        emojiMap.set(key, value);
+      });
+      console.log(emojis);
+    })
+    .catch((error) => {
+      console.error("Error loading JSON data:", error);
+    });
+}
+
 if (searchEmoji != null) {
   searchEmoji.addEventListener("click", function () {
     const listOfEmoji = document.querySelector("#listOfEmoji");

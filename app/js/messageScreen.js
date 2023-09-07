@@ -2,6 +2,9 @@ import { sendDirectMessage } from "./message.js";
 import { textAndEmojiToText } from "./emoji.js";
 import { showDirectMessage } from "./message.js";
 import { stopShowingDirectMessage } from "./message.js";
+import { showGroupMessage } from "./message.js";
+import { stopShowingGroupMessage } from "./message.js";
+import { sendGroupMessage } from "./message.js";
 
 const sendMessageButton = document.querySelector("#sendMessageButton");
 const selectGroups = document.querySelector("#selectGroups");
@@ -13,15 +16,20 @@ const messageOutput = document.querySelector("#messageOutput");
 let currentlySelectedUserID = 0;
 let currentlySelectedGroupID = 0;
 
+userSelection.textContent = "Direct";
+
 getDirectList();
 
 selectDirect.addEventListener("click", function () {
+  stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
+  stopShowingGroupMessage(currentlySelectedGroupID);
   clearList();
   userSelection.textContent = "Direct";
   getDirectList();
 });
 
 selectGroups.addEventListener("click", function () {
+  stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
   clearList();
   userSelection.textContent = "Groups";
   getGroupList();
@@ -125,7 +133,7 @@ function appendGroup(groupID, groupIconLink, groupName) {
           const username = groupMember["Username"];
           const displayName = groupMember["DisplayName"];
           const profileIcon = groupMember["ProfileIconLink"];
-          appendMember(username, displayName, profileIcon,userID,ownerID);
+          appendMember(username, displayName, profileIcon, userID, ownerID);
         });
       })
       .catch((error) => {
@@ -134,12 +142,12 @@ function appendGroup(groupID, groupIconLink, groupName) {
       });
   });
 
-  
   const showMembers = document.querySelector("#showMembers");
 
-  function appendMember(username, displayName, profileIcon,userID,ownerID) {
+  function appendMember(username, displayName, profileIcon, userID, ownerID) {
     const divElement = document.createElement("div");
-    divElement.className = "input-group-text d-flex align-items-center flex-column";
+    divElement.className =
+      "input-group-text d-flex align-items-center flex-column";
 
     const memberElement = document.createElement("div");
     memberElement.style.height = "70px";
@@ -170,12 +178,12 @@ function appendGroup(groupID, groupIconLink, groupName) {
     memberElement.appendChild(spanElement2);
 
     divElement.appendChild(memberElement);
-    if(userID != ownerID){
+    if (userID != ownerID) {
       const removeMember = document.createElement("div");
       removeMember.className = "btn btn-primary input-group";
       removeMember.textContent = "Remove";
       removeMember.role = "button";
-  
+
       const transferOwnership = document.createElement("div");
       transferOwnership.className = "btn btn-primary input-group mt-2";
       transferOwnership.textContent = "Crown";
@@ -194,9 +202,9 @@ function appendGroup(groupID, groupIconLink, groupName) {
     document.body.classList.remove("modal-open");
   });
 
-  function clearMemberList(){
-    while(showMembers.childNodes[0]){
-      showMembers.removeChild(showMembers.childNodes[0])
+  function clearMemberList() {
+    while (showMembers.childNodes[0]) {
+      showMembers.removeChild(showMembers.childNodes[0]);
     }
   }
 
@@ -213,11 +221,14 @@ function appendGroup(groupID, groupIconLink, groupName) {
       prev.className = "ps-4 mt-4 w-100";
     }
     if (prev == containerDiv) {
+      stopShowingGroupMessage(currentlySelectedGroupID);
       currentlySelectedGroupID = 0;
       clearMessage();
     } else {
+      stopShowingGroupMessage(currentlySelectedGroupID);
       clearMessage();
       currentlySelectedGroupID = groupID;
+      showGroupMessage(currentlySelectedGroupID);
     }
   });
 }
@@ -279,9 +290,23 @@ function appendDirect(userID, username, displayName, profileIconLink) {
 }
 
 sendMessageButton.addEventListener("click", function () {
-  if (currentlySelectedUserID == 0) {
+  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
     alert("Select someone");
-  } else {
+  }
+  if (currentlySelectedGroupID == 0 && userSelection.textContent == "Group") {
+    alert("Select a group");
+  }
+  if (currentlySelectedGroupID != 0) {
+    let message = textAndEmojiToText();
+    console.log(message.length);
+    if (message.length == 0) {
+      alert("Please have something to say");
+    } else if (message.length > 1100) {
+      alert("Woah buddy, too much. Cut that down");
+    } else {
+      sendGroupMessage(currentUserUserID, currentlySelectedGroupID, message);
+    }
+  } else if (currentlySelectedUserID != 0) {
     let message = textAndEmojiToText();
     console.log(message.length);
     if (message.length == 0) {

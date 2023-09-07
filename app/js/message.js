@@ -3,6 +3,7 @@ import { textToTextAndEmoji } from "./emoji.js";
 const messageOutput = document.querySelector("#messageOutput");
 
 let directMessageWorker;
+let groupMessageWorker;
 
 let currentUserDisplayName;
 
@@ -73,7 +74,7 @@ export function showDirectMessage(
         const senderID = message["SenderID"];
         const time = message["Time"];
         if (senderID == currentUserID) {
-          showSenderMessage(messageID, messageSent, time);
+          showSenderMessage(messageID, messageSent, time, false);
         } else {
           showReceiverMessage(
             messageSent,
@@ -92,7 +93,7 @@ export function showDirectMessage(
   }
 }
 
-function showSenderMessage(messageID, messageSent, time) {
+function showSenderMessage(messageID, messageSent, time, isGroup) {
   // Create the main div element
   const mainDiv = document.createElement("div");
   mainDiv.classList.add(
@@ -182,8 +183,12 @@ function showSenderMessage(messageID, messageSent, time) {
   messageOutput.appendChild(mainDiv);
 
   deleteButton.addEventListener("click", function () {
-    deleteDirectMessage(messageID);
     messageOutput.removeChild(mainDiv);
+    if (isGroup) {
+      deleteGroupMessage(messageID);
+    } else {
+      deleteDirectMessage(messageID);
+    }
   });
 }
 
@@ -278,4 +283,87 @@ export function stopShowingDirectMessage() {
     directMessageWorker.terminate();
   }
   directMessageWorker = undefined;
+}
+
+export function showGroupMessage(groupID) {
+  if (typeof groupMessageWorker == "undefined") {
+    groupMessageWorker = new Worker("/app/js/groupMessageThread.js");
+    groupMessageWorker.onmessage = function (messages) {
+      messages.data.map((message) => {
+        console.log(message);
+        const messageSent = message["Message"];
+        const messageID = message["MessageID"];
+        const senderID = message["UserID"];
+        const displayName = message["DisplayName"];
+        const profileIcon = message["ProfileIconLink"];
+        const time = message["Time"];
+        if (senderID == currentUserUserID) {
+          showSenderMessage(messageID, messageSent, time, true);
+        } else {
+          showReceiverMessage(messageSent, time, profileIcon, displayName);
+        }
+      });
+    };
+    const communicatorData = {
+      userID: currentUserUserID,
+      groupID: groupID,
+    };
+    groupMessageWorker.postMessage(communicatorData);
+  }
+}
+
+export function stopShowingGroupMessage() {
+  if (groupMessageWorker != undefined) {
+    groupMessageWorker.terminate();
+  }
+  groupMessageWorker = undefined;
+}
+
+export function sendGroupMessage(senderID, groupID, message) {
+  message = message
+    .replace(/"/g, '\\"')
+    .replace(/'/g, "\\'")
+    .replace(/\\/g, "\\\\");
+
+  var dataObject = {
+    senderID: senderID,
+    groupID: groupID,
+    message: message,
+  };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  fetch("http://127.0.0.1:5000/api/group/message", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {})
+    .catch((error) => {});
+}
+
+function deleteGroupMessage(messageID) {
+  var dataObject = {
+    messageID: messageID,
+  };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  fetch("http://127.0.0.1:5000/api/group/message", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {})
+    .catch((error) => {
+      alert("Unable to delete message");
+    });
 }

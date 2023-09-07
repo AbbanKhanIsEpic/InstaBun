@@ -79,7 +79,20 @@ class DirectMessage {
 
   async getMessage(senderID, recieverID, messageID) {
     const result = await select(
-      `SELECT * FROM abbankDB.DirectMessages WHERE (SenderID = ${senderID} AND RecieverID = ${recieverID} OR SenderID = ${recieverID} AND RecieverID = ${senderID}) AND MessageID > ${messageID};`
+      `SELECT 
+      DirectMessages.*
+  FROM
+      DirectMessages
+          LEFT JOIN
+      ClearDirectMessage ON ClearDirectMessage.SenderID = ${senderID}
+          AND ClearDirectMessage.RecieverID = ${recieverID}
+  WHERE
+      (DirectMessages.SenderID = ${senderID}
+          AND DirectMessages.RecieverID = ${recieverID}
+          OR DirectMessages.SenderID = ${recieverID}
+          AND DirectMessages.RecieverID = ${senderID})
+          AND DirectMessages.MessageID > ${messageID}
+          AND (ClearDirectMessage.Time IS NULL OR ClearDirectMessage.Time < DirectMessages.Time);;`
     );
 
     return result;
