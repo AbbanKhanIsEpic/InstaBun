@@ -190,7 +190,8 @@ function appendGroup(groupID, groupIconLink, groupName) {
 
     divElement.appendChild(memberElement);
 
-    if (userID != ownerID) {
+    if (currentUserUserID == ownerID) {
+      if(userID != ownerID){
       const removeMember = document.createElement("div");
       removeMember.className = "btn btn-primary input-group";
       removeMember.textContent = "Remove";
@@ -205,17 +206,17 @@ function appendGroup(groupID, groupIconLink, groupName) {
         }
       });
 
+      
       const transferOwnership = document.createElement("div");
       transferOwnership.className = "btn btn-primary input-group mt-2";
       transferOwnership.textContent = "Crown";
       transferOwnership.role = "button";
+
       divElement.appendChild(removeMember);
       divElement.appendChild(transferOwnership);
+
+      }
     }
-
-    const addUser = document.querySelector("#addUser");
-
-    addUser.addEventListener("click", function () {});
 
     // Append the div to the main's first child
     showMembers.appendChild(divElement);
@@ -255,6 +256,43 @@ function appendGroup(groupID, groupIconLink, groupName) {
       currentlySelectedGroupID = groupID;
       showGroupMessage(currentlySelectedGroupID);
     }
+  });
+}
+
+const addUser = document.querySelector("#addUser");
+const addUserUsernameInput = document.querySelector("#addUserInput");
+
+addUser.addEventListener("click", function () {
+  const showMembers = document.querySelector("#showMembers");
+  let isNotExistingMember = false;
+  showMembers.childNodes.forEach(member => {
+    const memberUsername = member.firstChild.childNodes[1].textContent;
+    if(memberUsername == addUserUsernameInput.value){
+      alert("You can not add an existing member");
+      isNotExistingMember = true;
+      return;
+    }
+  });
+  if(!isNotExistingMember){
+    doesUsernameExist();
+  }
+});
+
+function doesUsernameExist(){
+  fetch(`http://127.0.0.1:5000/api/user/usernameExist?username=${addUserUsernameInput.value}`)
+  .then((response) => response.json())
+  .then((data) => {
+    console.log(data)
+    if(data[0]["count(*)"] == 0){
+      alert("User does not exits")
+    }
+    else{
+      
+    }
+  })
+  .catch((error) => {
+    // Handle any errors that occurred during the request
+    console.error(error);
   });
 }
 

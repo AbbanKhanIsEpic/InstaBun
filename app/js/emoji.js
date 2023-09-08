@@ -47,7 +47,7 @@ for (let i = 0; i < 134; i++) {
       Object.entries(emojis).map((emoji) => {
         let count = i + 3;
         let tempKey = emoji[1]["name"].toLowerCase().replace(/_/g, "");
-        const key = emojiMap.has(tempKey) ? tempKey + count : tempKey;
+        const key = emojiMap.has(tempKey) ? `${tempKey}${count}` : tempKey;
         const value = emoji[1]["image_url"];
         emojiMap.set(key, value);
       });

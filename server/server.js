@@ -712,4 +712,13 @@ app.post("/api/group/transferOwnership", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+app.post("/api/group/addGroup", (req, res) => {
+  const groupID = req.body.groupID;
+  const username = req.body.username;
+
+  let groupManager = new GroupManager();
+  groupManager.transferOwnership(groupID, newOwnerID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

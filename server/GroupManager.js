@@ -33,11 +33,15 @@ class GroupManager {
     addMember(groupID, groupMembers);
   }
 
-  addMember(groupID, groupMembers) {
+  addMembers(groupID, groupMembers) {
     groupMembers.map((groupMember) => {
-      const query = `INSERT INTO GroupMembers (GroupID, UserID) VALUES (${groupID}, ${groupMember});`;
-      update(query);
+      addMember(groupID,groupMember);
     });
+  }
+
+  addMember(groupID,groupMember){
+    const query = `INSERT INTO GroupMembers (GroupID, UserID) VALUES (${groupID}, ${groupMember});`;
+    update(query);
   }
 
   removeMemeber(groupID, groupMember) {
