@@ -712,12 +712,21 @@ app.post("/api/group/transferOwnership", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
-app.post("/api/group/addGroup", (req, res) => {
+app.post("/api/group/addMember", (req, res) => {
   const groupID = req.body.groupID;
-  const username = req.body.username;
+  const userID = req.body.userID;
 
   let groupManager = new GroupManager();
-  groupManager.transferOwnership(groupID, newOwnerID);
+  groupManager.addMember(groupID, userID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/group/removeMember", (req, res) => {
+  const groupID = req.body.groupID;
+  const userID = req.body.userID;
+
+  let groupManager = new GroupManager();
+  groupManager.removeMemeber(groupID, userID);
   res.json({ message: "Data received and processed successfully" });
 });
 

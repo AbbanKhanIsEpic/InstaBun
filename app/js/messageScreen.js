@@ -86,6 +86,9 @@ function getDirectList() {
     });
 }
 
+const updateGroup = document.getElementById("updateGroup");
+const leaveGroup = document.getElementById("leaveGroup");
+
 function appendGroup(groupID, groupIconLink, groupName) {
   // Create the parent container div
   const containerDiv = document.createElement("div");
@@ -191,30 +194,86 @@ function appendGroup(groupID, groupIconLink, groupName) {
     divElement.appendChild(memberElement);
 
     if (currentUserUserID == ownerID) {
-      if(userID != ownerID){
-      const removeMember = document.createElement("div");
-      removeMember.className = "btn btn-primary input-group";
-      removeMember.textContent = "Remove";
-      removeMember.role = "button";
+      if (userID != ownerID) {
+        const removeMember = document.createElement("div");
+        removeMember.className = "btn btn-primary input-group";
+        removeMember.textContent = "Remove";
+        removeMember.role = "button";
 
-      removeMember.addEventListener("click", function () {
-        const numberOfMemebers = showMembers.childNodes.length;
-        if (numberOfMemebers == 3) {
-          alert(
-            "Can not remove member becase group needs a minium of three people"
-          );
-        }
-      });
+        removeMember.addEventListener("click", function () {
+          const numberOfMemebers = showMembers.childNodes.length;
+          if (numberOfMemebers == 3) {
+            alert(
+              "Can not remove member becase group needs a minium of three people"
+            );
+          } else {
+            var dataObject = {
+              userID: userID,
+              groupID: groupID,
+            };
 
-      
-      const transferOwnership = document.createElement("div");
-      transferOwnership.className = "btn btn-primary input-group mt-2";
-      transferOwnership.textContent = "Crown";
-      transferOwnership.role = "button";
+            // Convert the JavaScript object to a JSON string
+            var jsonObject = JSON.stringify(dataObject);
 
-      divElement.appendChild(removeMember);
-      divElement.appendChild(transferOwnership);
+            fetch("http://127.0.0.1:5000/api/group/removeMember", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+              },
+              body: jsonObject,
+            })
+              .then((response) => response.text())
+              .then((responseData) => {
+                alert("Member removed: Might need to refresh to view affect");
+              })
+              .catch((error) => {
+                alert("Unable to remove member");
+              });
+          }
+        });
 
+        const transferOwnership = document.createElement("div");
+        transferOwnership.className = "btn btn-primary input-group mt-2";
+        transferOwnership.textContent = "Crown";
+        transferOwnership.role = "button";
+
+        let confirmTransfer = false;
+        transferOwnership.addEventListener("click", function () {
+          if (confirmTransfer) {
+            var dataObject = {
+              newOwnerID: userID,
+              groupID: groupID,
+            };
+
+            // Convert the JavaScript object to a JSON string
+            var jsonObject = JSON.stringify(dataObject);
+
+            fetch("http://127.0.0.1:5000/api/group/transferOwnership", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json; charset=utf-8",
+              },
+              body: jsonObject,
+            })
+              .then((response) => response.text())
+              .then((responseData) => {
+                alert(
+                  `Transfered ownership to ${username}: Might need to refresh to view affect`
+                );
+              })
+              .catch((error) => {
+                alert("Unable to transfer ownership");
+              });
+          } else {
+            alert(
+              `Are you sure you want to transfer ownership of the group to ${username}`
+            );
+            confirmTransfer = true;
+          }
+        });
+
+        divElement.appendChild(removeMember);
+        divElement.appendChild(transferOwnership);
       }
     }
 
@@ -265,36 +324,64 @@ const addUserUsernameInput = document.querySelector("#addUserInput");
 addUser.addEventListener("click", function () {
   const showMembers = document.querySelector("#showMembers");
   let isNotExistingMember = false;
-  showMembers.childNodes.forEach(member => {
+  showMembers.childNodes.forEach((member) => {
     const memberUsername = member.firstChild.childNodes[1].textContent;
-    if(memberUsername == addUserUsernameInput.value){
+    if (memberUsername == addUserUsernameInput.value) {
       alert("You can not add an existing member");
       isNotExistingMember = true;
       return;
     }
   });
-  if(!isNotExistingMember){
-    doesUsernameExist();
+  if (!isNotExistingMember) {
+    fetch(
+      `http://127.0.0.1:5000/api/user/usernameExist?username=${addUserUsernameInput.value}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data[0]["count(*)"] == 0) {
+          alert("User does not exits");
+        } else {
+          fetch(
+            `http://127.0.0.1:5000/api/user/userID?username=${addUserUsernameInput.value}`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const newMemberUserID = data[0]["UserID"];
+              var dataObject = {
+                userID: newMemberUserID,
+                groupID: currentlySelectedGroupID,
+              };
+
+              // Convert the JavaScript object to a JSON string
+              var jsonObject = JSON.stringify(dataObject);
+
+              fetch("http://127.0.0.1:5000/api/group/addMember", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                },
+                body: jsonObject,
+              })
+                .then((response) => response.text())
+                .then((responseData) => {
+                  alert("Member added: Might need to refresh to view affect");
+                })
+                .catch((error) => {
+                  alert("Unable to add new member");
+                });
+            })
+            .catch((error) => {
+              // Handle any errors that occurred during the request
+              console.error(error);
+            });
+        }
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
+      });
   }
 });
-
-function doesUsernameExist(){
-  fetch(`http://127.0.0.1:5000/api/user/usernameExist?username=${addUserUsernameInput.value}`)
-  .then((response) => response.json())
-  .then((data) => {
-    console.log(data)
-    if(data[0]["count(*)"] == 0){
-      alert("User does not exits")
-    }
-    else{
-      
-    }
-  })
-  .catch((error) => {
-    // Handle any errors that occurred during the request
-    console.error(error);
-  });
-}
 
 function appendDirect(userID, username, displayName, profileIconLink) {
   // Create the parent container div
