@@ -4,7 +4,7 @@ const { update } = require("./DB");
 class GroupManager {
   async getGroupList(userID) {
     const result = await select(`SELECT 
-        Collective.GroupID,Collective.GroupName, Collective.GroupIconLink
+    Collective.OwnerID, Collective.GroupID,Collective.GroupName, Collective.GroupIconLink
     FROM
         GroupMembers
             INNER JOIN
@@ -35,11 +35,11 @@ class GroupManager {
 
   addMembers(groupID, groupMembers) {
     groupMembers.map((groupMember) => {
-      addMember(groupID,groupMember);
+      addMember(groupID, groupMember);
     });
   }
 
-  addMember(groupID,groupMember){
+  addMember(groupID, groupMember) {
     const query = `INSERT INTO GroupMembers (GroupID, UserID) VALUES (${groupID}, ${groupMember});`;
     update(query);
   }
@@ -59,7 +59,7 @@ class GroupManager {
 
   async getGroupMembers(groupID) {
     const groupMembers = await select(`SELECT 
-       Users.UserID, Users.Username, Users.DisplayName, Users.ProfileIconLink, Collective.OwnerID
+       Users.UserID, Users.Username, Users.DisplayName, Users.ProfileIconLink
     FROM
         abbankDB.GroupMembers
             INNER JOIN

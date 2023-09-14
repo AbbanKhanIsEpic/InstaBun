@@ -57,9 +57,10 @@ function getGroupList() {
     .then((data) => {
       data.map((group) => {
         const groupID = group["GroupID"];
+        const ownerID = group["OwnerID"];
         const groupIconLink = group["GroupIconLink"];
         const groupName = group["GroupName"];
-        appendGroup(groupID, groupIconLink, groupName);
+        appendGroup(ownerID, groupID, groupIconLink, groupName);
       });
     })
     .catch((error) => {
@@ -88,8 +89,10 @@ function getDirectList() {
 
 const updateGroup = document.getElementById("updateGroup");
 const leaveGroup = document.getElementById("leaveGroup");
+const addUser = document.querySelector("#addUserButton");
+const addUserUsernameInput = document.querySelector("#addUserInput");
 
-function appendGroup(groupID, groupIconLink, groupName) {
+function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
   // Create the parent container div
   const containerDiv = document.createElement("div");
   containerDiv.className = "ps-4 mt-4 w-100";
@@ -113,10 +116,27 @@ function appendGroup(groupID, groupIconLink, groupName) {
   const profileIconPreview = document.getElementById("profileIconPreview");
   const changeGroupName = document.getElementById("changeGroupName");
   const closeModal = document.getElementById("closeModal");
+  const uploadGroupProfile = document.getElementById("uploadGroupProfile");
 
   groupNameSpan.textContent = groupName + " ";
 
   containerDiv.addEventListener("dblclick", function () {
+    if (groupOwnerID != currentUserUserID) {
+      updateGroup.classList.add("visually-hidden");
+      leaveGroup.classList.remove("visually-hidden");
+      changeGroupName.setAttribute("readonly", "readonly");
+      uploadGroupProfile.classList.add("visually-hidden");
+      addUser.classList.add("visually-hidden");
+      addUserUsernameInput.classList.add("visually-hidden");
+    } else {
+      leaveGroup.classList.add("visually-hidden");
+      updateGroup.classList.remove("visually-hidden");
+      uploadGroupProfile.classList.remove("visually-hidden");
+      changeGroupName.removeAttribute("readonly", "readonly");
+      addUser.classList.remove("visually-hidden");
+      addUserUsernameInput.classList.remove("visually-hidden");
+    }
+
     containerDiv.className = "ps-4 mt-4 w-100 bg-info";
     currentlySelectedGroupID = groupID;
 
@@ -135,11 +155,16 @@ function appendGroup(groupID, groupIconLink, groupName) {
         clearMemberList();
         data.map((groupMember) => {
           const userID = groupMember["UserID"];
-          const ownerID = groupMember["OwnerID"];
           const username = groupMember["Username"];
           const displayName = groupMember["DisplayName"];
           const profileIcon = groupMember["ProfileIconLink"];
-          appendMember(username, displayName, profileIcon, userID, ownerID);
+          appendMember(
+            username,
+            displayName,
+            profileIcon,
+            userID,
+            groupOwnerID
+          );
         });
       })
       .catch((error) => {
@@ -317,9 +342,6 @@ function appendGroup(groupID, groupIconLink, groupName) {
     }
   });
 }
-
-const addUser = document.querySelector("#addUser");
-const addUserUsernameInput = document.querySelector("#addUserInput");
 
 addUser.addEventListener("click", function () {
   const showMembers = document.querySelector("#showMembers");
