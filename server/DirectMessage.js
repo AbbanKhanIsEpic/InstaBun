@@ -5,13 +5,24 @@ const UserManager = require("./UserManager");
 
 class DirectMessage {
   sendMessage(senderID, receiverID, message) {
-    update(
-      `INSERT INTO abbankDB.DirectMessages (SenderID, RecieverID, Time, Message) VALUES (${senderID}, ${receiverID}, now(), "${message}");`
-    );
+    try {
+      const query = `
+        INSERT INTO abbankDB.DirectMessages (SenderID, RecieverID, Time, Message)
+        VALUES (?, ?, NOW(), ?);`;
+
+      update(query, [senderID, receiverID, message]);
+    } catch (error) {
+      return error;
+    }
   }
   deleteMessage(messageID) {
-    update(`DELETE FROM DirectMessages WHERE MessageID = ${messageID};
-    `);
+    try {
+      const query = `DELETE FROM DirectMessages WHERE MessageID = ?;
+      `;
+      update(query, [messageID]);
+    } catch (error) {
+      return error;
+    }
   }
   async hasAbilityToSend(senderID, receiverID) {
     const user = new UserManager();

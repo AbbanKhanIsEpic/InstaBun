@@ -3,27 +3,36 @@ const { update } = require("./DB");
 const FollowManager = require("./FollowManager");
 
 class StoryManager {
-  upload(userID, StoryLink, Title) {
-    const query = `INSERT INTO abbankDB.Story (UserID, StoryLink,Title,uploadDateTime) VALUES ("${userID}", "${StoryLink}", "${Title}",now());`;
-    update(query);
+  async upload(userID, StoryLink, Title) {
+    try {
+      const query = `INSERT INTO abbankDB.Story (UserID, StoryLink,Title,uploadDateTime) VALUES (?, ?, ?,now());`;
+      await update(query, [userID, StoryLink, Title]);
+      return "Upload story operation successful";
+    } catch (error) {
+      throw error;
+    }
   }
 
   async total(userID) {
-    var result = await select(
-      `SELECT count(*) FROM abbankDB.Story where UserID = "${userID}";`
-    );
-    return result;
+    try {
+      const query = `SELECT count(*) FROM abbankDB.Story where UserID = ?;`;
+      const result = await select(query, [userID]);
+      if (result.length === 0) {
+        throw new Error(
+          `Unable to retrieve the how many stories the user has uploaded`
+        );
+      }
+      return result[0]["count(*)"];
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getStories(userID) {
-    const follow = new FollowManager();
-    const result = await follow.getFollowings(userID);
-    const followingArray = result.map((followingID) => {
-      return `"${followingID["FollowingID"]}"`;
-    });
-
-    const followingsStories = await select(
-      `SELECT 
+    try {
+      const follow = new FollowManager();
+      const followingArray = await follow.getFollowings(userID);
+      const query = `SELECT 
       timestampdiff(HOUR,Story.uploadDateTime,now()) as hoursOlD,
       Story.UserID,
       Story.idStory,
@@ -36,11 +45,19 @@ class StoryManager {
           INNER JOIN
       Users ON Users.UserID = Story.UserID
   WHERE
-      Story.UserID in (${followingArray})
- Having hoursOlD <= 24;`
-    );
+      Story.UserID in (?)
+ Having hoursOlD <= 24;
+ Order by hoursOlD;`;
 
-    return followingsStories;
+      const result = await select(query, [followingArray]);
+      if (result.length === 0) {
+        throw new Error(`Unable to retrieve stories for the user`);
+      }
+
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
