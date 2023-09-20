@@ -3,46 +3,63 @@ const { update } = require("./DB");
 
 class GroupMessage {
   async getMessage(userID, groupID, messageID) {
-    const message = await select(`SELECT 
-    GroupMessages.*,
-    Users.DisplayName,
-    Users.ProfileIconLink
-FROM
-    GroupMessages
-        INNER JOIN
-    Users ON Users.UserID = GroupMessages.UserID
-        LEFT JOIN
-    ClearGroupMessage ON ClearGroupMessage.GroupID = ${groupID}
-        AND ClearGroupMessage.UserID = ${userID}
-WHERE
-    GroupMessages.GroupID = ${groupID}
-        AND MessageID > ${messageID}
-        AND (ClearGroupMessage.Time IS NULL
-        OR ClearGroupMessage.Time < GroupMessages.Time);`);
-    return message;
+    try {
+      const query = `SELECT GroupMessages.*, Users.DisplayName, Users.ProfileIconLink FROM GroupMessages
+      INNER JOIN
+        Users ON Users.UserID = GroupMessages.UserID
+      LEFT JOIN
+        ClearGroupMessage ON ClearGroupMessage.GroupID = ? AND ClearGroupMessage.UserID = ?
+      WHERE
+        GroupMessages.GroupID = ?
+          AND MessageID > ?
+          AND (ClearGroupMessage.Time IS NULL
+          OR ClearGroupMessage.Time < GroupMessages.Time);`;
+      const result = await select(query, [groupID, userID, groupID, messageID]);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
-  deleteMessage(messageID) {
-    update(`DELETE FROM GroupMessages WHERE MessageID = ${messageID};
-    `);
+  async deleteMessage(messageID) {
+    try {
+      const query = `DELETE FROM GroupMessages WHERE MessageID = ?;`;
+      await update(query, [messageID]);
+      return "Delete message operation successful";
+    } catch (error) {
+      throw error;
+    }
   }
-  sendMessage(userID, groupID, message) {
-    update(
-      `INSERT INTO abbankDB.GroupMessages (UserID, GroupID, Time, Message) VALUES (${userID}, ${groupID}, now(), "${message}");`
-    );
+  async sendMessage(userID, groupID, message) {
+    try {
+      const query = `INSERT INTO abbankDB.GroupMessages (UserID, GroupID, Time, Message) VALUES (?, ?, now(), ?);`;
+      await update(query, [userID, groupID, message]);
+      return "Send message operation successful";
+    } catch (error) {
+      throw error;
+    }
   }
 
   async clearMessage(userID, groupID) {
-    const hasUserClearBefore = await select(
-      `SELECT count(*) FROM ClearGroupMessage WHERE UserID = ${userID} AND GroupID = ${groupID};`
+    const hasUserClearBefore = await this.#hasClearedMessageBefore(
+      userID,
+      groupID
     );
-    if (hasUserClearBefore[0]["count(*)"] == 0) {
-      update(
-        `INSERT INTO ClearGroupMessage (UserID, GroupID, Time) VALUES (${userID}, ${groupID}, now());`
-      );
+    if (hasUserClearBefore) {
+      const updateQuery = `UPDATE ClearGroupMessage SET Time = now() WHERE (UserID = ?) and (GroupID = ?);`;
+      await update(updateQuery, [userID, groupID]);
     } else {
-      update(
-        `UPDATE ClearGroupMessage SET Time = now() WHERE (UserID = ${userID}) and (GroupID = ${groupID});`
-      );
+      const createQuery = `INSERT INTO ClearGroupMessage (UserID, GroupID, Time) VALUES (?, ?, now());`;
+      await update(createQuery, [userID, groupID]);
+    }
+  }
+  async #hasClearedMessageBefore(userID, groupID) {
+    try {
+      const query = `SELECT count(*) FROM ClearGroupMessage WHERE UserID = ? AND GroupID = ?;`;
+      const result =
+        (await select(query, [userID, groupID]))[0]["count(*)"] == 1;
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 }

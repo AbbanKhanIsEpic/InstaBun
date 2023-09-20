@@ -11,8 +11,9 @@ class DirectMessage {
         VALUES (?, ?, NOW(), ?);`;
 
       update(query, [senderID, receiverID, message]);
+      return "Send message operation successful";
     } catch (error) {
-      return error;
+      throw error;
     }
   }
   deleteMessage(messageID) {
@@ -20,27 +21,21 @@ class DirectMessage {
       const query = `DELETE FROM DirectMessages WHERE MessageID = ?;
       `;
       update(query, [messageID]);
+      return "Delete message operation successful";
     } catch (error) {
-      return error;
+      throw error;
     }
   }
   async hasAbilityToSend(senderID, receiverID) {
     const user = new UserManager();
-    let result = await user.isUserBlocked(receiverID, senderID);
-    if (result[0]["count(*)"] == 0) {
-      result = await user.isUserBlocked(senderID, receiverID);
-      if (result[0]["count(*)"] == 0) {
+    let hasSenderBlock = await user.isUserBlocked(receiverID, senderID);
+    if (!hasSenderBlock) {
+      let hasReceiverBlock = await user.isUserBlocked(senderID, receiverID);
+      if (!hasReceiverBlock) {
         let receiverDMLimit = await user.getDMLimit(receiverID);
-        console.log(receiverDMLimit);
-        receiverDMLimit = receiverDMLimit[0]["DMLimit"];
+        const query = `SELECT COUNT(*) FROM abbankDB.Follows WHERE FollowerID = ? AND FollowingID = ? OR FollowerID = ? AND FollowingID = ?;`;
         const status = (
-          await select(`SELECT 
-            COUNT(*)
-        FROM
-            abbankDB.Follows
-        WHERE
-            FollowerID = ${senderID} AND FollowingID = ${receiverID}
-                OR FollowerID = ${receiverID} AND FollowingID = ${senderID};`)
+          await select(query, [senderID, receiverID, receiverID, senderID])
         )[0]["COUNT(*)"];
         if (status >= receiverDMLimit) {
           return true;
@@ -52,74 +47,87 @@ class DirectMessage {
 
   async getDirectList(userID) {
     const user = new UserManager();
-    const dm = await select(
-      `SELECT distinct RecieverID
-      FROM DirectMessages
-      WHERE SenderID = ${userID}
-      UNION
-      SELECT distinct SenderID
-      FROM DirectMessages
-      WHERE RecieverID = ${userID}
-      ;`
-    );
+
+    const query = `
+    SELECT distinct RecieverID FROM DirectMessages WHERE SenderID = ? 
+    UNION 
+    SELECT distinct SenderID FROM DirectMessages WHERE RecieverID = ?;`;
+    const dmList = await select(query, [userID, userID]);
 
     let directList = [];
 
-    const directListPromises = dm.map(async (interaction) => {
-      const userID = interaction["RecieverID"];
-      const profileIcon = (await user.getUserProfileIconLink(userID))[0][
-        "ProfileIconLink"
-      ];
-      const displayName = (await user.getDisplayName(userID))[0]["DisplayName"];
-      const username = (await user.getUsername(userID))[0]["Username"];
-      let listDetail = {
-        userID: userID,
-        ProfileIconLink: profileIcon,
-        displayName: displayName,
-        username: username,
-      };
-      directList.push(listDetail);
+    const directListPromises = dmList.map(async (interaction) => {
+      const recipientID = interaction["RecieverID"];
+      try {
+        const [profileIcon, displayName, username] = await Promise.all([
+          user.getUserProfileIconLink(recipientID),
+          user.getDisplayName(recipientID),
+          user.getUsername(recipientID),
+        ]);
+        return {
+          userID: recipientID,
+          ProfileIconLink: profileIcon,
+          displayName: displayName,
+          username: username,
+        };
+      } catch (error) {
+        throw error;
+      }
     });
 
     await Promise.all(directListPromises);
 
-    console.log(directList);
-
-    return directList;
+    return directList.filter((entry) => entry !== null);
   }
 
   async getMessage(senderID, recieverID, messageID) {
-    const result = await select(
-      `SELECT 
-      DirectMessages.*
-  FROM
-      DirectMessages
-          LEFT JOIN
-      ClearDirectMessage ON ClearDirectMessage.SenderID = ${senderID}
-          AND ClearDirectMessage.RecieverID = ${recieverID}
-  WHERE
-      (DirectMessages.SenderID = ${senderID}
-          AND DirectMessages.RecieverID = ${recieverID}
-          OR DirectMessages.SenderID = ${recieverID}
-          AND DirectMessages.RecieverID = ${senderID})
-          AND DirectMessages.MessageID > ${messageID}
-          AND (ClearDirectMessage.Time IS NULL OR ClearDirectMessage.Time < DirectMessages.Time);;`
-    );
+    const query = `
+    SELECT DirectMessages.* FROM DirectMessages 
+    LEFT JOIN
+      ClearDirectMessage ON ClearDirectMessage.SenderID = ? AND ClearDirectMessage.RecieverID = ?
+    WHERE
+    (DirectMessages.SenderID = ?
+        AND DirectMessages.RecieverID = ?
+        OR DirectMessages.SenderID = ?
+        AND DirectMessages.RecieverID = ?)
+        AND DirectMessages.MessageID > ?
+        AND (ClearDirectMessage.Time IS NULL OR ClearDirectMessage.Time < DirectMessages.Time);`;
 
-    return result;
+    const messages = await select(query, [
+      senderID,
+      recieverID,
+      senderID,
+      recieverID,
+      recieverID,
+      senderID,
+      messageID,
+    ]);
+
+    return messages;
   }
+
   async clearMessage(senderID, recieverID) {
-    const hasUserClearBefore = await select(
-      `SELECT count(*) FROM abbankDB.ClearDirectMessage WHERE SenderID = ${senderID} AND RecieverID = ${recieverID};`
+    const hasUserClearBefore = await this.#hasClearedMessageBefore(
+      senderID,
+      recieverID
     );
-    if (hasUserClearBefore[0]["count(*)"] == 0) {
-      update(
-        `INSERT INTO ClearDirectMessage (SenderID, RecieverID, Time) VALUES (${senderID}, ${recieverID}, now());`
-      );
+    if (hasUserClearBefore) {
+      const updateQuery = `UPDATE ClearDirectMessage SET Time = now() WHERE (SenderID = ?) and (RecieverID = ?);`;
+      update(updateQuery, [senderID, recieverID]);
     } else {
-      update(
-        `UPDATE ClearDirectMessage SET Time = now() WHERE (SenderID = ${senderID}) and (RecieverID = ${recieverID});`
-      );
+      const createQuery = `INSERT INTO ClearDirectMessage (SenderID, RecieverID, Time) VALUES (?,?,now());`;
+      update(createQuery, [senderID, recieverID]);
+    }
+  }
+
+  async #hasClearedMessageBefore(senderID, recieverID) {
+    try {
+      const query = `SELECT count(*) FROM abbankDB.ClearDirectMessage WHERE SenderID = ? AND RecieverID = ?;`;
+      const result =
+        (await select(query, [senderID, recieverID]))[0]["count(*)"] == 1;
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 }

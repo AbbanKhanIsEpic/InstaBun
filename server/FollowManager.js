@@ -6,6 +6,7 @@ class FollowManager {
     try {
       const query = `INSERT INTO abbankDB.Follows (FollowerID, FollowingID) VALUES (?, ?);`;
       await update(query, [followerID, followingID]);
+      return "Follow operation successful";
     } catch (error) {
       throw error;
     }
@@ -14,6 +15,7 @@ class FollowManager {
     try {
       const query = `DELETE FROM abbankDB.Follows WHERE (FollowerID =?) and (FollowingID = ?);`;
       await update(query, [followerID, followingID]);
+      return "Unfollow operation successful";
     } catch (error) {
       throw error;
     }
