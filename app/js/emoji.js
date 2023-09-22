@@ -54,7 +54,6 @@ for (let i = 0; i < 134; i++) {
         const value = emoji[1]["image_url"];
         emojiMap.set(key, value);
       });
-      console.log(emojis);
     })
     .catch((error) => {
       console.error("Error loading JSON data:", error);

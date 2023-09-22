@@ -21,20 +21,20 @@ function createConnection() {
   });
 }
 
-function update(query) {
-  connection.query(query, function (err) {
+function update(query, values) {
+  connection.query(query, values, function (err) {
     if (err) throw err;
   });
 }
 
-function select(query) {
+function select(query, values) {
   return new Promise((resolve, reject) => {
-    connection.query(query, (err, result) => {
+    connection.query(query, values, (err, result) => {
       if (err) {
-        console.error("Error with recieving data:", err);
+        console.error("Error with receiving data:", err);
         reject(err);
       } else {
-        console.log("Recieved the data!");
+        console.log("Received the data!");
         resolve(result);
       }
     });

@@ -26,7 +26,7 @@ const currentUserUserID = getCookie("userID");
 fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    currentUserProfileLink = data[0]["ProfileIconLink"];
+    currentUserProfileLink = data.ProfileIconLink;
     navProfileIcon.src = currentUserProfileLink;
   })
   .catch((error) => {
@@ -37,7 +37,7 @@ fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${currentUserUserID}`)
 fetch(`http://127.0.0.1:5000/api/user/username?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    currentUserUsername = data[0]["Username"];
+    currentUserUsername = data.Username;
   })
   .catch((error) => {
     // Handle any errors that occurred during the request

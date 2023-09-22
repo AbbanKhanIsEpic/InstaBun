@@ -333,11 +333,9 @@ class PostManager {
 
       const followingArray = await follow.getFollowings(userID);
 
-      const placeholders = followingArray.map(() => "?").join(", ");
-
       const query = `SELECT idPost FROM abbankDB.Post WHERE UserID IN (?);`;
 
-      const followingsPostID = await select(query, [placeholders]);
+      const followingsPostID = await select(query, [followingArray]);
 
       const followingsPostIDArray = followingsPostID.map((postID) => {
         return postID.idPost;
@@ -446,7 +444,8 @@ class PostManager {
   async hasShared(userID, postID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.PostShare where postID = ? AND userID = ?;`;
-      const result = await select(query, [postID, userID]);
+      const result =
+        (await select(query, [postID, userID]))[0]["count(*) "] == 1;
       return result;
     } catch (error) {
       throw error;

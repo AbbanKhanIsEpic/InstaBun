@@ -60,7 +60,7 @@ class UserManager {
     try {
       const query = `SELECT UserID FROM abbankDB.Users where Username = ?`;
       const result = await select(query, [username]);
-      return result[0]["UserID"];
+      return result[0];
     } catch (error) {
       throw error;
     }
@@ -70,7 +70,7 @@ class UserManager {
     try {
       const query = `SELECT Username FROM abbankDB.Users where UserID = ?`;
       const result = await select(query, [userID]);
-      return result[0]["Username"];
+      return result[0];
     } catch (error) {
       throw error;
     }
@@ -80,7 +80,7 @@ class UserManager {
     try {
       const query = `SELECT DisplayName FROM abbankDB.Users where UserID = ?`;
       const result = await select(query, [userID]);
-      return result[0]["DisplayName"];
+      return result[0];
     } catch (error) {
       throw error;
     }
@@ -98,9 +98,12 @@ class UserManager {
 
   async getUserProfileIconLink(userID) {
     try {
-      const query = `SELECT ProfileIconLink FROM abbankDB.Users where UserID = ?;`;
+      const query = `SELECT ProfileIconLink FROM abbankDB.Users where UserID = ?`;
       const result = await select(query, [userID]);
-      return result[0]["ProfileIconLink"];
+      if (result.length === 0) {
+        return new Error("Unable to get the link of the user's profile icon");
+      }
+      return result[0];
     } catch (error) {
       throw error;
     }
@@ -151,7 +154,7 @@ class UserManager {
     try {
       const query = `SELECT Visibility FROM abbankDB.Users where UserID = ?`;
       const result = await select(query, [userID]);
-      return result[0]["Visibility"];
+      return result[0];
     } catch (error) {
       throw error;
     }
@@ -161,7 +164,7 @@ class UserManager {
     try {
       const query = `SELECT DMLimit FROM abbankDB.Users where UserID = ?;`;
       const result = await select(query, [userID]);
-      return result[0]["DMLimit"];
+      return result[0];
     } catch (error) {
       throw error;
     }

@@ -41,7 +41,7 @@ class StoryManager {
       Users ON Users.UserID = Story.UserID
   WHERE
       Story.UserID in (?)
- Having hoursOlD <= 24;
+ Having hoursOlD <= 24
  Order by hoursOlD;`;
 
       const result = await select(query, [followingArray]);
