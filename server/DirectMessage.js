@@ -4,23 +4,23 @@ const { update } = require("./DB");
 const UserManager = require("./UserManager");
 
 class DirectMessage {
-  sendMessage(senderID, receiverID, message) {
+  async sendMessage(senderID, receiverID, message) {
     try {
       const query = `
         INSERT INTO abbankDB.DirectMessages (SenderID, RecieverID, Time, Message)
         VALUES (?, ?, NOW(), ?);`;
 
-      update(query, [senderID, receiverID, message]);
+      await update(query, [senderID, receiverID, message]);
       return "Send message operation successful";
     } catch (error) {
       throw error;
     }
   }
-  deleteMessage(messageID) {
+  async deleteMessage(messageID) {
     try {
       const query = `DELETE FROM DirectMessages WHERE MessageID = ?;
       `;
-      update(query, [messageID]);
+      await update(query, [messageID]);
       return "Delete message operation successful";
     } catch (error) {
       throw error;
@@ -54,7 +54,7 @@ class DirectMessage {
     SELECT distinct SenderID FROM DirectMessages WHERE RecieverID = ?;`;
     const dmList = await select(query, [userID, userID]);
 
-    let directList = [];
+    const directList = [];
 
     const directListPromises = dmList.map(async (interaction) => {
       const recipientID = interaction["RecieverID"];

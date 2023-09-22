@@ -17,11 +17,6 @@ class StoryManager {
     try {
       const query = `SELECT count(*) FROM abbankDB.Story where UserID = ?;`;
       const result = await select(query, [userID]);
-      if (result.length === 0) {
-        throw new Error(
-          `Unable to retrieve the how many stories the user has uploaded`
-        );
-      }
       return result[0]["count(*)"];
     } catch (error) {
       throw error;
@@ -50,10 +45,6 @@ class StoryManager {
  Order by hoursOlD;`;
 
       const result = await select(query, [followingArray]);
-      if (result.length === 0) {
-        throw new Error(`Unable to retrieve stories for the user`);
-      }
-
       return result;
     } catch (error) {
       throw error;

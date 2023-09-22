@@ -24,11 +24,6 @@ class FollowManager {
     try {
       const query = `SELECT count(*) FROM abbankDB.Follows where FollowerID = ? AND FollowingID = ?;`;
       const result = await select(query, [followerID, followingID]);
-      if (result.length === 0) {
-        throw new Error(
-          `Unable to retrieve to determine if the user is following or not`
-        );
-      }
       return result[0]["count(*)"] == 1;
     } catch (error) {
       throw error;
@@ -38,9 +33,6 @@ class FollowManager {
     try {
       const query = `SELECT FollowingID FROM abbankDB.Follows where FollowerID = ?;`;
       const result = await select(query, [followerID]);
-      if (result.length === 0) {
-        throw new Error(`Unable to retrieve who the user follow`);
-      }
       const followings = result.map((row) => row.FollowingID);
       return followings;
     } catch (error) {
@@ -51,9 +43,6 @@ class FollowManager {
     try {
       const query = `SELECT FollowerID FROM abbankDB.Follows where FollowingID = ?;`;
       const result = await select(query, [followingID]);
-      if (result.length === 0) {
-        throw new Error(`Unable to retrieve who following the user`);
-      }
       const followers = result.map((row) => row.FollowingID);
       return followers;
     } catch (error) {

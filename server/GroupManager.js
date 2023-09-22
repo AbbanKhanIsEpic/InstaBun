@@ -90,7 +90,6 @@ class GroupManager {
     WHERE
      GroupMembers.GroupID = ?;`;
       const groupMembers = await select(query, [groupID]);
-
       return groupMembers;
     } catch (error) {
       throw error;
