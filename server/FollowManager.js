@@ -8,7 +8,7 @@ class FollowManager {
       await update(query, [followerID, followingID]);
       return "Follow operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async unfollow(followerID, followingID) {
@@ -17,16 +17,16 @@ class FollowManager {
       await update(query, [followerID, followingID]);
       return "Unfollow operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async isFollowing(followerID, followingID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Follows where FollowerID = ? AND FollowingID = ?;`;
-      const result = await select(query, [followerID, followingID]);
-      return result[0]["count(*)"] == 1;
+      const [result] = await select(query, [followerID, followingID]);
+      return result["count(*)"] == 1;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async getFollowings(followerID) {
@@ -36,7 +36,7 @@ class FollowManager {
       const followings = result.map((row) => row.FollowingID);
       return followings;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async getFollowers(followingID) {
@@ -46,7 +46,7 @@ class FollowManager {
       const followers = result.map((row) => row.FollowingID);
       return followers;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 }

@@ -185,9 +185,9 @@ export function appendPost(
       .then((response) => response.json())
       .then((data) => {
         data.map((comment) => {
-          const text = comment["Comment"];
-          const profileIcon = comment["ProfileIconLink"];
-          const username = comment["Username"];
+          const text = comment.Comment;
+          const profileIcon = comment.ProfileIconLink;
+          const username = comment.Username;
           addComment(currentUserUserID, username, profileIcon, text);
         });
       })
@@ -195,39 +195,39 @@ export function appendPost(
         // Handle any errors that occurred during the request
         console.error(error);
       });
-  });
 
-  sendSpan.addEventListener("click", function () {
-    var dataObject = {
-      postID: postID,
-      userID: currentUserUserID,
-      comment: commentInputField.value,
-    };
+    sendSpan.addEventListener("click", function () {
+      var dataObject = {
+        postID: postID,
+        userID: currentUserUserID,
+        comment: commentInputField.value,
+      };
 
-    // Convert the JavaScript object to a JSON string
-    var jsonObject = JSON.stringify(dataObject);
+      // Convert the JavaScript object to a JSON string
+      var jsonObject = JSON.stringify(dataObject);
 
-    fetch("http://127.0.0.1:5000/api/post/comment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: jsonObject,
-    })
-      .then((response) => response.text())
-      .then((responseData) => {
-        addComment(
-          currentUserUserID,
-          currentUserUsername,
-          currentUserProfileLink,
-          commentInputField.value
-        );
-        commentCount++;
-        commentCountSpan.textContent = commentCount;
+      fetch("http://127.0.0.1:5000/api/post/comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        body: jsonObject,
       })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+        .then((response) => response.text())
+        .then((responseData) => {
+          addComment(
+            currentUserUserID,
+            currentUserUsername,
+            currentUserProfileLink,
+            commentInputField.value
+          );
+          commentCount++;
+          commentCountSpan.textContent = commentCount;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
   });
 
   function addComment(userID, username, currentUserProfileLink, text) {
@@ -319,7 +319,7 @@ export function appendPost(
       fetch(server + query)
         .then((response) => response.json())
         .then((data) => {
-          if (data[0]["count(*)"] == 0) {
+          if (!data) {
             shareCount++;
             shareCountSpan.textContent = shareCount;
 

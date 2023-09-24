@@ -28,8 +28,6 @@ const title = document.querySelector("#title");
 
 let selectedFile;
 
-let uploadTitle;
-
 let uploadTags = [];
 
 document
@@ -104,17 +102,16 @@ function previewUpload(target) {
 }
 
 addTags.addEventListener("click", function () {
-  const tag = `'` + tags.value + `'`;
-  uploadTags.push(tag);
+  uploadTags.push(tags.value);
   const isDuplicateTags = new Set(uploadTags).size !== uploadTags.length;
   if (tags.value.length == 0) {
     alert("Enter something");
   } else if (isDuplicateTags) {
     alert("Don't enter same tag twice");
-    uploadTags.pop(tag);
+    uploadTags.pop(tags.value);
   } else if (/\s/g.test(tags.value)) {
     alert("Don't enter tags with spaces");
-    uploadTags.pop(tag);
+    uploadTags.pop(tags.value);
   } else {
     const div = document.createElement("div");
     const input = document.createElement("input");
@@ -134,7 +131,7 @@ addTags.addEventListener("click", function () {
     div.appendChild(span);
 
     span.addEventListener("click", function () {
-      uploadTags.pop(tag);
+      uploadTags.pop(tags.value);
       displayTags.removeChild(div);
     });
 
@@ -167,7 +164,6 @@ cancelButton.addEventListener("click", function () {
 
 createButton.addEventListener("click", function () {
   const showUpload = document.querySelector("#showUpload");
-  console.log(title.value);
   if (showUpload.src == "http://127.0.0.1:5501/app/image/default.png") {
     alert("Please select something");
   } else if (title.value.length == 0) {
@@ -184,7 +180,8 @@ createButton.addEventListener("click", function () {
         )
           .then((response) => response.json())
           .then((data) => {
-            const totalPost = data["0"]["count(*)"];
+            console.log(data);
+            const totalPost = data;
             const name = `P${currentUserUserID}:${totalPost}`;
             uploadToFirebase(name);
           })
@@ -227,13 +224,13 @@ function uploadStory(url) {
   })
     .then((response) => response.text())
     .then((responseData) => {
-      window.location.reload();
       alert("Story created");
+      window.location.reload();
       console.log("Response:", responseData);
     })
     .catch((error) => {
-      window.location.reload();
       alert("Story not created");
+      window.location.reload();
       console.error("Error:", error);
     });
 }
@@ -258,13 +255,13 @@ function uploadPost(url) {
   })
     .then((response) => response.text())
     .then((responseData) => {
+      alert("Post created");
       window.location.reload();
-      lert("Post created");
       console.log("Response:", responseData);
     })
     .catch((error) => {
-      window.location.reload();
       alert("Post not created");
+      window.location.reload();
       console.error("Error:", error);
     });
 }

@@ -17,23 +17,20 @@ if (sharedPost == null) {
   )
     .then((response) => response.json())
     .then((data) => {
-      if (!data) {
-        alert("Like some posts for something to appear here");
-      }
       data.map((post) => {
-        const postID = post["postID"];
+        const postID = post.postID;
 
-        const uploadDetail = post["uploadDetail"][0];
-        const PostLink = uploadDetail["PostLink"];
-        const Title = uploadDetail["Title"];
-        const commentCount = uploadDetail["commentCount"];
-        const didUserLike = uploadDetail["didUserLike"];
-        const likeCount = uploadDetail["likeCount"];
-        const shareCount = uploadDetail["shareCount"];
+        const uploadDetail = post.uploadDetail;
+        const PostLink = uploadDetail.PostLink;
+        const Title = uploadDetail.Title;
+        const commentCount = uploadDetail.commentCount;
+        const didUserLike = uploadDetail.didUserLike;
+        const likeCount = uploadDetail.likeCount;
+        const shareCount = uploadDetail.shareCount;
 
-        const uploaderDetail = post["uploaderDetail"][0];
-        const Username = uploaderDetail["Username"];
-        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+        const uploaderDetail = post.uploaderDetail;
+        const Username = uploaderDetail.Username;
+        const ProfileIconLink = uploaderDetail.ProfileIconLink;
 
         appendPost(
           postID,
@@ -59,19 +56,19 @@ if (sharedPost == null) {
     .then((response) => response.json())
     .then((data) => {
       data.map((post) => {
-        const postID = post["postID"];
+        const postID = post.postID;
 
-        const uploadDetail = post["uploadDetail"][0];
-        const PostLink = uploadDetail["PostLink"];
-        const Title = uploadDetail["Title"];
-        const commentCount = uploadDetail["commentCount"];
-        const didUserLike = uploadDetail["didUserLike"];
-        const likeCount = uploadDetail["likeCount"];
-        const shareCount = uploadDetail["shareCount"];
+        const uploadDetail = post.uploadDetail;
+        const PostLink = uploadDetail.PostLink;
+        const Title = uploadDetail.Title;
+        const commentCount = uploadDetail.commentCount;
+        const didUserLike = uploadDetail.didUserLike;
+        const likeCount = uploadDetail.likeCount;
+        const shareCount = uploadDetail.shareCount;
 
-        const uploaderDetail = post["uploaderDetail"][0];
-        const Username = uploaderDetail["Username"];
-        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+        const uploaderDetail = post.uploaderDetail;
+        const Username = uploaderDetail.Username;
+        const ProfileIconLink = uploaderDetail.ProfileIconLink;
 
         appendPost(
           postID,
@@ -121,55 +118,52 @@ search.addEventListener("click", function () {
 function searchPost(search) {
   clear();
   const tagsArray = search.trim().split(" ");
-  let tagsWithQuotes = "";
-  tagsArray.map((tag) => {
-    console.log(tag);
-    tagsWithQuotes += `"${tag}" `;
-  });
-  console.log(tagsWithQuotes);
-  tagsWithQuotes = tagsWithQuotes.trim().replace(/ /g, ",");
-  console.log(tagsWithQuotes);
-  const server = "http://127.0.0.1:5000/api/post/search";
-  const query = `?userID=${currentUserUserID}&tags=${tagsWithQuotes}`;
+  if (tagsArray.length === 0) {
+    alert("Can not search for a post with no tag");
+  } else {
+    const server = "http://127.0.0.1:5000/api/post/search";
+    const query = `?userID=${currentUserUserID}&tags=${tagsArray}`;
 
-  fetch(server + query)
-    .then((response) => response.json())
-    .then((data) => {
-      if (!data) {
-        alert("Can not find post");
-      }
-      data.map((post) => {
-        const postID = post["postID"];
+    fetch(server + query)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.length === undefined) {
+          alert("Can not find post");
+        } else {
+          data.map((post) => {
+            const postID = post.postID;
 
-        const uploadDetail = post["uploadDetail"][0];
-        const PostLink = uploadDetail["PostLink"];
-        const Title = uploadDetail["Title"];
-        const commentCount = uploadDetail["commentCount"];
-        const didUserLike = uploadDetail["didUserLike"];
-        const likeCount = uploadDetail["likeCount"];
-        const shareCount = uploadDetail["shareCount"];
+            const uploadDetail = post.uploadDetail;
+            const PostLink = uploadDetail.PostLink;
+            const Title = uploadDetail.Title;
+            const commentCount = uploadDetail.commentCount;
+            const didUserLike = uploadDetail.didUserLike;
+            const likeCount = uploadDetail.likeCount;
+            const shareCount = uploadDetail.shareCount;
 
-        const uploaderDetail = post["uploaderDetail"][0];
-        const Username = uploaderDetail["Username"];
-        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+            const uploaderDetail = post.uploaderDetail;
+            const Username = uploaderDetail.Username;
+            const ProfileIconLink = uploaderDetail.ProfileIconLink;
 
-        appendPost(
-          postID,
-          PostLink,
-          Title,
-          commentCount,
-          didUserLike,
-          likeCount,
-          shareCount,
-          Username,
-          ProfileIconLink
-        );
+            appendPost(
+              postID,
+              PostLink,
+              Title,
+              commentCount,
+              didUserLike,
+              likeCount,
+              shareCount,
+              Username,
+              ProfileIconLink
+            );
+          });
+        }
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
       });
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
+  }
 }
 
 function searchUsers(search) {
@@ -179,6 +173,7 @@ function searchUsers(search) {
   fetch(server + query)
     .then((response) => response.json())
     .then((data) => {
+      console.log(data);
       data.forEach(function (user) {
         // Create a div element
         const divElement = document.createElement("div");
@@ -203,8 +198,8 @@ function searchUsers(search) {
 
         // Create the second span element
         const spanElement2 = document.createElement("span");
-        spanElement2.textContent = user.DisplayName;
         spanElement2.className = "ms-2";
+        spanElement2.textContent = user.DisplayName;
 
         // Append all elements to the div
         divElement.appendChild(imgElement);

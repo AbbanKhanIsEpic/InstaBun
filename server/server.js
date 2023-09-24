@@ -338,7 +338,7 @@ app.get("/api/post/total", (req, res) => {
   post
     .total(userID)
     .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+      res.status(200).send(String(jsonifiedResult));
     })
     .catch((error) => {
       console.error(error);
@@ -521,7 +521,7 @@ app.get("/api/story/total", (req, res) => {
   story
     .total(userID)
     .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+      res.status(200).send(String(jsonifiedResult));
     })
     .catch((error) => {
       console.error(error);

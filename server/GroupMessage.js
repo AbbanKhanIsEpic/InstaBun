@@ -17,7 +17,7 @@ class GroupMessage {
       const result = await select(query, [groupID, userID, groupID, messageID]);
       return result;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async deleteMessage(messageID) {
@@ -26,7 +26,7 @@ class GroupMessage {
       await update(query, [messageID]);
       return "Delete message operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async sendMessage(userID, groupID, message) {
@@ -35,31 +35,34 @@ class GroupMessage {
       await update(query, [userID, groupID, message]);
       return "Send message operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async clearMessage(userID, groupID) {
-    const hasUserClearBefore = await this.#hasClearedMessageBefore(
-      userID,
-      groupID
-    );
-    if (hasUserClearBefore) {
-      const updateQuery = `UPDATE ClearGroupMessage SET Time = now() WHERE (UserID = ?) and (GroupID = ?);`;
-      await update(updateQuery, [userID, groupID]);
-    } else {
-      const createQuery = `INSERT INTO ClearGroupMessage (UserID, GroupID, Time) VALUES (?, ?, now());`;
-      await update(createQuery, [userID, groupID]);
+    try {
+      const hasUserClearBefore = await this.#hasClearedMessageBefore(
+        userID,
+        groupID
+      );
+      if (hasUserClearBefore) {
+        const updateQuery = `UPDATE ClearGroupMessage SET Time = now() WHERE (UserID = ?) and (GroupID = ?);`;
+        await update(updateQuery, [userID, groupID]);
+      } else {
+        const createQuery = `INSERT INTO ClearGroupMessage (UserID, GroupID, Time) VALUES (?, ?, now());`;
+        await update(createQuery, [userID, groupID]);
+      }
+    } catch (error) {
+      return error;
     }
   }
   async #hasClearedMessageBefore(userID, groupID) {
     try {
       const query = `SELECT count(*) FROM ClearGroupMessage WHERE UserID = ? AND GroupID = ?;`;
-      const result =
-        (await select(query, [userID, groupID]))[0]["count(*)"] == 1;
-      return result;
+      const [result] = await select(query, [userID, groupID]);
+      return result["count(*)"] == 1;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 }

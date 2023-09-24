@@ -7,43 +7,47 @@ class PostManager {
   async total(userID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Post where UserID = ?;`;
-      const result = await select(query, [userID]);
-      return result;
+      const [result] = await select(query, [userID]);
+      return result["count(*)"];
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async upload(userID, postLink, title, tags) {
-    //It is a promise because this needs to run first
-    //So we can create the tags first then upload the post then attach the tags to the post
-    const tagPromises = tags.map(async (tag) => {
-      //Look through each of the tags
-      const doesTagExist = await this.#doesTagExist(tag);
-      //Check if that tag exits
-      //If not: create it
-      if (!doesTagExist) {
-        this.#createTag(tag);
-      }
-    });
-    await Promise.all(tagPromises);
+    try {
+      //It is a promise because this needs to run first
+      //So we can create the tags first then upload the post then attach the tags to the post
+      const tagPromises = tags.map(async (tag) => {
+        //Look through each of the tags
+        const doesTagExist = await this.#doesTagExist(tag);
+        //Check if that tag exits
+        //If not: create it
+        if (!doesTagExist) {
+          this.#createTag(tag);
+        }
+      });
+      await Promise.all(tagPromises);
 
-    //Create the post
-    const query = `INSERT INTO abbankDB.Post (UserID, PostLink,Title) VALUES (?,?,?);`;
-    await update(query, [userID, postLink, title]);
-    //Since this is the latest post, we can get its ID
-    const postID = await this.#getCurrentPostID(userID);
-    await this.#attachTagsToPost(tags, postID);
+      //Create the post
+      const query = `INSERT INTO abbankDB.Post (UserID, PostLink,Title) VALUES (?,?,?);`;
+      await update(query, [userID, postLink, title]);
+      //Since this is the latest post, we can get its ID
+      const postID = await this.#getCurrentPostID(userID);
+      await this.#attachTagsToPost(tags, postID);
+    } catch (error) {
+      return error;
+    }
   }
 
   //This is a private method because only need to run this when a post is being uploaded
   async #doesTagExist(tag) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Tag where TagName = ?;`;
-      const result = (await select(query, [tag]))[0]["count(*)"] == 1;
-      return result;
+      const [result] = await select(query, [tag]);
+      return result["count(*)"] == 1;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -54,7 +58,7 @@ class PostManager {
       await update(query, [tag]);
       return "Create tag operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -65,17 +69,17 @@ class PostManager {
       const postIDsArray = result.map((row) => row.postID);
       return postIDsArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async #getCurrentPostID(userID) {
     try {
       const query = `SELECT idPost FROM abbankDB.Post where UserID = ? Order by idPost DESC Limit 1;`;
-      const result = (await select(query, [userID]))[0]["idPost"];
-      return result;
+      const [result] = await select(query, [userID]);
+      return result.idPost;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
   async #attachTagsToPost(tags, postID) {
@@ -89,12 +93,13 @@ class PostManager {
       await Promise.all(attachTagIDToPostPromise);
       return "Attach tags to post operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   //get the posts from the tags the user entered
   async getPostViaTags(userID, tags) {
+    console.log(tags);
     try {
       //It is a promise because this needs to run first
       //Because we might have a post attached to the tag the user search for
@@ -111,7 +116,7 @@ class PostManager {
       await Promise.all(tagPromises);
 
       if (tags.length === 0) {
-        throw new Error("Unable to retrieve post via the provided tags");
+        return new Error("Unable to retrieve post via the provided tags");
       }
 
       const tagIDsArray = await this.#getTagIDs(tags);
@@ -124,7 +129,7 @@ class PostManager {
 
       return postDetailsArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -155,7 +160,7 @@ class PostManager {
 
       const tagIDsResultSet = await select(query, [userID]);
 
-      const tagIDsArray = tagIDsResultSet.map((element) => element.tagID);
+      const tagIDsArray = tagIDsResultSet.map((element) => element.currentTag);
 
       const postIDsArray = await this.#getPostIDs(tagIDsArray);
 
@@ -165,7 +170,7 @@ class PostManager {
 
       return postDetailsArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -196,7 +201,7 @@ class PostManager {
 
       return postIDAndUserIDArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -237,7 +242,7 @@ class PostManager {
 
       return postIDAndUserIDArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -249,51 +254,62 @@ class PostManager {
 
       return postDetailsArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async #getPostDetails(userID, filteredPost) {
-    const extractDetailsPromise = await Promise.all(
-      filteredPost.map(async (element) => {
-        const uploader = element.userID;
-        const upload = element.postID;
+    try {
+      const extractDetailsPromise = await Promise.all(
+        filteredPost.map(async (element) => {
+          const uploader = element.userID;
+          const upload = element.postID;
 
-        try {
-          const uploaderDetailQuery = `SELECT Username, ProfileIconLink FROM abbankDB.Users WHERE UserID = ?;`;
-          const uploaderDetail = await select(uploaderDetailQuery, [uploader]);
+          try {
+            const uploaderDetailQuery = `SELECT Username, ProfileIconLink FROM abbankDB.Users WHERE UserID = ?;`;
+            const [uploaderDetail] = await select(uploaderDetailQuery, [
+              uploader,
+            ]);
 
-          const uploadDetail = await select(
-            `SELECT 
-                  PostLink,
-                  Title,
-                  (SELECT COUNT(*) FROM PostLike WHERE PostLike.postID = ? AND PostLike.userID = ?) AS didUserLike,
-                  (SELECT COUNT(*) FROM PostLike INNER JOIN Post ON PostLike.postID = Post.idPost WHERE Post.idPost = ?) AS likeCount,
-                  (SELECT COUNT(*) FROM PostShare INNER JOIN Post ON PostShare.postID = Post.idPost WHERE Post.idPost = ?) AS shareCount,
-                  (SELECT COUNT(*) FROM PostComment INNER JOIN Post ON PostComment.postID = Post.idPost WHERE Post.idPost = ?) AS commentCount
-              FROM Post
-              WHERE Post.idPost = ?;`,
-            [upload, userID, upload, upload, upload, upload]
-          );
+            const uploadDetailQuery = `SELECT 
+            PostLink,
+            Title,
+            (SELECT COUNT(*) FROM PostLike WHERE PostLike.postID = ? AND PostLike.userID = ?) AS didUserLike,
+            (SELECT COUNT(*) FROM PostLike INNER JOIN Post ON PostLike.postID = Post.idPost WHERE Post.idPost = ?) AS likeCount,
+            (SELECT COUNT(*) FROM PostShare INNER JOIN Post ON PostShare.postID = Post.idPost WHERE Post.idPost = ?) AS shareCount,
+            (SELECT COUNT(*) FROM PostComment INNER JOIN Post ON PostComment.postID = Post.idPost WHERE Post.idPost = ?) AS commentCount
+            FROM Post
+            WHERE Post.idPost = ?;`;
+            const [uploadDetail] = await select(uploadDetailQuery, [
+              upload,
+              userID,
+              upload,
+              upload,
+              upload,
+              upload,
+            ]);
 
-          const details = {
-            postID: upload,
-            uploadDetail: uploadDetail,
-            uploaderDetail: uploaderDetail,
-          };
+            const details = {
+              postID: upload,
+              uploadDetail: uploadDetail,
+              uploaderDetail: uploaderDetail,
+            };
 
-          return details;
-        } catch (error) {
-          throw error;
-        }
-      })
-    );
+            return details;
+          } catch (error) {
+            return error;
+          }
+        })
+      );
 
-    const postDetailsArray = extractDetailsPromise.filter(
-      (details) => details !== null
-    );
+      const postDetailsArray = extractDetailsPromise.filter(
+        (details) => details !== null
+      );
 
-    return postDetailsArray;
+      return postDetailsArray;
+    } catch (error) {
+      return error;
+    }
   }
 
   async #getTagIDs(tags) {
@@ -303,7 +319,7 @@ class PostManager {
       const idsArray = result.map((element) => element.idTag);
       return idsArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -313,7 +329,7 @@ class PostManager {
       await update(query, [postID, userID]);
       return "Like post operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -323,7 +339,7 @@ class PostManager {
       await update(query, [postID, userID]);
       return "Unlike post operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -350,7 +366,7 @@ class PostManager {
 
       return postDetailsArray;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -366,6 +382,7 @@ class PostManager {
       if (postIDsArray.length === 0) {
         throw new Error("User does not have any post");
       }
+
       if (viewerID != profileUserID) {
         const filteredPost = await this.#filterPost(viewerID, postIDsArray);
 
@@ -405,7 +422,7 @@ class PostManager {
         return postDetailsArray;
       }
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -415,7 +432,7 @@ class PostManager {
       await update(query, [postID, userID, comment]);
       return "Comment operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -437,18 +454,17 @@ class PostManager {
 
       return result;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async hasShared(userID, postID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.PostShare where postID = ? AND userID = ?;`;
-      const result =
-        (await select(query, [postID, userID]))[0]["count(*) "] == 1;
-      return result;
+      const [result] = await select(query, [postID, userID]);
+      return result["count(*)"] == 1;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -458,7 +474,7 @@ class PostManager {
       await update(query, [postID, userID]);
       return "Record share action operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 }

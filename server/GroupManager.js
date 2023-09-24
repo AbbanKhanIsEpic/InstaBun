@@ -3,14 +3,18 @@ const { update } = require("./DB");
 
 class GroupManager {
   async getGroupList(userID) {
-    const query = `
+    try {
+      const query = `
     SELECT Collective.OwnerID, Collective.GroupID,Collective.GroupName, Collective.GroupIconLink FROM GroupMembers
     INNER JOIN 
     Collective ON Collective.GroupID = GroupMembers.GroupID
     WHERE
         GroupMembers.UserID = ?;`;
-    const result = await select(query, [userID]);
-    return result;
+      const result = await select(query, [userID]);
+      return result;
+    } catch (error) {
+      return error;
+    }
   }
 
   updateGroupIcon(groupID, groupIcon) {
@@ -19,7 +23,7 @@ class GroupManager {
       update(query, [groupIcon, groupID]);
       return "Update the group's icon operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -29,7 +33,7 @@ class GroupManager {
       update(query, [groupName, groupID]);
       return "Update the group's name operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -40,7 +44,7 @@ class GroupManager {
       const groupID = await this.#getLatestGroupID(createrUserID);
       await this.#addMembers(groupID, groupMembers);
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -56,7 +60,7 @@ class GroupManager {
       await update(query, [groupID, groupMember]);
       return "Add member operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -66,17 +70,17 @@ class GroupManager {
       await update(query, [groupID, groupMember]);
       return "Remove member operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async #getLatestGroupID(createrUserID) {
     try {
       const query = `SELECT GroupID FROM abbankDB.Collective WHERE OwnerID = ? Order by GroupID DESC LIMIT 1;`;
-      const result = (await select(query, [createrUserID]))[0]["GroupID"];
-      return result;
+      const [result] = await select(query, [createrUserID]);
+      return result.GroupID;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -92,7 +96,7 @@ class GroupManager {
       const groupMembers = await select(query, [groupID]);
       return groupMembers;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -102,7 +106,7 @@ class GroupManager {
       await update(query, [newOwnerID, groupID]);
       return "Transfer ownership operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 }

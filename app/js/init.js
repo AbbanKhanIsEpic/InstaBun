@@ -23,6 +23,10 @@ function getCookie(name) {
 
 const currentUserUserID = getCookie("userID");
 
+if (currentUserUserID == null) {
+  window.open("http://127.0.0.1:5501/app/signup.html", "_self");
+}
+
 fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {

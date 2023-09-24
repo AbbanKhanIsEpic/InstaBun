@@ -9,17 +9,17 @@ class StoryManager {
       await update(query, [userID, StoryLink, Title]);
       return "Upload story operation successful";
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
   async total(userID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Story where UserID = ?;`;
-      const result = await select(query, [userID]);
-      return result[0]["count(*)"];
+      const [result] = await select(query, [userID]);
+      return result["count(*)"];
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 
@@ -47,7 +47,7 @@ class StoryManager {
       const result = await select(query, [followingArray]);
       return result;
     } catch (error) {
-      throw error;
+      return error;
     }
   }
 }
