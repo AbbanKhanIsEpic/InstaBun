@@ -4,24 +4,23 @@ import { appendStory } from "./story.js";
 fetch(`http://127.0.0.1:5000/api/post/followings?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    if (!data) {
+    if (data.length === undefined) {
       alert("Can not find post");
     }
     data.map((post) => {
-      console.log(data);
-      const postID = post["postID"];
+      const postID = post.postID;
 
-      const uploadDetail = post["uploadDetail"][0];
-      const PostLink = uploadDetail["PostLink"];
-      const Title = uploadDetail["Title"];
-      const commentCount = uploadDetail["commentCount"];
-      const didUserLike = uploadDetail["didUserLike"];
-      const likeCount = uploadDetail["likeCount"];
-      const shareCount = uploadDetail["shareCount"];
+      const uploadDetail = post.uploadDetail;
+      const PostLink = uploadDetail.PostLink;
+      const Title = uploadDetail.Title;
+      const commentCount = uploadDetail.commentCount;
+      const didUserLike = uploadDetail.didUserLike;
+      const likeCount = uploadDetail.likeCount;
+      const shareCount = uploadDetail.shareCount;
 
-      const uploaderDetail = post["uploaderDetail"][0];
-      const Username = uploaderDetail["Username"];
-      const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+      const uploaderDetail = post.uploaderDetail;
+      const Username = uploaderDetail.Username;
+      const ProfileIconLink = uploaderDetail.ProfileIconLink;
 
       appendPost(
         postID,

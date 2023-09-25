@@ -4,7 +4,7 @@ const { update } = require("./DB");
 class GroupMessage {
   async getMessage(userID, groupID, messageID) {
     try {
-      const query = `SELECT GroupMessages.*, Users.DisplayName, Users.ProfileIconLink FROM GroupMessages
+      const query = `SELECT GroupMessages.*, Users.DisplayName,Users.Username, Users.ProfileIconLink FROM GroupMessages
       INNER JOIN
         Users ON Users.UserID = GroupMessages.UserID
       LEFT JOIN

@@ -64,8 +64,24 @@ class PostManager {
 
   async #getPostIDs(tagID) {
     try {
-      const query = `SELECT distinct postID FROM abbankDB.PostTags where tagID in (?);`;
+      const query = `SELECT distinct postID
+      FROM abbankDB.PostTags
+      WHERE tagID IN (?);`;
       const result = await select(query, [tagID]);
+      const postIDsArray = result.map((row) => row.postID);
+      return postIDsArray;
+    } catch (error) {
+      return error;
+    }
+  }
+  async #getSpecificPostIDs(tagID) {
+    try {
+      const query = `SELECT postID
+      FROM abbankDB.PostTags
+      WHERE tagID IN (?)
+      GROUP BY postID
+      HAVING COUNT(DISTINCT tagID) = ?;`;
+      const result = await select(query, [tagID, tagID.length]);
       const postIDsArray = result.map((row) => row.postID);
       return postIDsArray;
     } catch (error) {
@@ -121,7 +137,7 @@ class PostManager {
 
       const tagIDsArray = await this.#getTagIDs(tags);
 
-      const postIDsArray = await this.#getPostIDs(tagIDsArray);
+      const postIDsArray = await this.#getSpecificPostIDs(tagIDsArray);
 
       const filteredPost = await this.#filterPostForAll(postIDsArray);
 

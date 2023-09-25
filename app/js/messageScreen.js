@@ -73,11 +73,13 @@ function getDirectList() {
   fetch(`http://127.0.0.1:5000/api/direct/list?userID=${currentUserUserID}`)
     .then((response) => response.json())
     .then((data) => {
+      console.log(data);
       data.map((user) => {
-        const profileIconLink = user["ProfileIconLink"];
-        const displayName = user["displayName"];
-        const userID = user["userID"];
-        const username = user["username"];
+        console.log(user);
+        const profileIconLink = user.profileIconLink;
+        const displayName = user.displayName;
+        const userID = user.userID;
+        const username = user.username;
         appendDirect(userID, username, displayName, profileIconLink);
       });
     })
@@ -469,8 +471,9 @@ sendMessageButton.addEventListener("click", function () {
     alert("Select a group");
   }
   if (currentlySelectedGroupID != 0) {
-    let message = textAndEmojiToText();
+    const message = textAndEmojiToText();
     console.log(message.length);
+    console.log(message);
     if (message.length == 0) {
       alert("Please have something to say");
     } else if (message.length > 1100) {

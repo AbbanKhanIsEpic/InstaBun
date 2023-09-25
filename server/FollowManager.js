@@ -43,7 +43,7 @@ class FollowManager {
     try {
       const query = `SELECT FollowerID FROM abbankDB.Follows where FollowingID = ?;`;
       const result = await select(query, [followingID]);
-      const followers = result.map((row) => row.FollowingID);
+      const followers = result.map((row) => row.FollowerID);
       return followers;
     } catch (error) {
       return error;

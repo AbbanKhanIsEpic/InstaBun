@@ -103,6 +103,8 @@ export function textAndEmojiToText() {
   let message = "";
   for (let i = 0; i < inputText.childNodes.length; i++) {
     let nextCloneNode = inputText.childNodes[i];
+    console.log(nextCloneNode);
+    console.log(nextCloneNode.ariaLabel == null);
     if (nextCloneNode.ariaLabel == null) {
       let textWithEscape = nextCloneNode.textContent
         .replace(/"/g, '\\"')
@@ -112,7 +114,9 @@ export function textAndEmojiToText() {
       message += textWithEscape;
     } else {
       let representEmojiAsText = `:${nextCloneNode.ariaLabel}:`;
+      console.log(representEmojiAsText);
       message += representEmojiAsText;
+      console.log(message);
     }
   }
   return message;

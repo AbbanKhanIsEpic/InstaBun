@@ -68,12 +68,12 @@ class DirectMessage {
             user.getDisplayName(recipientID),
             user.getUsername(recipientID),
           ]);
-          return {
+          directList.push({
             userID: recipientID,
-            ProfileIconLink: profileIcon,
-            displayName: displayName,
-            username: username,
-          };
+            profileIconLink: profileIcon.ProfileIconLink,
+            displayName: displayName.DisplayName,
+            username: username.Username,
+          });
         } catch (error) {
           throw error;
         }
@@ -81,7 +81,7 @@ class DirectMessage {
 
       await Promise.all(directListPromises);
 
-      return directList.filter((entry) => entry !== null);
+      return directList;
     } catch (error) {
       return error;
     }
@@ -90,7 +90,9 @@ class DirectMessage {
   async getMessage(senderID, recieverID, messageID) {
     try {
       const query = `
-    SELECT DirectMessages.* FROM DirectMessages 
+    SELECT DirectMessages.*, Users.Username FROM DirectMessages 
+    INNER JOIN
+        Users ON Users.UserID = DirectMessages.SenderID
     LEFT JOIN
       ClearDirectMessage ON ClearDirectMessage.SenderID = ? AND ClearDirectMessage.RecieverID = ?
     WHERE

@@ -10,7 +10,7 @@ let currentUserDisplayName;
 fetch(`http://127.0.0.1:5000/api/user/displayName?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    currentUserDisplayName = data[0]["DisplayName"];
+    currentUserDisplayName = data.DisplayName;
   })
   .catch((error) => {
     // Handle any errors that occurred during the request
@@ -47,7 +47,9 @@ export function sendDirectMessage(recieverID, message) {
           body: jsonObject,
         })
           .then((response) => response.text())
-          .then((responseData) => {})
+          .then((responseData) => {
+            return responseData;
+          })
           .catch((error) => {});
       } else {
         alert("You do not have permission to send message");
@@ -69,10 +71,12 @@ export function showDirectMessage(
     directMessageWorker = new Worker("/app/js/directMessageThread.js");
     directMessageWorker.onmessage = function (messages) {
       messages.data.map((message) => {
+        console.log(message);
         const messageSent = message["Message"];
         const messageID = message["MessageID"];
         const senderID = message["SenderID"];
         const time = message["Time"];
+        const username = message["Username"];
         if (senderID == currentUserID) {
           showSenderMessage(messageID, messageSent, time, false);
         } else {
@@ -80,7 +84,8 @@ export function showDirectMessage(
             messageSent,
             time,
             receiverProfileIcon,
-            receiverDisplayName
+            receiverDisplayName,
+            username
           );
         }
       });
@@ -127,7 +132,7 @@ function showSenderMessage(messageID, messageSent, time, isGroup) {
 
   // Create the profile picture image
   const profileImage = document.createElement("img");
-  profileImage.alt = "killerbunny1619's profile picture";
+  profileImage.alt = "profile picture";
   profileImage.draggable = false;
   profileImage.src = currentUserProfileLink;
   profileImage.width = "30";
@@ -218,7 +223,8 @@ function showReceiverMessage(
   messageSent,
   time,
   receiverProfileIcon,
-  receiverDisplayName
+  receiverDisplayName,
+  username
 ) {
   // Create a div element with the class "me-4 ms-4 mt-4 bg-secondary rounded"
   const messageDiv = document.createElement("div");
@@ -236,6 +242,13 @@ function showReceiverMessage(
   profileImage.setAttribute("width", "30px");
   profileImage.setAttribute("height", "30px");
   profileImage.className = "rounded-circle";
+
+  profileImage.addEventListener("click", function () {
+    window.open(
+      `http://127.0.0.1:5501/app/profile.html?Username=${username}`,
+      "_blank"
+    );
+  });
 
   const leadDiv = document.createElement("div");
   leadDiv.className = "lead";
@@ -297,10 +310,17 @@ export function showGroupMessage(groupID) {
         const displayName = message["DisplayName"];
         const profileIcon = message["ProfileIconLink"];
         const time = message["Time"];
+        const username = message["Username"];
         if (senderID == currentUserUserID) {
           showSenderMessage(messageID, messageSent, time, true);
         } else {
-          showReceiverMessage(messageSent, time, profileIcon, displayName);
+          showReceiverMessage(
+            messageSent,
+            time,
+            profileIcon,
+            displayName,
+            username
+          );
         }
       });
     };

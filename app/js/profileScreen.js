@@ -52,7 +52,7 @@ if (username == null) {
   fetch(`http://127.0.0.1:5000/api/user/userID?username=${username}`)
     .then((response) => response.json())
     .then((data) => {
-      profileUserID = data[0].UserID;
+      profileUserID = data.UserID;
       setProfile();
       getFollowings();
       getFollowers();
@@ -79,37 +79,36 @@ function showPost() {
   )
     .then((response) => response.json())
     .then((data) => {
-      if (!data) {
-        alert("Can not find post");
+      if (data.length === undefined) {
+      } else {
+        data.map((post) => {
+          const postID = post.postID;
+
+          const uploadDetail = post.uploadDetail;
+          const PostLink = uploadDetail.PostLink;
+          const Title = uploadDetail.Title;
+          const commentCount = uploadDetail.commentCount;
+          const didUserLike = uploadDetail.didUserLike;
+          const likeCount = uploadDetail.likeCount;
+          const shareCount = uploadDetail.shareCount;
+
+          const uploaderDetail = post.uploaderDetail;
+          const Username = uploaderDetail.Username;
+          const ProfileIconLink = uploaderDetail.ProfileIconLink;
+
+          appendPost(
+            postID,
+            PostLink,
+            Title,
+            commentCount,
+            didUserLike,
+            likeCount,
+            shareCount,
+            Username,
+            ProfileIconLink
+          );
+        });
       }
-      data.map((post) => {
-        console.log(data);
-        const postID = post["postID"];
-
-        const uploadDetail = post["uploadDetail"][0];
-        const PostLink = uploadDetail["PostLink"];
-        const Title = uploadDetail["Title"];
-        const commentCount = uploadDetail["commentCount"];
-        const didUserLike = uploadDetail["didUserLike"];
-        const likeCount = uploadDetail["likeCount"];
-        const shareCount = uploadDetail["shareCount"];
-
-        const uploaderDetail = post["uploaderDetail"][0];
-        const Username = uploaderDetail["Username"];
-        const ProfileIconLink = uploaderDetail["ProfileIconLink"];
-
-        appendPost(
-          postID,
-          PostLink,
-          Title,
-          commentCount,
-          didUserLike,
-          likeCount,
-          shareCount,
-          Username,
-          ProfileIconLink
-        );
-      });
     })
     .catch((error) => {
       // Handle any errors that occurred during the request
@@ -121,7 +120,7 @@ function getVisibility() {
   fetch(`http://127.0.0.1:5000/api/user/visibility?userID=${profileUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      PostVis = data[0].Visibility;
+      PostVis = data.Visibility;
       tempPostVis = PostVis;
       switch (PostVis) {
         case 0:
@@ -147,7 +146,8 @@ function getDMLimit() {
   fetch(`http://127.0.0.1:5000/api/user/dmlimit?userID=${profileUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      DMLimit = data[0].DMLimit;
+      console.log(data);
+      DMLimit = data.DMLimit;
       tempDMLimit = DMLimit;
       switch (DMLimit) {
         case 0:
@@ -366,10 +366,10 @@ function setProfile() {
   fetch(`http://127.0.0.1:5000/api/user/profile?userID=${profileUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      profileDisplayName = data[0].DisplayName;
-      profileUsername = data[0].Username;
-      profileProfileIcon = data[0].ProfileIconLink;
-      profileBio = data[0].Bio;
+      profileDisplayName = data.DisplayName;
+      profileUsername = data.Username;
+      profileProfileIcon = data.ProfileIconLink;
+      profileBio = data.Bio;
       profileIconElement.src = profileProfileIcon;
       profileIconElement.alt = `${profileUsername}'s profile picture`;
       profileUsernameElement.textContent = profileUsername;
@@ -395,7 +395,7 @@ function attachFollowAndDMButton() {
       sendDMButton.textContent = "Send DM";
       const sendDMHeader = document.querySelector("#sendDMHeader");
       sendDMHeader.textContent = `Sending message to: ${username}`;
-      let follow = data[0]["count(*)"] == 0 ? "Follow" : "Unfollow";
+      let follow = data ? "Unfollow" : "Follow";
       //create follow button
       const followButton = document.createElement("button");
       followButton.className = "ms-3 btn btn-primary";
@@ -413,13 +413,14 @@ function attachFollowAndDMButton() {
       rowOfInteractive.appendChild(sendDMButton);
       rowOfInteractive.appendChild(followButton);
 
-      sendMessageButton.addEventListener("click", function () {
+      sendMessageButton.addEventListener("click", async function () {
         if (sendMessageInput.value.length > 1100) {
           alert("The message is too long");
         } else if (sendMessageInput.value.length == 0) {
           alert("Better have something to send");
         } else {
-          sendDirectMessage(profileUserID, sendMessageInput.value);
+          await sendDirectMessage(profileUserID, sendMessageInput.value);
+          window.open("http://127.0.0.1:5501/app/message.html", "_blank");
         }
       });
     })
@@ -488,7 +489,7 @@ function getFollowers() {
       const followersCount = document.querySelector("#followersCount");
       followersCount.textContent = data.length;
       data.forEach(function (element) {
-        showCaseFollowers(element.FollowerID);
+        showCaseFollowers(element);
       });
     })
     .catch((error) => {
@@ -501,50 +502,48 @@ function showCaseFollowers(userID) {
   fetch(`http://127.0.0.1:5000/api/user/profile?userID=${userID}`)
     .then((response) => response.json())
     .then((data) => {
-      data.forEach(function (element) {
-        // Create a div element
-        const divElement = document.createElement("div");
-        divElement.style.width = "400px";
-        divElement.style.minHeight = "70px";
-        divElement.className = "mb-4";
-        divElement.role = "button";
+      // Create a div element
+      const divElement = document.createElement("div");
+      divElement.style.width = "400px";
+      divElement.style.minHeight = "70px";
+      divElement.className = "mb-4";
+      divElement.role = "button";
 
-        // Create an img element
-        const imgElement = document.createElement("img");
-        imgElement.alt = `${element.Username}'s profile picture`;
-        imgElement.draggable = false;
-        imgElement.src = element.ProfileIconLink;
-        imgElement.setAttribute("width", "60px");
-        imgElement.setAttribute("height", "60px");
-        imgElement.className = "rounded-circle";
+      // Create an img element
+      const imgElement = document.createElement("img");
+      imgElement.alt = `${data.Username}'s profile picture`;
+      imgElement.draggable = false;
+      imgElement.src = data.ProfileIconLink;
+      imgElement.setAttribute("width", "60px");
+      imgElement.setAttribute("height", "60px");
+      imgElement.className = "rounded-circle";
 
-        // Create the first span element
-        const spanElement1 = document.createElement("span");
-        spanElement1.className = "ms-2 display-6 text-break";
-        spanElement1.textContent = element.Username;
+      // Create the first span element
+      const spanElement1 = document.createElement("span");
+      spanElement1.className = "ms-2 display-6 text-break";
+      spanElement1.textContent = data.Username;
 
-        // Create the second span element
-        const spanElement2 = document.createElement("span");
-        spanElement2.textContent = element.DisplayName;
-        spanElement2.className = "ms-2 text-break";
+      // Create the second span element
+      const spanElement2 = document.createElement("span");
+      spanElement2.textContent = data.DisplayName;
+      spanElement2.className = "ms-2 text-break";
 
-        // Append all elements to the div
-        divElement.appendChild(imgElement);
-        divElement.appendChild(spanElement1);
-        divElement.appendChild(spanElement2);
+      // Append all elements to the div
+      divElement.appendChild(imgElement);
+      divElement.appendChild(spanElement1);
+      divElement.appendChild(spanElement2);
 
-        // Append the div to the modal
-        const listOfFollowers = document.querySelector("#listOfFollowers");
-        listOfFollowers.appendChild(divElement);
+      // Append the div to the modal
+      const listOfFollowers = document.querySelector("#listOfFollowers");
+      listOfFollowers.appendChild(divElement);
 
-        //Add event listener to send user to the profile screen of the clicked user
-        divElement.addEventListener("click", function (event) {
-          const selectedUser = event.currentTarget.childNodes[1].textContent;
-          window.open(
-            `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
-            "_blank"
-          );
-        });
+      //Add event listener to send user to the profile screen of the clicked user
+      divElement.addEventListener("click", function (event) {
+        const selectedUser = event.currentTarget.childNodes[1].textContent;
+        window.open(
+          `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
+          "_blank"
+        );
       });
     })
     .catch((error) => {
@@ -562,7 +561,7 @@ function getFollowings() {
       const followingCount = document.querySelector("#followingCount");
       followingCount.textContent = data.length;
       data.forEach(function (element) {
-        showCaseFollowing(element.FollowingID);
+        showCaseFollowing(element);
       });
     })
     .catch((error) => {
@@ -575,50 +574,48 @@ function showCaseFollowing(userID) {
   fetch(`http://127.0.0.1:5000/api/user/profile?userID=${userID}`)
     .then((response) => response.json())
     .then((data) => {
-      data.forEach(function (element) {
-        // Create a div element
-        const divElement = document.createElement("div");
-        divElement.style.width = "400px";
-        divElement.style.minHeight = "70px";
-        divElement.className = "mb-4 ";
-        divElement.role = "button";
+      // Create a div element
+      const divElement = document.createElement("div");
+      divElement.style.width = "400px";
+      divElement.style.minHeight = "70px";
+      divElement.className = "mb-4 ";
+      divElement.role = "button";
 
-        // Create an img element
-        const imgElement = document.createElement("img");
-        imgElement.alt = `${element.Username}'s profile picture`;
-        imgElement.draggable = false;
-        imgElement.src = element.ProfileIconLink;
-        imgElement.setAttribute("width", "60px");
-        imgElement.setAttribute("height", "60px");
-        imgElement.className = "rounded-circle";
+      // Create an img element
+      const imgElement = document.createElement("img");
+      imgElement.alt = `${data.Username}'s profile picture`;
+      imgElement.draggable = false;
+      imgElement.src = data.ProfileIconLink;
+      imgElement.setAttribute("width", "60px");
+      imgElement.setAttribute("height", "60px");
+      imgElement.className = "rounded-circle";
 
-        // Create the first span element
-        const spanElement1 = document.createElement("span");
-        spanElement1.className = "ms-2 display-6 text-break";
-        spanElement1.textContent = element.Username;
+      // Create the first span element
+      const spanElement1 = document.createElement("span");
+      spanElement1.className = "ms-2 display-6 text-break";
+      spanElement1.textContent = data.Username;
 
-        // Create the second span element
-        const spanElement2 = document.createElement("span");
-        spanElement2.textContent = element.DisplayName;
-        spanElement2.className = "ms-2 text-break";
+      // Create the second span element
+      const spanElement2 = document.createElement("span");
+      spanElement2.textContent = data.DisplayName;
+      spanElement2.className = "ms-2 text-break";
 
-        // Append all elements to the div
-        divElement.appendChild(imgElement);
-        divElement.appendChild(spanElement1);
-        divElement.appendChild(spanElement2);
+      // Append all elements to the div
+      divElement.appendChild(imgElement);
+      divElement.appendChild(spanElement1);
+      divElement.appendChild(spanElement2);
 
-        // Append the div to the modal
-        const listOfFollowering = document.querySelector("#listOfFollowering");
-        listOfFollowering.appendChild(divElement);
+      // Append the div to the modal
+      const listOfFollowering = document.querySelector("#listOfFollowering");
+      listOfFollowering.appendChild(divElement);
 
-        //Add event listener to send user to the profile screen of the clicked user
-        divElement.addEventListener("click", function (event) {
-          const selectedUser = event.currentTarget.childNodes[1].textContent;
-          window.open(
-            `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
-            "_blank"
-          );
-        });
+      //Add event listener to send user to the profile screen of the clicked user
+      divElement.addEventListener("click", function (event) {
+        const selectedUser = event.currentTarget.childNodes[1].textContent;
+        window.open(
+          `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
+          "_blank"
+        );
       });
     })
     .catch((error) => {
@@ -633,7 +630,8 @@ function attachBlockButton() {
   )
     .then((response) => response.json())
     .then((data) => {
-      let block = data[0]["count(*)"] == 0 ? "Block" : "Unblock";
+      console.log(data);
+      let block = data ? "Unlock" : "Block";
       const blockButton = document.createElement("button");
       blockButton.className = "ms-3 btn btn-primary";
       blockButton.id = "blockButton";
