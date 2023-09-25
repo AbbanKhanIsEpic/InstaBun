@@ -47,9 +47,7 @@ export function sendDirectMessage(recieverID, message) {
           body: jsonObject,
         })
           .then((response) => response.text())
-          .then((responseData) => {
-            return responseData;
-          })
+          .then((responseData) => {})
           .catch((error) => {});
       } else {
         alert("You do not have permission to send message");

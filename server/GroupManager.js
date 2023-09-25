@@ -17,7 +17,7 @@ class GroupManager {
     }
   }
 
-  updateGroupIcon(groupID, groupIcon) {
+  async updateGroupIcon(groupID, groupIcon) {
     try {
       const query = `UPDATE Collective SET GroupIconLink = ? WHERE GroupID = ?;`;
       update(query, [groupIcon, groupID]);
@@ -27,7 +27,7 @@ class GroupManager {
     }
   }
 
-  updateGroupName(groupID, groupName) {
+  async updateGroupName(groupID, groupName) {
     try {
       const query = `UPDATE Collective SET GroupName = ? WHERE GroupID = ?;`;
       update(query, [groupName, groupID]);

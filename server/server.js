@@ -730,4 +730,24 @@ app.post("/api/group/removeMember", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+app.post("/api/group/groupProfileIcon", (req, res) => {
+  const groupID = req.body.groupID;
+  const groupIcon = req.body.groupIcon;
+
+  console.log(groupIcon);
+
+  let groupManager = new GroupManager();
+  groupManager.updateGroupIcon(groupID, groupIcon);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/group/groupName", (req, res) => {
+  const groupID = req.body.groupID;
+  const groupName = req.body.groupName;
+
+  let groupManager = new GroupManager();
+  groupManager.updateGroupName(groupID, groupName);
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

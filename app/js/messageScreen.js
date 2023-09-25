@@ -1,3 +1,11 @@
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
+import { initFirebase } from "/app/js/firebase-setup.js";
+
 import { sendDirectMessage } from "./message.js";
 import { textAndEmojiToText } from "./emoji.js";
 import { showDirectMessage } from "./message.js";
@@ -8,6 +16,9 @@ import { sendGroupMessage } from "./message.js";
 import { clearGroupMessage } from "./message.js";
 import { clearDirectMessage } from "./message.js";
 
+const app = initFirebase();
+const storage = getStorage(app);
+
 const sendMessageButton = document.querySelector("#sendMessageButton");
 const selectGroups = document.querySelector("#selectGroups");
 const selectDirect = document.querySelector("#selectDirect");
@@ -15,6 +26,16 @@ const userSelection = document.querySelector("#userSelection");
 const displayList = document.querySelector("#displayInteractions");
 const messageOutput = document.querySelector("#messageOutput");
 const clearMessageConvesation = document.querySelector("#clearMessage");
+const groupModal = document.getElementById("groupModal");
+const groupHeader = document.getElementById("groupName");
+const profileIconPreview = document.getElementById("profileIconPreview");
+const changeGroupName = document.getElementById("changeGroupName");
+const closeModal = document.getElementById("closeModal");
+const uploadGroupProfile = document.getElementById("uploadGroupProfile");
+const uploadProfileIcon = document.getElementById("uploadProfileIcon");
+
+let selectedFile = null;
+let originalGroupName = null;
 
 let currentlySelectedUserID = 0;
 let currentlySelectedGroupID = 0;
@@ -94,7 +115,71 @@ const leaveGroup = document.getElementById("leaveGroup");
 const addUser = document.querySelector("#addUserButton");
 const addUserUsernameInput = document.querySelector("#addUserInput");
 
+updateGroup.addEventListener("click", async function () {
+  console.log(selectedFile != null);
+  if (selectedFile != null) {
+    await uploadFirebase();
+  }
+  if (changeGroupName.value != originalGroupName) {
+    var dataObject = {
+      groupID: currentlySelectedGroupID,
+      groupName: changeGroupName.value,
+    };
+    var jsonObject = JSON.stringify(dataObject);
+    fetch("http://127.0.0.1:5000/api/group/groupName", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: jsonObject,
+    })
+      .then((response) => response.text())
+      .then((responseData) => {
+        alert("Group name updated: Might need to refresh to view affect");
+      })
+      .catch((error) => {
+        alert("Unable to update group name");
+      });
+  }
+});
+
+async function uploadFirebase() {
+  const url = `/profileIcon/${currentlySelectedGroupID}:${currentUserUserID}`;
+  const storageRef = ref(storage, url);
+  uploadBytes(storageRef, selectedFile)
+    .then((snapshot) => {
+      console.log("Image uploaded successfully!");
+      getDownloadURL(storageRef).then((url) => {
+        var dataObject = {
+          groupID: currentlySelectedGroupID,
+          groupIcon: url,
+        };
+        var jsonObject = JSON.stringify(dataObject);
+        fetch("http://127.0.0.1:5000/api/group/groupProfileIcon", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: jsonObject,
+        })
+          .then((response) => response.text())
+          .then((responseData) => {
+            alert(
+              "Group profile icon updated: Might need to refresh to view affect"
+            );
+          })
+          .catch((error) => {
+            alert("Unable to update group profile icon");
+          });
+      });
+    })
+    .catch((error) => {
+      console.error("Error uploading image:", error);
+    });
+}
+
 function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
+  originalGroupName = groupName;
   // Create the parent container div
   const containerDiv = document.createElement("div");
   containerDiv.className = "ps-4 mt-4 w-100";
@@ -113,14 +198,20 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
   // Create the first span element for the username
   const groupNameSpan = document.createElement("span");
 
-  const groupModal = document.getElementById("groupModal");
-  const groupHeader = document.getElementById("groupName");
-  const profileIconPreview = document.getElementById("profileIconPreview");
-  const changeGroupName = document.getElementById("changeGroupName");
-  const closeModal = document.getElementById("closeModal");
-  const uploadGroupProfile = document.getElementById("uploadGroupProfile");
-
   groupNameSpan.textContent = groupName + " ";
+
+  uploadProfileIcon.addEventListener("change", function () {
+    selectedFile = event.target.files[0];
+    if (selectedFile.type.match("image.*")) {
+      const reader = new FileReader();
+      reader.addEventListener("load", (event) => {
+        profileIconPreview.src = event.target.result;
+      });
+      reader.readAsDataURL(selectedFile);
+    } else {
+      alert("Sorry, only images");
+    }
+  });
 
   containerDiv.addEventListener("dblclick", function () {
     if (groupOwnerID != currentUserUserID) {
@@ -362,7 +453,7 @@ addUser.addEventListener("click", function () {
     )
       .then((response) => response.json())
       .then((data) => {
-        if (data[0]["count(*)"] == 0) {
+        if (!data) {
           alert("User does not exits");
         } else {
           fetch(
@@ -370,7 +461,7 @@ addUser.addEventListener("click", function () {
           )
             .then((response) => response.json())
             .then((data) => {
-              const newMemberUserID = data[0]["UserID"];
+              const newMemberUserID = data["UserID"];
               var dataObject = {
                 userID: newMemberUserID,
                 groupID: currentlySelectedGroupID,
@@ -472,8 +563,6 @@ sendMessageButton.addEventListener("click", function () {
   }
   if (currentlySelectedGroupID != 0) {
     const message = textAndEmojiToText();
-    console.log(message.length);
-    console.log(message);
     if (message.length == 0) {
       alert("Please have something to say");
     } else if (message.length > 1100) {

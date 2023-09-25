@@ -241,7 +241,6 @@ function attachSetting() {
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
           profileIconPreview.src = event.target.result;
-          uploadFirebase();
         });
         reader.readAsDataURL(selectedFile);
       } else {
@@ -308,7 +307,8 @@ function attachSetting() {
   rowOfInteractive.appendChild(spanElement);
 }
 
-function updateUserProfile() {
+async function updateUserProfile() {
+  await uploadFirebase();
   PostVis = tempPostVis;
   DMLimit = tempDMLimit;
   var dataObject = {
