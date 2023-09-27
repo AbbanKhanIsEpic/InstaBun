@@ -1,5 +1,4 @@
-const { select } = require("./DB");
-const { update } = require("./DB");
+const { select, update } = require("./DB");
 const FollowManager = require("./FollowManager");
 
 class StoryManager {

@@ -27,12 +27,56 @@ const displayList = document.querySelector("#displayInteractions");
 const messageOutput = document.querySelector("#messageOutput");
 const clearMessageConvesation = document.querySelector("#clearMessage");
 const groupModal = document.getElementById("groupModal");
+const createGroupModal = document.getElementById("createGroup");
 const groupHeader = document.getElementById("groupName");
 const profileIconPreview = document.getElementById("profileIconPreview");
 const changeGroupName = document.getElementById("changeGroupName");
 const closeModal = document.getElementById("closeModal");
 const uploadGroupProfile = document.getElementById("uploadGroupProfile");
 const uploadProfileIcon = document.getElementById("uploadProfileIcon");
+const uploadNewProfileIcon = document.getElementById("uploadNewProfileIcon");
+const newProfileIconPreview = document.getElementById("newProfileIconPreview");
+const addUserForNewGroupButton = document.getElementById(
+  "addUserForNewGroupButton"
+);
+const addUserForNewGroupInput = document.getElementById(
+  "addUserForNewGroupInput"
+);
+const showMembers = document.querySelector("#showMembers");
+
+createGroupModal.dataset.bsToggle = "modal";
+createGroupModal.dataset.bsTarget = "#createGroupModal";
+
+addUserForNewGroupButton.addEventListener("click", function () {
+  fetch(
+    `http://127.0.0.1:5000/api/user/usernameExist?username=${addUserForNewGroupInput.value}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data) {
+        alert("User does not exits");
+      } else {
+      }
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+});
+
+uploadNewProfileIcon.addEventListener("change", function () {
+  console.log("Hi");
+  let file = event.target.files[0];
+  if (file.type.match("image.*")) {
+    const reader = new FileReader();
+    reader.addEventListener("load", (event) => {
+      newProfileIconPreview.src = event.target.result;
+    });
+    reader.readAsDataURL(file);
+  } else {
+    alert("Sorry, only images");
+  }
+});
 
 let selectedFile = null;
 let originalGroupName = null;
@@ -112,8 +156,36 @@ function getDirectList() {
 
 const updateGroup = document.getElementById("updateGroup");
 const leaveGroup = document.getElementById("leaveGroup");
+const deleteGroup = document.getElementById("deleteGroup");
 const addUser = document.querySelector("#addUserButton");
 const addUserUsernameInput = document.querySelector("#addUserInput");
+
+leaveGroup.addEventListener("click", function () {
+  const numberOfMemebers = showMembers.childNodes.length;
+  if (numberOfMemebers == 3) {
+    alert("Can not leave because group needs a minium of three people");
+  } else {
+    var dataObject = {
+      groupID: currentlySelectedGroupID,
+      userID: currentUserUserID,
+    };
+    var jsonObject = JSON.stringify(dataObject);
+    fetch("http://127.0.0.1:5000/api/group/removeMember", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: jsonObject,
+    })
+      .then((response) => response.text())
+      .then((responseData) => {
+        alert("Left group: Might need to refresh to view affect");
+      })
+      .catch((error) => {
+        alert("Unable to leave group");
+      });
+  }
+});
 
 updateGroup.addEventListener("click", async function () {
   console.log(selectedFile != null);
@@ -216,6 +288,7 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
   containerDiv.addEventListener("dblclick", function () {
     if (groupOwnerID != currentUserUserID) {
       updateGroup.classList.add("visually-hidden");
+      deleteGroup.classList.add("visually-hidden");
       leaveGroup.classList.remove("visually-hidden");
       changeGroupName.setAttribute("readonly", "readonly");
       uploadGroupProfile.classList.add("visually-hidden");
@@ -224,6 +297,7 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
     } else {
       leaveGroup.classList.add("visually-hidden");
       updateGroup.classList.remove("visually-hidden");
+      deleteGroup.classList.remove("visually-hidden");
       uploadGroupProfile.classList.remove("visually-hidden");
       changeGroupName.removeAttribute("readonly", "readonly");
       addUser.classList.remove("visually-hidden");
@@ -265,8 +339,6 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
         console.error(error);
       });
   });
-
-  const showMembers = document.querySelector("#showMembers");
 
   function appendMember(username, displayName, profileIcon, userID, ownerID) {
     const divElement = document.createElement("div");
@@ -437,7 +509,6 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
 }
 
 addUser.addEventListener("click", function () {
-  const showMembers = document.querySelector("#showMembers");
   let isNotExistingMember = false;
   showMembers.childNodes.forEach((member) => {
     const memberUsername = member.firstChild.childNodes[1].textContent;

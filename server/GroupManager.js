@@ -66,7 +66,7 @@ class GroupManager {
 
   async removeMemeber(groupID, groupMember) {
     try {
-      const query = `DELETE FROM GroupMembers WHERE (GroupID = ?) and (UserID = ?);`;
+      const query = `DELETE FROM GroupMembers WHERE (GroupID = ?) AND (UserID = ?);`;
       await update(query, [groupID, groupMember]);
       return "Remove member operation successful";
     } catch (error) {
@@ -105,6 +105,16 @@ class GroupManager {
       const query = `UPDATE Collective SET OwnerID = ? WHERE (GroupID = ?);`;
       await update(query, [newOwnerID, groupID]);
       return "Transfer ownership operation successful";
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async deleteGroup(groupID) {
+    try {
+      const query = `DELETE FROM Collective WHERE (GroupID = ?);`;
+      await update(query, [groupID]);
+      return "Delete group operation successful";
     } catch (error) {
       return error;
     }

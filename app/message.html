@@ -17,7 +17,8 @@
     <section class="w-100 position-absolute top-0 d-flex flex-row">
         <div class="d-flex flex-column h-100" id="selectionDiv">
             <div class="mt-4 d-flex justify-content-center align-items-center gap-3">
-                <button aria-label="create group" class="btn btn-primary">
+                <button aria-label="create group" class="btn btn-primary" data-toggle="modal"
+                    data-target="#createGroupModal" type="button" id="createGroup">
                     Create group
                 </button>
                 <div class="btn-group dropend">
@@ -73,11 +74,61 @@
                     </div>
                     <div class="modal-footer">
                         <div class="input-group">
-                            <span class="input-group-text" role="button" id="updateGroup">Update
+                            <span class="input-group-text btn btn-secondary rounded" role="button"
+                                id="updateGroup">Update
                                 group</span>
                             <span class="input-group-text btn btn-danger rounded" role="button" id="leaveGroup">Leave
                                 group</span>
+                            <span class="input-group-text btn btn-danger rounded ms-2" role="button"
+                                id="deleteGroup">Delete
+                                group</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-black">Create group</h5>
+                    </div>
+                    <div class="modal-body text-black">
+                        <div class="input-group d-flex flex-column">
+                            <div aria-label="Group name">
+                                <span class="input-group-text">Group name:</span>
+                                <input type="text" class="form-control" id="createGroupName" />
+                            </div>
+                            <div aria-label="Profile Icon" class="mt-4">
+                                <span class="input-group-text">Profile</span>
+                                <img alt="killerbunny1619's profile picture" draggable="false" width="100px"
+                                    height="100px" class="rounded-circle mt-4" id="newProfileIconPreview"
+                                    src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/profileIcon%2F1%3ATesting1?alt=media&token=168f8a9f-95b3-4415-97e5-bc347559e52e" />
+                                <span class="ms-4">
+                                    <input type="file" id="uploadNewProfileIcon" aria-label="user upload files"
+                                        class="position-absolute visually-hidden" />
+                                    <label for="uploadNewProfileIcon" class="btn btn-primary rounded text-center"
+                                        role="button" id="uploadNewGroupProfile">Upload</label>
+                                </span>
+                            </div>
+                            <div aria-label="Group memember" class="mt-4">
+                                <div aria-label="Add user" class="input-group d-flex flex-row mt-4">
+                                    <input type="text" class="form-control" id="addUserForNewGroupInput" />
+                                    <span class="btn btn-primary" id="addUserForNewGroupButton">Add user</span>
+                                </div>
+                                <div class="input-group-text d-flex align-items-center flex-column mt-4">
+                                    <div class="mb-4">
+                                        <img alt="Testing1's profile picture" draggable="false"
+                                            src="https://firebasestorage.googleapis.com/v0/b/cogent-osprey-390319.appspot.com/o/profileIcon%2F1%3ATesting1?alt=media&amp;token=168f8a9f-95b3-4415-97e5-bc347559e52e"
+                                            width="60px" height="60px" class="rounded-circle" role="button"><span
+                                            class="ms-2 display-6">Testing1</span><span class="ms-2">Mr.White</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex flex-row-reverse">
+                        <button type="button" class="btn btn-primary ">Update</button>
                     </div>
                 </div>
             </div>

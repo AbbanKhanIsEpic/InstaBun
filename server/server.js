@@ -750,4 +750,12 @@ app.post("/api/group/groupName", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+app.post("/api/group/delete", (req, res) => {
+  const groupID = req.body.groupID;
+
+  let groupManager = new GroupManager();
+  groupManager.deleteGroup(groupID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

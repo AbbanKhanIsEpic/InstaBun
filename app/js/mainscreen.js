@@ -8,6 +8,7 @@ fetch(`http://127.0.0.1:5000/api/post/followings?userID=${currentUserUserID}`)
       alert("Can not find post");
     }
     data.map((post) => {
+      console.log(post);
       const postID = post.postID;
 
       const uploadDetail = post.uploadDetail;

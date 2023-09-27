@@ -180,7 +180,6 @@ createButton.addEventListener("click", function () {
         )
           .then((response) => response.json())
           .then((data) => {
-            console.log(data);
             const totalPost = data;
             const name = `P${currentUserUserID}:${totalPost}`;
             uploadToFirebase(name);
@@ -194,8 +193,7 @@ createButton.addEventListener("click", function () {
     fetch(`http://127.0.0.1:5000/api/story/total?userID=${currentUserUserID}`)
       .then((response) => response.json())
       .then((data) => {
-        const totalStory = data["0"]["count(*)"];
-        const name = `S${currentUserUserID}:${totalStory}`;
+        const name = `S${currentUserUserID}:${data}`;
         uploadToFirebase(name);
       })
       .catch((error) => {

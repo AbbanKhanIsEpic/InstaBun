@@ -80,6 +80,12 @@ function showPost() {
     .then((response) => response.json())
     .then((data) => {
       if (data.length === undefined) {
+        // Append the main container to the showcase
+        const showcase = document.querySelector("#showcase");
+        const noPostYet = document.createElement("img");
+        noPostYet.src = "/app/image/1kutzil5lj0nvfsf_1596544016.jpeg";
+        noPostYet.className = "post";
+        showcase.appendChild(noPostYet);
       } else {
         data.map((post) => {
           const postID = post.postID;
