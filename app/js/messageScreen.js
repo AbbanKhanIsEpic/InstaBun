@@ -36,11 +36,15 @@ const uploadGroupProfile = document.getElementById("uploadGroupProfile");
 const uploadProfileIcon = document.getElementById("uploadProfileIcon");
 const uploadNewProfileIcon = document.getElementById("uploadNewProfileIcon");
 const newProfileIconPreview = document.getElementById("newProfileIconPreview");
+const createGroupButton = document.getElementById("createGroupButton");
 const addUserForNewGroupButton = document.getElementById(
   "addUserForNewGroupButton"
 );
 const addUserForNewGroupInput = document.getElementById(
   "addUserForNewGroupInput"
+);
+const showNewMemberInNewGroup = document.getElementById(
+  "showNewMemberInNewGroup"
 );
 const showMembers = document.querySelector("#showMembers");
 
@@ -56,6 +60,18 @@ addUserForNewGroupButton.addEventListener("click", function () {
       if (!data) {
         alert("User does not exits");
       } else {
+        fetch(
+          `http://127.0.0.1:5000/api/user/userID?username=${addUserForNewGroupInput.value}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            let userID = data["UserID"];
+            showMememberForNewGroup(addUserForNewGroupInput.value, userID);
+          })
+          .catch((error) => {
+            // Handle any errors that occurred during the request
+            console.error(error);
+          });
       }
     })
     .catch((error) => {
@@ -64,8 +80,69 @@ addUserForNewGroupButton.addEventListener("click", function () {
     });
 });
 
+async function showMememberForNewGroup(username, userID) {
+  fetch(`http://127.0.0.1:5000/api/user/displayName?userID=${userID}`)
+    .then((response) => response.json())
+    .then(async (data) => {
+      let displayName = await data["DisplayName"];
+
+      fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${userID}`)
+        .then((response) => response.json())
+        .then(async (data) => {
+          let profileIcon = await data["ProfileIconLink"];
+
+          const memberElement = document.createElement("div");
+          memberElement.style.height = "70px";
+          memberElement.className = "mb-4";
+
+          // Create an img element
+          const imgElement = document.createElement("img");
+          imgElement.alt = `${username}'s profile picture`;
+          imgElement.draggable = false;
+          imgElement.src = profileIcon;
+          imgElement.setAttribute("width", "60px");
+          imgElement.setAttribute("height", "60px");
+          imgElement.className = "rounded-circle";
+          imgElement.role = "button";
+
+          // Create the first span element
+          const spanElement1 = document.createElement("span");
+          spanElement1.className = "ms-2 display-6";
+          spanElement1.textContent = username;
+
+          // Create the second span element
+          const spanElement2 = document.createElement("span");
+          spanElement2.textContent = displayName;
+          spanElement2.className = "ms-2";
+
+          // Append all elements to the div
+          memberElement.appendChild(imgElement);
+          memberElement.appendChild(spanElement1);
+          memberElement.appendChild(spanElement2);
+
+          imgElement.addEventListener("click", function () {
+            window.open(
+              `http://127.0.0.1:5501/app/profile.html?Username=${username}`,
+              "_blank"
+            );
+          });
+
+          showNewMemberInNewGroup.appendChild(memberElement);
+        })
+        .catch((error) => {
+          // Handle any errors that occurred during the request
+          console.error(error);
+        });
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
+createGroupButton.addEventListener("click", function () {});
+
 uploadNewProfileIcon.addEventListener("change", function () {
-  console.log("Hi");
   let file = event.target.files[0];
   if (file.type.match("image.*")) {
     const reader = new FileReader();
