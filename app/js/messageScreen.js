@@ -1,3 +1,4 @@
+//Imports
 import {
   getStorage,
   ref,
@@ -16,6 +17,7 @@ import { sendGroupMessage } from "./message.js";
 import { clearGroupMessage } from "./message.js";
 import { clearDirectMessage } from "./message.js";
 
+//Init global variables
 const app = initFirebase();
 const storage = getStorage(app);
 
@@ -34,10 +36,15 @@ const changeGroupName = document.getElementById("changeGroupName");
 const closeModal = document.getElementById("closeModal");
 const uploadGroupProfile = document.getElementById("uploadGroupProfile");
 const uploadProfileIcon = document.getElementById("uploadProfileIcon");
-const uploadNewProfileIcon = document.getElementById("uploadNewProfileIcon");
-const newProfileIconPreview = document.getElementById("newProfileIconPreview");
+const uploadNewProfileIcon = document.getElementById("uploadNewGroupIcon");
+const newGroupIconPreview = document.getElementById("newGroupIconPreview");
 const createGroupButton = document.getElementById("createGroupButton");
 const newOwnerProfileIcon = document.getElementById("newOwnerProfileIcon");
+const updateGroup = document.getElementById("updateGroup");
+const leaveGroup = document.getElementById("leaveGroup");
+const deleteGroup = document.getElementById("deleteGroup");
+const addUser = document.querySelector("#addUserButton");
+const addUserUsernameInput = document.querySelector("#addUserInput");
 const addUserForNewGroupButton = document.getElementById(
   "addUserForNewGroupButton"
 );
@@ -47,14 +54,79 @@ const addUserForNewGroupInput = document.getElementById(
 const showNewMemberInNewGroup = document.getElementById(
   "showNewMemberInNewGroup"
 );
+
 const showMembers = document.querySelector("#showMembers");
 
 let newGroupProfileIcon = null;
 
-newOwnerProfileIcon.src = currentUserProfileLink;
-
 createGroupModal.dataset.bsToggle = "modal";
 createGroupModal.dataset.bsTarget = "#createGroupModal";
+
+newOwnerProfileIcon.src = currentUserProfileLink;
+
+let selectedFile = null;
+let originalGroupName = null;
+let confirmClear = false;
+
+let currentlySelectedUserID = 0;
+let currentlySelectedGroupID = 0;
+
+userSelection.textContent = "Direct";
+
+getDirectList();
+
+//Event listeners
+
+sendMessageButton.addEventListener("click", function () {
+  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
+    alert("Select someone");
+  }
+  if (currentlySelectedGroupID == 0 && userSelection.textContent == "Groups") {
+    alert("Select a group");
+  }
+  if (currentlySelectedGroupID != 0) {
+    const message = textAndEmojiToText();
+    if (message.length == 0) {
+      alert("Please have something to say");
+    } else if (message.length > 1100) {
+      alert("Message too long, max length is 1100");
+    } else {
+      sendGroupMessage(currentUserUserID, currentlySelectedGroupID, message);
+    }
+  } else if (currentlySelectedUserID != 0) {
+    let message = textAndEmojiToText();
+    console.log(message.length);
+    if (message.length == 0) {
+      alert("Please have something to say");
+    } else if (message.length > 1100) {
+      alert("Message too long, max length is 1100");
+    } else {
+      sendDirectMessage(currentlySelectedUserID, message);
+    }
+  }
+});
+
+clearMessageConvesation.addEventListener("click", function () {
+  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
+    alert("Select someone");
+    confirmClear = false;
+  } else if (
+    currentlySelectedGroupID == 0 &&
+    userSelection.textContent == "Group"
+  ) {
+    alert("Select a group");
+    confirmClear = false;
+  } else if (!confirmClear) {
+    alert("Are you sure you want to clear all the messages?");
+    confirmClear = true;
+  } else if (currentlySelectedUserID != 0) {
+    clearDirectMessage(currentlySelectedUserID);
+    clearMessage();
+  } else if (currentlySelectedGroupID != 0) {
+    clearGroupMessage(currentlySelectedGroupID);
+    clearMessage();
+  }
+});
 
 addUserForNewGroupButton.addEventListener("click", function () {
   fetch(
@@ -84,6 +156,156 @@ addUserForNewGroupButton.addEventListener("click", function () {
       console.error(error);
     });
 });
+
+createGroupButton.addEventListener("click", function () {
+  console.log("Hi");
+});
+
+uploadNewProfileIcon.addEventListener("change", function () {
+  newGroupProfileIcon = event.target.files[0];
+  if (newGroupProfileIcon.type.match("image.*")) {
+    const reader = new FileReader();
+    reader.addEventListener("load", (event) => {
+      newGroupIconPreview.src = event.target.result;
+    });
+    reader.readAsDataURL(newGroupProfileIcon);
+  } else {
+    alert("Sorry, only images");
+  }
+});
+
+selectDirect.addEventListener("click", function () {
+  stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
+  stopShowingGroupMessage(currentlySelectedGroupID);
+  clearList();
+  userSelection.textContent = "Direct";
+  getDirectList();
+});
+
+selectGroups.addEventListener("click", function () {
+  stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
+  clearList();
+  userSelection.textContent = "Groups";
+  getGroupList();
+});
+
+addUser.addEventListener("click", function () {
+  let isNotExistingMember = false;
+  showMembers.childNodes.forEach((member) => {
+    const memberUsername = member.firstChild.childNodes[1].textContent;
+    if (memberUsername == addUserUsernameInput.value) {
+      alert("You can not add an existing member");
+      isNotExistingMember = true;
+      return;
+    }
+  });
+  if (!isNotExistingMember) {
+    fetch(
+      `http://127.0.0.1:5000/api/user/usernameExist?username=${addUserUsernameInput.value}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data) {
+          alert("User does not exits");
+        } else {
+          fetch(
+            `http://127.0.0.1:5000/api/user/userID?username=${addUserUsernameInput.value}`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const newMemberUserID = data["UserID"];
+              var dataObject = {
+                userID: newMemberUserID,
+                groupID: currentlySelectedGroupID,
+              };
+
+              // Convert the JavaScript object to a JSON string
+              var jsonObject = JSON.stringify(dataObject);
+
+              fetch("http://127.0.0.1:5000/api/group/addMember", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json; charset=utf-8",
+                },
+                body: jsonObject,
+              })
+                .then((response) => response.text())
+                .then((responseData) => {
+                  alert("Member added: Might need to refresh to view affect");
+                })
+                .catch((error) => {
+                  alert("Unable to add new member");
+                });
+            })
+            .catch((error) => {
+              // Handle any errors that occurred during the request
+              console.error(error);
+            });
+        }
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
+      });
+  }
+});
+
+leaveGroup.addEventListener("click", function () {
+  const numberOfMemebers = showMembers.childNodes.length;
+  if (numberOfMemebers == 3) {
+    alert("Can not leave because group needs a minium of three people");
+  } else {
+    var dataObject = {
+      groupID: currentlySelectedGroupID,
+      userID: currentUserUserID,
+    };
+    var jsonObject = JSON.stringify(dataObject);
+    fetch("http://127.0.0.1:5000/api/group/removeMember", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: jsonObject,
+    })
+      .then((response) => response.text())
+      .then((responseData) => {
+        alert("Left group: Might need to refresh to view affect");
+      })
+      .catch((error) => {
+        alert("Unable to leave group");
+      });
+  }
+});
+
+updateGroup.addEventListener("click", async function () {
+  console.log(selectedFile != null);
+  if (selectedFile != null) {
+    await uploadFirebase();
+  }
+  if (changeGroupName.value != originalGroupName) {
+    var dataObject = {
+      groupID: currentlySelectedGroupID,
+      groupName: changeGroupName.value,
+    };
+    var jsonObject = JSON.stringify(dataObject);
+    fetch("http://127.0.0.1:5000/api/group/groupName", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: jsonObject,
+    })
+      .then((response) => response.text())
+      .then((responseData) => {
+        alert("Group name updated: Might need to refresh to view affect");
+      })
+      .catch((error) => {
+        alert("Unable to update group name");
+      });
+  }
+});
+
+//Functions
 
 async function showMememberForNewGroup(username, userID) {
   fetch(`http://127.0.0.1:5000/api/user/displayName?userID=${userID}`)
@@ -145,46 +367,6 @@ async function showMememberForNewGroup(username, userID) {
     });
 }
 
-createGroupButton.addEventListener("click", function () {});
-
-uploadNewProfileIcon.addEventListener("change", function () {
-  newGroupProfileIcon = event.target.files[0];
-  if (newGroupProfileIcon.type.match("image.*")) {
-    const reader = new FileReader();
-    reader.addEventListener("load", (event) => {
-      newProfileIconPreview.src = event.target.result;
-    });
-    reader.readAsDataURL(newGroupProfileIcon);
-  } else {
-    alert("Sorry, only images");
-  }
-});
-
-let selectedFile = null;
-let originalGroupName = null;
-
-let currentlySelectedUserID = 0;
-let currentlySelectedGroupID = 0;
-
-userSelection.textContent = "Direct";
-
-getDirectList();
-
-selectDirect.addEventListener("click", function () {
-  stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
-  stopShowingGroupMessage(currentlySelectedGroupID);
-  clearList();
-  userSelection.textContent = "Direct";
-  getDirectList();
-});
-
-selectGroups.addEventListener("click", function () {
-  stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
-  clearList();
-  userSelection.textContent = "Groups";
-  getGroupList();
-});
-
 function clearList() {
   while (displayList.childNodes[0]) {
     displayList.removeChild(displayList.childNodes[0]);
@@ -233,67 +415,6 @@ function getDirectList() {
       console.error(error);
     });
 }
-
-const updateGroup = document.getElementById("updateGroup");
-const leaveGroup = document.getElementById("leaveGroup");
-const deleteGroup = document.getElementById("deleteGroup");
-const addUser = document.querySelector("#addUserButton");
-const addUserUsernameInput = document.querySelector("#addUserInput");
-
-leaveGroup.addEventListener("click", function () {
-  const numberOfMemebers = showMembers.childNodes.length;
-  if (numberOfMemebers == 3) {
-    alert("Can not leave because group needs a minium of three people");
-  } else {
-    var dataObject = {
-      groupID: currentlySelectedGroupID,
-      userID: currentUserUserID,
-    };
-    var jsonObject = JSON.stringify(dataObject);
-    fetch("http://127.0.0.1:5000/api/group/removeMember", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: jsonObject,
-    })
-      .then((response) => response.text())
-      .then((responseData) => {
-        alert("Left group: Might need to refresh to view affect");
-      })
-      .catch((error) => {
-        alert("Unable to leave group");
-      });
-  }
-});
-
-updateGroup.addEventListener("click", async function () {
-  console.log(selectedFile != null);
-  if (selectedFile != null) {
-    await uploadFirebase();
-  }
-  if (changeGroupName.value != originalGroupName) {
-    var dataObject = {
-      groupID: currentlySelectedGroupID,
-      groupName: changeGroupName.value,
-    };
-    var jsonObject = JSON.stringify(dataObject);
-    fetch("http://127.0.0.1:5000/api/group/groupName", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: jsonObject,
-    })
-      .then((response) => response.text())
-      .then((responseData) => {
-        alert("Group name updated: Might need to refresh to view affect");
-      })
-      .catch((error) => {
-        alert("Unable to update group name");
-      });
-  }
-});
 
 async function uploadFirebase() {
   const url = `/profileIcon/${currentlySelectedGroupID}:${currentUserUserID}`;
@@ -588,67 +709,6 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
   });
 }
 
-addUser.addEventListener("click", function () {
-  let isNotExistingMember = false;
-  showMembers.childNodes.forEach((member) => {
-    const memberUsername = member.firstChild.childNodes[1].textContent;
-    if (memberUsername == addUserUsernameInput.value) {
-      alert("You can not add an existing member");
-      isNotExistingMember = true;
-      return;
-    }
-  });
-  if (!isNotExistingMember) {
-    fetch(
-      `http://127.0.0.1:5000/api/user/usernameExist?username=${addUserUsernameInput.value}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data) {
-          alert("User does not exits");
-        } else {
-          fetch(
-            `http://127.0.0.1:5000/api/user/userID?username=${addUserUsernameInput.value}`
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              const newMemberUserID = data["UserID"];
-              var dataObject = {
-                userID: newMemberUserID,
-                groupID: currentlySelectedGroupID,
-              };
-
-              // Convert the JavaScript object to a JSON string
-              var jsonObject = JSON.stringify(dataObject);
-
-              fetch("http://127.0.0.1:5000/api/group/addMember", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json; charset=utf-8",
-                },
-                body: jsonObject,
-              })
-                .then((response) => response.text())
-                .then((responseData) => {
-                  alert("Member added: Might need to refresh to view affect");
-                })
-                .catch((error) => {
-                  alert("Unable to add new member");
-                });
-            })
-            .catch((error) => {
-              // Handle any errors that occurred during the request
-              console.error(error);
-            });
-        }
-      })
-      .catch((error) => {
-        // Handle any errors that occurred during the request
-        console.error(error);
-      });
-  }
-});
-
 function appendDirect(userID, username, displayName, profileIconLink) {
   // Create the parent container div
   const containerDiv = document.createElement("div");
@@ -704,55 +764,3 @@ function appendDirect(userID, username, displayName, profileIconLink) {
     }
   });
 }
-
-sendMessageButton.addEventListener("click", function () {
-  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
-    alert("Select someone");
-  }
-  if (currentlySelectedGroupID == 0 && userSelection.textContent == "Group") {
-    alert("Select a group");
-  }
-  if (currentlySelectedGroupID != 0) {
-    const message = textAndEmojiToText();
-    if (message.length == 0) {
-      alert("Please have something to say");
-    } else if (message.length > 1100) {
-      alert("Message too long, max length is 1100");
-    } else {
-      sendGroupMessage(currentUserUserID, currentlySelectedGroupID, message);
-    }
-  } else if (currentlySelectedUserID != 0) {
-    let message = textAndEmojiToText();
-    console.log(message.length);
-    if (message.length == 0) {
-      alert("Please have something to say");
-    } else if (message.length > 1100) {
-      alert("Message too long, max length is 1100");
-    } else {
-      sendDirectMessage(currentlySelectedUserID, message);
-    }
-  }
-});
-
-let confirmClear = false;
-clearMessageConvesation.addEventListener("click", function () {
-  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
-    alert("Select someone");
-    confirmClear = false;
-  } else if (
-    currentlySelectedGroupID == 0 &&
-    userSelection.textContent == "Group"
-  ) {
-    alert("Select a group");
-    confirmClear = false;
-  } else if (!confirmClear) {
-    alert("Are you sure you want to clear all the messages?");
-    confirmClear = true;
-  } else if (currentlySelectedUserID != 0) {
-    clearDirectMessage(currentlySelectedUserID);
-    clearMessage();
-  } else if (currentlySelectedGroupID != 0) {
-    clearGroupMessage(currentlySelectedGroupID);
-    clearMessage();
-  }
-});

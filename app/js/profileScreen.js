@@ -5,7 +5,7 @@ import {
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
 import { initFirebase } from "/app/js/firebase-setup.js";
-import { appendPost } from "./post.js";
+import { displayPost } from "./post.js";
 import { sendDirectMessage } from "./message.js";
 
 const app = initFirebase();
@@ -88,31 +88,7 @@ function showPost() {
         showcase.appendChild(noPostYet);
       } else {
         data.map((post) => {
-          const postID = post.postID;
-
-          const uploadDetail = post.uploadDetail;
-          const PostLink = uploadDetail.PostLink;
-          const Title = uploadDetail.Title;
-          const commentCount = uploadDetail.commentCount;
-          const didUserLike = uploadDetail.didUserLike;
-          const likeCount = uploadDetail.likeCount;
-          const shareCount = uploadDetail.shareCount;
-
-          const uploaderDetail = post.uploaderDetail;
-          const Username = uploaderDetail.Username;
-          const ProfileIconLink = uploaderDetail.ProfileIconLink;
-
-          appendPost(
-            postID,
-            PostLink,
-            Title,
-            commentCount,
-            didUserLike,
-            likeCount,
-            shareCount,
-            Username,
-            ProfileIconLink
-          );
+          displayPost(post);
         });
       }
     })
