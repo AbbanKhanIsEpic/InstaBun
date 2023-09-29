@@ -383,9 +383,10 @@ app.post("/api/post/createPost", (req, res) => {
   const postLink = req.body.postLink;
   const title = req.body.title;
   const tags = req.body.tags;
+  const isVideo = req.body.isVideo;
 
   let post = new PostManager();
-  post.upload(userID, postLink, title, tags);
+  post.upload(userID, postLink, title, tags, isVideo);
   res.json({ message: "Data received and processed successfully" });
 });
 
@@ -549,9 +550,10 @@ app.post("/api/story/createStory", (req, res) => {
   const userID = req.body.userID;
   const storyLink = req.body.storyLink;
   const title = req.body.title;
+  const isVideo = req.body.isVideo;
 
   let story = new StoryManager();
-  story.upload(userID, storyLink, title);
+  story.upload(userID, storyLink, title, isVideo);
   res.json({ message: "Data received and processed successfully" });
 });
 

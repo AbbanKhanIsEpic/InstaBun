@@ -14,7 +14,7 @@ class PostManager {
     }
   }
 
-  async upload(userID, postLink, title, tags) {
+  async upload(userID, postLink, title, tags, isVideo) {
     try {
       //It is a promise because this needs to run first
       //So we can create the tags first then upload the post then attach the tags to the post
@@ -30,8 +30,8 @@ class PostManager {
       await Promise.all(tagPromises);
 
       //Create the post
-      const query = `INSERT INTO abbankDB.Post (UserID, PostLink,Title) VALUES (?,?,?);`;
-      await update(query, [userID, postLink, title]);
+      const query = `INSERT INTO abbankDB.Post (UserID, isVideo , PostLink,Title) VALUES (?,?,?,?);`;
+      await update(query, [userID, isVideo, postLink, title]);
       //Since this is the latest post, we can get its ID
       const postID = await this.#getCurrentPostID(userID);
       await this.#attachTagsToPost(tags, postID);
@@ -288,6 +288,7 @@ class PostManager {
             ]);
 
             const uploadDetailQuery = `SELECT 
+            isVideo,
             PostLink,
             Title,
             (SELECT COUNT(*) FROM PostLike WHERE PostLike.postID = ? AND PostLike.userID = ?) AS didUserLike,

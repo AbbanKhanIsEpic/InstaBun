@@ -1,3 +1,4 @@
+//Import
 import {
   getStorage,
   ref,
@@ -6,13 +7,15 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-storage.js";
 import { initFirebase } from "/app/js/firebase-setup.js";
 
+//Initialise global variables
+
 const app = initFirebase();
 const storage = getStorage(app);
 
 const IMG = "IMG";
 const VIDEO = "VIDEO";
 
-let select = "Post";
+let isPost = true;
 
 const currentUser = getCookie("userID");
 const addTags = document.querySelector("#addTags");
@@ -28,8 +31,11 @@ const title = document.querySelector("#title");
 
 let selectedFile;
 
-let uploadTags = [];
+const uploadTags = [];
 
+//Event listerners
+
+//When user upload file
 document
   .querySelector("#uploadImagesVideosGIFs")
   .addEventListener("change", (event) => {
@@ -47,6 +53,120 @@ document
     }
   });
 
+//When user add a new tag to the post
+addTags.addEventListener("click", function () {
+  uploadTags.push(tags.value);
+  //Sets are type of data type that only stores unique data
+  //So, by converting the existing array to a Set and checking if the length are the same
+  //This comparising is checking if the tags are different
+  const isDuplicateTags = new Set(uploadTags).size !== uploadTags.length;
+  if (tags.value.length == 0) {
+    alert("Enter something");
+  } else if (tags.value.length >= 100) {
+    alert("Tag is too long");
+  } else if (isDuplicateTags) {
+    alert("Don't enter same tag twice");
+    uploadTags.pop(tags.value);
+  }
+  //This just check if there are spaces around the tags
+  //Because how the posts will be seach is based on the indiviual tags
+  else if (/\s/g.test(tags.value)) {
+    alert("Don't enter tags with spaces");
+    uploadTags.pop(tags.value);
+  } else {
+    //Show the tag that the user want to apply to the post
+    const tagContainer = document.createElement("div");
+    const tag = document.createElement("input");
+    const removeButton = document.createElement("span");
+
+    tagContainer.className = "input-group";
+
+    tag.setAttribute("readonly", "true");
+    tag.className = "form-control text-dark";
+    tag.value = tags.value;
+
+    removeButton.className = "input-group-text";
+    removeButton.role = "button";
+    removeButton.innerText = "Remove";
+
+    tagContainer.appendChild(tag);
+    tagContainer.appendChild(removeButton);
+
+    removeButton.addEventListener("click", function () {
+      uploadTags.pop(tags.value);
+      displayTags.removeChild(tagContainer);
+    });
+
+    displayTags.appendChild(tagContainer);
+  }
+});
+
+selectStory.addEventListener("click", function () {
+  showSelect.innerText = "Story";
+  tagsSection.classList.add("visually-hidden");
+  isPost = false;
+});
+
+selectPost.addEventListener("click", function () {
+  showSelect.innerText = "Post";
+  tagsSection.classList.remove("visually-hidden");
+  isPost = true;
+});
+
+cancelButton.addEventListener("click", function () {
+  const image = document.createElement("img");
+  const showUpload = document.querySelector("#showUpload");
+  image.setAttribute("width", "300");
+  image.setAttribute("height", "400");
+  image.id = "showUpload";
+  image.src = "/app/image/default.png";
+  showUpload.replaceWith(image);
+});
+
+createButton.addEventListener("click", function () {
+  const showUpload = document.querySelector("#showUpload");
+  if (showUpload.src == "http://127.0.0.1:5501/app/image/default.png") {
+    alert("Please select something");
+  } else if (title.value.length == 0) {
+    alert("There must be a title");
+  } else if (title.value.length >= 50) {
+    alert("The title is too long");
+  } else {
+    if (isPost) {
+      if (uploadTags.length < 3) {
+        alert("Add some more tags");
+      } else {
+        fetch(
+          `http://127.0.0.1:5000/api/post/total?userID=${currentUserUserID}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            const totalPost = data;
+            const name = `P${currentUserUserID}:${totalPost}`;
+            uploadToFirebase(name, true);
+          })
+          .catch((error) => {
+            // Handle any errors that occurred during the request
+            console.error(error);
+          });
+      }
+    } else {
+      fetch(`http://127.0.0.1:5000/api/story/total?userID=${currentUserUserID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const name = `S${currentUserUserID}:${data}`;
+          uploadToFirebase(name, false);
+        })
+        .catch((error) => {
+          // Handle any errors that occurred during the request
+          console.error(error);
+        });
+    }
+  }
+});
+
+//Functions
+
 function previewVideo() {
   previewUpload(VIDEO);
 
@@ -62,7 +182,11 @@ function previewVideo() {
 
   source.type = "video/mp4";
   source.src = URL.createObjectURL(selectedFile);
-  console.log(source);
+  const sizeInMB = selectedFile.size / 1024 / 1024;
+  if (sizeInMB > 15) {
+    alert("Video size is too large. 15MB max");
+    window.location.reload();
+  }
   showUpload.append(source);
 
   showUpload.load();
@@ -74,6 +198,11 @@ function previewImage() {
     previewUpload(IMG);
     const showUpload = document.querySelector("#showUpload");
     showUpload.src = event.target.result;
+    const sizeInMB = selectedFile.size / 1024 / 1024;
+    if (sizeInMB > 15) {
+      alert("Image size is too large. 15MB max");
+      window.location.reload();
+    }
   });
   reader.readAsDataURL(selectedFile);
 }
@@ -101,144 +230,13 @@ function previewUpload(target) {
   }
 }
 
-addTags.addEventListener("click", function () {
-  uploadTags.push(tags.value);
-  const isDuplicateTags = new Set(uploadTags).size !== uploadTags.length;
-  if (tags.value.length == 0) {
-    alert("Enter something");
-  } else if (isDuplicateTags) {
-    alert("Don't enter same tag twice");
-    uploadTags.pop(tags.value);
-  } else if (/\s/g.test(tags.value)) {
-    alert("Don't enter tags with spaces");
-    uploadTags.pop(tags.value);
-  } else {
-    const div = document.createElement("div");
-    const input = document.createElement("input");
-    const span = document.createElement("span");
-
-    div.className = "input-group";
-
-    input.setAttribute("readonly", "true");
-    input.className = "form-control text-dark";
-    input.value = tags.value;
-
-    span.className = "input-group-text";
-    span.role = "button";
-    span.innerText = "Remove";
-
-    div.appendChild(input);
-    div.appendChild(span);
-
-    span.addEventListener("click", function () {
-      uploadTags.pop(tags.value);
-      displayTags.removeChild(div);
-    });
-
-    displayTags.appendChild(div);
-  }
-  console.log(uploadTags);
-});
-
-selectStory.addEventListener("click", function () {
-  showSelect.innerText = "Story";
-  tagsSection.classList.add("visually-hidden");
-  select = "Story";
-});
-
-selectPost.addEventListener("click", function () {
-  showSelect.innerText = "Post";
-  tagsSection.classList.remove("visually-hidden");
-  select = "Post";
-});
-
-cancelButton.addEventListener("click", function () {
-  const image = document.createElement("img");
-  const showUpload = document.querySelector("#showUpload");
-  image.setAttribute("width", "300");
-  image.setAttribute("height", "400");
-  image.id = "showUpload";
-  image.src = "/app/image/default.png";
-  showUpload.replaceWith(image);
-});
-
-createButton.addEventListener("click", function () {
-  const showUpload = document.querySelector("#showUpload");
-  if (showUpload.src == "http://127.0.0.1:5501/app/image/default.png") {
-    alert("Please select something");
-  } else if (title.value.length == 0) {
-    alert("There must be a title");
-  } else if (title.value.length >= 30) {
-    alert("The title is too long");
-  } else {
-    if (select == "Post") {
-      if (uploadTags.length < 3) {
-        alert("Add some more tags");
-      } else {
-        fetch(
-          `http://127.0.0.1:5000/api/post/total?userID=${currentUserUserID}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            const totalPost = data;
-            const name = `P${currentUserUserID}:${totalPost}`;
-            uploadToFirebase(name);
-          })
-          .catch((error) => {
-            // Handle any errors that occurred during the request
-            console.error(error);
-          });
-      }
-    }
-    fetch(`http://127.0.0.1:5000/api/story/total?userID=${currentUserUserID}`)
-      .then((response) => response.json())
-      .then((data) => {
-        const name = `S${currentUserUserID}:${data}`;
-        uploadToFirebase(name);
-      })
-      .catch((error) => {
-        // Handle any errors that occurred during the request
-        console.error(error);
-      });
-  }
-});
-
-function uploadStory(url) {
-  var dataObject = {
-    userID: currentUser,
-    storyLink: url,
-    title: title.value,
-  };
-
-  // Convert the JavaScript object to a JSON string
-  var jsonObject = JSON.stringify(dataObject);
-
-  fetch("http://127.0.0.1:5000/api/story/createStory", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: jsonObject,
-  })
-    .then((response) => response.text())
-    .then((responseData) => {
-      alert("Story created");
-      window.location.reload();
-      console.log("Response:", responseData);
-    })
-    .catch((error) => {
-      alert("Story not created");
-      window.location.reload();
-      console.error("Error:", error);
-    });
-}
-
 function uploadPost(url) {
   var dataObject = {
     userID: currentUser,
     postLink: url,
     title: title.value,
     tags: uploadTags,
+    isVideo: selectedFile.type.match("video.*") ? true : false,
   };
 
   // Convert the JavaScript object to a JSON string
@@ -264,18 +262,48 @@ function uploadPost(url) {
     });
 }
 
-function uploadToFirebase(name) {
+function uploadStory(url) {
+  var dataObject = {
+    userID: currentUser,
+    storyLink: url,
+    title: title.value,
+    isVideo: selectedFile.type.match("video.*") ? true : false,
+  };
+
+  // Convert the JavaScript object to a JSON string
+  var jsonObject = JSON.stringify(dataObject);
+
+  fetch("http://127.0.0.1:5000/api/story/createStory", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      alert("Story created");
+      window.location.reload();
+      console.log("Response:", responseData);
+    })
+    .catch((error) => {
+      alert("Story not created");
+      window.location.reload();
+      console.error("Error:", error);
+    });
+}
+
+function uploadToFirebase(name, isPost) {
   const type = selectedFile.type.match("video.*") ? "video" : "image";
   const url = `${type}/${name}`;
   const storageRef = ref(storage, url);
   uploadBytes(storageRef, selectedFile)
     .then((snapshot) => {
-      console.log("Image uploaded successfully!");
       getDownloadURL(storageRef)
         .then((url) => {
-          if (name.charAt(0) == "P") {
+          if (isPost) {
             uploadPost(url);
-          } else if (name.charAt(0) == "S") {
+          } else {
             uploadStory(url);
           }
         })

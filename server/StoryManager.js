@@ -2,10 +2,10 @@ const { select, update } = require("./DB");
 const FollowManager = require("./FollowManager");
 
 class StoryManager {
-  async upload(userID, StoryLink, Title) {
+  async upload(userID, StoryLink, Title, isVideo) {
     try {
-      const query = `INSERT INTO abbankDB.Story (UserID, StoryLink,Title,uploadDateTime) VALUES (?, ?, ?,now());`;
-      await update(query, [userID, StoryLink, Title]);
+      const query = `INSERT INTO abbankDB.Story (UserID,isVideo,StoryLink,Title,uploadDateTime) VALUES (?, ?, ?, ?,now());`;
+      await update(query, [userID, isVideo, StoryLink, Title]);
       return "Upload story operation successful";
     } catch (error) {
       return error;

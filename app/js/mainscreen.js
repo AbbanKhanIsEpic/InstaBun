@@ -1,14 +1,13 @@
 import { appendPost } from "./post.js";
 import { appendStory } from "./story.js";
 
+//A
 fetch(`http://127.0.0.1:5000/api/post/followings?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    if (data.length === undefined) {
-      alert("Can not find post");
+    if (data.length == 0) {
     }
     data.map((post) => {
-      console.log(post);
       const postID = post.postID;
 
       const uploadDetail = post.uploadDetail;

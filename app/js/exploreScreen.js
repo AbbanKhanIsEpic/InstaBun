@@ -18,11 +18,13 @@ if (sharedPost == null) {
     .then((response) => response.json())
     .then((data) => {
       data.map((post) => {
+        console.log(post);
         const postID = post.postID;
 
         const uploadDetail = post.uploadDetail;
         const PostLink = uploadDetail.PostLink;
         const Title = uploadDetail.Title;
+        const isVideo = uploadDetail.isVideo;
         const commentCount = uploadDetail.commentCount;
         const didUserLike = uploadDetail.didUserLike;
         const likeCount = uploadDetail.likeCount;

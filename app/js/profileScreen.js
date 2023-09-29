@@ -79,7 +79,7 @@ function showPost() {
   )
     .then((response) => response.json())
     .then((data) => {
-      if (data.length === undefined) {
+      if (data.length == 0 || data.length == undefined) {
         // Append the main container to the showcase
         const showcase = document.querySelector("#showcase");
         const noPostYet = document.createElement("img");
@@ -686,10 +686,7 @@ function unBlockUser() {
 function blockUser() {
   var dataObject = { userID: currentUserUserID, profileUserID: profileUserID };
 
-  // Convert the JavaScript object to a JSON string
   var jsonObject = JSON.stringify(dataObject);
-
-  console.log(jsonObject);
 
   fetch("http://127.0.0.1:5000/api/user/block", {
     method: "POST",

@@ -37,6 +37,7 @@ const uploadProfileIcon = document.getElementById("uploadProfileIcon");
 const uploadNewProfileIcon = document.getElementById("uploadNewProfileIcon");
 const newProfileIconPreview = document.getElementById("newProfileIconPreview");
 const createGroupButton = document.getElementById("createGroupButton");
+const newOwnerProfileIcon = document.getElementById("newOwnerProfileIcon");
 const addUserForNewGroupButton = document.getElementById(
   "addUserForNewGroupButton"
 );
@@ -47,6 +48,10 @@ const showNewMemberInNewGroup = document.getElementById(
   "showNewMemberInNewGroup"
 );
 const showMembers = document.querySelector("#showMembers");
+
+let newGroupProfileIcon = null;
+
+newOwnerProfileIcon.src = currentUserProfileLink;
 
 createGroupModal.dataset.bsToggle = "modal";
 createGroupModal.dataset.bsTarget = "#createGroupModal";
@@ -143,13 +148,13 @@ async function showMememberForNewGroup(username, userID) {
 createGroupButton.addEventListener("click", function () {});
 
 uploadNewProfileIcon.addEventListener("change", function () {
-  let file = event.target.files[0];
-  if (file.type.match("image.*")) {
+  newGroupProfileIcon = event.target.files[0];
+  if (newGroupProfileIcon.type.match("image.*")) {
     const reader = new FileReader();
     reader.addEventListener("load", (event) => {
       newProfileIconPreview.src = event.target.result;
     });
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(newGroupProfileIcon);
   } else {
     alert("Sorry, only images");
   }

@@ -13,7 +13,6 @@ export function appendPost(
   const modalBody = document.querySelector("#comments");
   const commentInputField = document.querySelector("#commentInput");
   const commentTitle = document.querySelector("#title");
-  commentTitle.textContent = title;
 
   // Create the main container div
   const mainContainer = document.createElement("div");
@@ -178,6 +177,7 @@ export function appendPost(
   commentCountSpan.className = "text-center";
 
   commentSpan.addEventListener("click", function () {
+    commentTitle.textContent = title;
     const server = "http://127.0.0.1:5000/api/post/comment";
     const query = `?postID=${postID}`;
 
@@ -195,7 +195,6 @@ export function appendPost(
         // Handle any errors that occurred during the request
         console.error(error);
       });
-
     sendSpan.addEventListener("click", function () {
       var dataObject = {
         postID: postID,
