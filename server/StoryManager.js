@@ -28,6 +28,7 @@ class StoryManager {
       const followingArray = await follow.getFollowings(userID);
       const query = `SELECT 
       timestampdiff(HOUR,Story.uploadDateTime,now()) as hoursOlD,
+      Story.isVideo,
       Story.UserID,
       Story.idStory,
       Story.StoryLink,

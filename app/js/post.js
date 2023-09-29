@@ -1,4 +1,4 @@
-export function appendPost(
+function appendPost(
   postID,
   postLink,
   title,
@@ -7,7 +7,8 @@ export function appendPost(
   likeCount,
   shareCount,
   username,
-  profileIconLink
+  profileIconLink,
+  isVideo
 ) {
   // Create the main container div
   const mainContainer = document.createElement("div");
@@ -17,7 +18,7 @@ export function appendPost(
   // Create the first inner div
   const firstInnerDiv = document.createElement("div");
   firstInnerDiv.className = "d-flex flex-column";
-  if (postLink.charAt(79) == "v") {
+  if (isVideo) {
     const video = document.createElement("video");
     video.className = "post";
     video.src = postLink;
@@ -294,7 +295,6 @@ export function appendPost(
     fetch(server + query)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         data.map((comment) => {
           const text = comment.Comment;
           const profileIcon = comment.ProfileIconLink;
@@ -444,4 +444,34 @@ export function appendPost(
   // Append the main container to the showcase
   const showcase = document.querySelector("#showcase");
   showcase.appendChild(mainContainer);
+}
+
+export function displayPost(post) {
+  const postID = post["postID"];
+
+  const uploadDetail = post["uploadDetail"];
+  const PostLink = uploadDetail["PostLink"];
+  const Title = uploadDetail["Title"];
+  const isVideo = uploadDetail["isVideo"];
+  const commentCount = uploadDetail["commentCount"];
+  const didUserLike = uploadDetail["didUserLike"];
+  const likeCount = uploadDetail["likeCount"];
+  const shareCount = uploadDetail["shareCount"];
+
+  const uploaderDetail = post["uploaderDetail"];
+  const Username = uploaderDetail["Username"];
+  const ProfileIconLink = uploaderDetail["ProfileIconLink"];
+
+  appendPost(
+    postID,
+    PostLink,
+    Title,
+    commentCount,
+    didUserLike,
+    likeCount,
+    shareCount,
+    Username,
+    ProfileIconLink,
+    isVideo
+  );
 }

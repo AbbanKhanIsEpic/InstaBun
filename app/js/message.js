@@ -1,5 +1,7 @@
+//Import
 import { textToTextAndEmoji } from "./emoji.js";
 
+//Init global variable
 const messageOutput = document.querySelector("#messageOutput");
 
 let directMessageWorker;
@@ -17,13 +19,15 @@ fetch(`http://127.0.0.1:5000/api/user/displayName?userID=${currentUserUserID}`)
     console.error(error);
   });
 
+//Functions
+
 export function sendDirectMessage(recieverID, message) {
+  //There are escape characters and we have to be wary of them
   message = message
     .replace(/"/g, '\\"')
     .replace(/'/g, "\\'")
     .replace(/\\/g, "\\\\");
 
-  console.log(message.length);
   fetch(
     `http://127.0.0.1:5000/api/direct/permission?senderID=${currentUserUserID}&receiverID=${recieverID}`
   )
@@ -65,6 +69,8 @@ export function showDirectMessage(
   receiverProfileIcon,
   receiverDisplayName
 ) {
+  //if there is no web worker for direct message
+  //Create one
   if (typeof directMessageWorker == "undefined") {
     directMessageWorker = new Worker("/app/js/directMessageThread.js");
     directMessageWorker.onmessage = function (messages) {
@@ -74,6 +80,8 @@ export function showDirectMessage(
         const senderID = message["SenderID"];
         const time = message["Time"];
         const username = message["Username"];
+        //There is showSenderMessage and showReceiverMessage
+        //It is to distinguish, for the user, which message the user sent
         if (senderID == currentUserID) {
           showSenderMessage(messageID, messageSent, time, false);
         } else {
@@ -97,8 +105,8 @@ export function showDirectMessage(
 
 function showSenderMessage(messageID, messageSent, time, isGroup) {
   // Create the main div element
-  const mainDiv = document.createElement("div");
-  mainDiv.classList.add(
+  const messageContainer = document.createElement("div");
+  messageContainer.classList.add(
     "me-4",
     "ms-4",
     "mt-4",
@@ -108,7 +116,7 @@ function showSenderMessage(messageID, messageSent, time, isGroup) {
     "bg-success",
     "rounded"
   );
-  mainDiv.setAttribute("aria-label", "message send");
+  messageContainer.setAttribute("aria-label", "message send");
 
   // Create the inner div element
   const innerDiv = document.createElement("div");
@@ -180,12 +188,12 @@ function showSenderMessage(messageID, messageSent, time, isGroup) {
   innerDiv.appendChild(leadDiv);
   innerDiv.appendChild(message);
 
-  mainDiv.appendChild(innerDiv);
+  messageContainer.appendChild(innerDiv);
 
-  messageOutput.appendChild(mainDiv);
+  messageOutput.appendChild(messageContainer);
 
   deleteButton.addEventListener("click", function () {
-    messageOutput.removeChild(mainDiv);
+    messageOutput.removeChild(messageContainer);
     if (isGroup) {
       deleteGroupMessage(messageID);
     } else {

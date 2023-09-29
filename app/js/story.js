@@ -1,4 +1,12 @@
-export function appendStory(idStory, profileIconLink, storyLink, title) {
+import { sendDirectMessage } from "./message.js";
+export function appendStory(
+  userID,
+  idStory,
+  profileIconLink,
+  storyLink,
+  title,
+  isVideo
+) {
   const modal = `storyModal${idStory}`;
   // Create the <div> element
   const divElement = document.createElement("div");
@@ -81,6 +89,17 @@ export function appendStory(idStory, profileIconLink, storyLink, title) {
   sendMessageButton.textContent = "Send message";
   sendMessageButton.setAttribute("role", "button");
 
+  sendMessageButton.addEventListener("click", function () {
+    if (inputField.value.length == 0) {
+      alert("Please have something to say");
+    } else if (inputField.value.length > 1100) {
+      alert("Message too long, max length is 1100");
+    } else {
+      sendDirectMessage(userID, inputField.value);
+      window.open("http://127.0.0.1:5501/app/message.html", "_blank");
+    }
+  });
+
   // Append the input field and send message button to the input group
   inputGroupDiv.appendChild(inputField);
   inputGroupDiv.appendChild(sendMessageButton);
@@ -88,9 +107,8 @@ export function appendStory(idStory, profileIconLink, storyLink, title) {
   // Append the input group to the modal body
   modalFooterDiv.appendChild(inputGroupDiv);
 
-  if (storyLink.charAt(79) == "v") {
+  if (isVideo) {
     const video = document.createElement("video");
-    //Using css of post
     video.className = "post";
     video.src = storyLink;
     video.controls = true;

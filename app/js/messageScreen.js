@@ -717,7 +717,7 @@ sendMessageButton.addEventListener("click", function () {
     if (message.length == 0) {
       alert("Please have something to say");
     } else if (message.length > 1100) {
-      alert("Woah buddy, too much. Cut that down");
+      alert("Message too long, max length is 1100");
     } else {
       sendGroupMessage(currentUserUserID, currentlySelectedGroupID, message);
     }
@@ -727,7 +727,7 @@ sendMessageButton.addEventListener("click", function () {
     if (message.length == 0) {
       alert("Please have something to say");
     } else if (message.length > 1100) {
-      alert("Woah buddy, too much. Cut that down");
+      alert("Message too long, max length is 1100");
     } else {
       sendDirectMessage(currentlySelectedUserID, message);
     }

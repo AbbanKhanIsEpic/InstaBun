@@ -1,3 +1,5 @@
+//This allow us to only get the new messages
+//Do not have to keep on refreshing and deleting elements just for them to be replaced
 let latestMessageID = 0;
 let userID;
 let groupID;

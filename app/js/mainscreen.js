@@ -1,38 +1,12 @@
-import { appendPost } from "./post.js";
+//Imports
+import { displayPost } from "./post.js";
 import { appendStory } from "./story.js";
-
-//A
+//Get the post of who the user follows
 fetch(`http://127.0.0.1:5000/api/post/followings?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    if (data.length == 0) {
-    }
     data.map((post) => {
-      const postID = post.postID;
-
-      const uploadDetail = post.uploadDetail;
-      const PostLink = uploadDetail.PostLink;
-      const Title = uploadDetail.Title;
-      const commentCount = uploadDetail.commentCount;
-      const didUserLike = uploadDetail.didUserLike;
-      const likeCount = uploadDetail.likeCount;
-      const shareCount = uploadDetail.shareCount;
-
-      const uploaderDetail = post.uploaderDetail;
-      const Username = uploaderDetail.Username;
-      const ProfileIconLink = uploaderDetail.ProfileIconLink;
-
-      appendPost(
-        postID,
-        PostLink,
-        Title,
-        commentCount,
-        didUserLike,
-        likeCount,
-        shareCount,
-        Username,
-        ProfileIconLink
-      );
+      displayPost(post);
     });
   })
   .catch((error) => {
@@ -40,19 +14,19 @@ fetch(`http://127.0.0.1:5000/api/post/followings?userID=${currentUserUserID}`)
     console.error(error);
   });
 
+//Get the stort of who the user follows
 fetch(`http://127.0.0.1:5000/api/story/following?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
-    if (!data) {
-      alert("Can not find story");
-    }
     data.map((story) => {
       console.log(story);
+      const userID = story["UserID"];
       const idStory = story["idStory"];
       const profileIconLink = story["ProfileIconLink"];
       const storyLink = story["StoryLink"];
       const title = story["Title"];
-      appendStory(idStory, profileIconLink, storyLink, title);
+      const isVideo = story["isVideo"];
+      appendStory(userID, idStory, profileIconLink, storyLink, title, isVideo);
     });
   })
   .catch((error) => {

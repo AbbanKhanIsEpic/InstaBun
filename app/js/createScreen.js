@@ -79,28 +79,32 @@ addTags.addEventListener("click", function () {
     uploadTags.pop(tags.value);
   } else {
     //Show the tag that the user want to apply to the post
+    //Create a container to show and seperate the tag/s
     const tagContainer = document.createElement("div");
-    const tag = document.createElement("input");
-    const removeButton = document.createElement("span");
-
     tagContainer.className = "input-group";
 
+    //Create an input element to show the tag the user has linked to the post
+    const tag = document.createElement("input");
     tag.setAttribute("readonly", "true");
     tag.className = "form-control text-dark";
     tag.value = tags.value;
 
+    //Create a span element to allow user to delete the tag if the tag the user entered is incorrect
+    const removeButton = document.createElement("span");
     removeButton.className = "input-group-text";
     removeButton.role = "button";
     removeButton.innerText = "Remove";
-
-    tagContainer.appendChild(tag);
-    tagContainer.appendChild(removeButton);
 
     removeButton.addEventListener("click", function () {
       uploadTags.pop(tags.value);
       displayTags.removeChild(tagContainer);
     });
 
+    //Append all the elements to the container
+    tagContainer.appendChild(tag);
+    tagContainer.appendChild(removeButton);
+
+    //Diplay the tag
     displayTags.appendChild(tagContainer);
   }
 });
@@ -233,14 +237,15 @@ function changeToPreview(target) {
   const showUpload = document.querySelector("#showUpload");
   if (showUpload.tagName != target) {
     if (target == IMG) {
+      //The showUpload is a video and we need an image element to show the image the user uploaded
       const image = document.createElement("img");
       image.setAttribute("width", "300");
       image.setAttribute("height", "400");
       image.id = "showUpload";
       showUpload.replaceWith(image);
     } else {
+      //The showUpload is an image and we need a video element to show the video the user uploaded
       const video = document.createElement("video");
-
       video.setAttribute("width", "300");
       video.setAttribute("height", "400");
       video.setAttribute("controls", "true");
@@ -251,6 +256,7 @@ function changeToPreview(target) {
   }
 }
 
+//The function creates a post
 function uploadPost(url) {
   const isVideo = selectedFile.type.match("video.*") ? true : false;
   var dataObject = {
@@ -283,6 +289,7 @@ function uploadPost(url) {
     });
 }
 
+//The function creates a story
 function uploadStory(url) {
   const isVideo = selectedFile.type.match("video.*") ? true : false;
   var dataObject = {
@@ -314,8 +321,11 @@ function uploadStory(url) {
     });
 }
 
+//This uploads the user's file to firebase
 function uploadToFirebase(name, isPost) {
   const type = selectedFile.type.match("video.*") ? "video" : "image";
+  //The url is the directory of post / story
+  //There are two folders: video and image
   const url = `${type}/${name}`;
   const storageRef = ref(storage, url);
   uploadBytes(storageRef, selectedFile)

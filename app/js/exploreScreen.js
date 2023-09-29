@@ -1,4 +1,7 @@
-import { appendPost } from "./post.js";
+//Import
+import { displayPost } from "./post.js";
+
+//Init global variables
 const searchForUsers = document.querySelector("#searchForUsers");
 const searchForPosts = document.querySelector("#searchForPosts");
 const display = document.querySelector("#display");
@@ -6,83 +9,26 @@ const search = document.querySelector("#search");
 const searchInput = document.querySelector("#SearchInput");
 const showcase = document.querySelector("#showcase");
 
+//This is to check if the user is viewing a shared post
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
 const sharedPost = urlParams.get("postID");
 
+//If user is not viewing a post that is shared
+//Show them top 10 post that is recommended to them
 if (sharedPost == null) {
-  fetch(
-    `http://127.0.0.1:5000/api/post/placeholder?userID=${currentUserUserID}`
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      data.map((post) => {
-        console.log(post);
-        const postID = post.postID;
-
-        const uploadDetail = post.uploadDetail;
-        const PostLink = uploadDetail.PostLink;
-        const Title = uploadDetail.Title;
-        const isVideo = uploadDetail.isVideo;
-        const commentCount = uploadDetail.commentCount;
-        const didUserLike = uploadDetail.didUserLike;
-        const likeCount = uploadDetail.likeCount;
-        const shareCount = uploadDetail.shareCount;
-
-        const uploaderDetail = post.uploaderDetail;
-        const Username = uploaderDetail.Username;
-        const ProfileIconLink = uploaderDetail.ProfileIconLink;
-
-        appendPost(
-          postID,
-          PostLink,
-          Title,
-          commentCount,
-          didUserLike,
-          likeCount,
-          shareCount,
-          Username,
-          ProfileIconLink
-        );
-      });
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
+  showRecommendedPost();
 } else {
+  //If they are viewing a post that is shared
+  //Show that video
   fetch(
     `http://127.0.0.1:5000/api/post/select?userID=${currentUserUserID}&postID=${sharedPost}`
   )
     .then((response) => response.json())
     .then((data) => {
       data.map((post) => {
-        const postID = post.postID;
-
-        const uploadDetail = post.uploadDetail;
-        const PostLink = uploadDetail.PostLink;
-        const Title = uploadDetail.Title;
-        const commentCount = uploadDetail.commentCount;
-        const didUserLike = uploadDetail.didUserLike;
-        const likeCount = uploadDetail.likeCount;
-        const shareCount = uploadDetail.shareCount;
-
-        const uploaderDetail = post.uploaderDetail;
-        const Username = uploaderDetail.Username;
-        const ProfileIconLink = uploaderDetail.ProfileIconLink;
-
-        appendPost(
-          postID,
-          PostLink,
-          Title,
-          commentCount,
-          didUserLike,
-          likeCount,
-          shareCount,
-          Username,
-          ProfileIconLink
-        );
+        displayPost(post);
       });
     })
     .catch((error) => {
@@ -90,6 +36,8 @@ if (sharedPost == null) {
       console.error(error);
     });
 }
+
+//Event listerners
 
 searchForUsers.addEventListener("click", function () {
   clear();
@@ -99,13 +47,8 @@ searchForUsers.addEventListener("click", function () {
 searchForPosts.addEventListener("click", function () {
   clear();
   display.textContent = "Posts";
+  showRecommendedPost();
 });
-
-function clear() {
-  while (showcase.childNodes[0]) {
-    showcase.removeChild(showcase.childNodes[0]);
-  }
-}
 
 search.addEventListener("click", function () {
   clear();
@@ -116,6 +59,14 @@ search.addEventListener("click", function () {
     searchPost(search);
   }
 });
+
+//Functions
+
+function clear() {
+  while (showcase.childNodes[0]) {
+    showcase.removeChild(showcase.childNodes[0]);
+  }
+}
 
 function searchPost(search) {
   clear();
@@ -133,31 +84,7 @@ function searchPost(search) {
           alert("Can not find post");
         } else {
           data.map((post) => {
-            const postID = post.postID;
-
-            const uploadDetail = post.uploadDetail;
-            const PostLink = uploadDetail.PostLink;
-            const Title = uploadDetail.Title;
-            const commentCount = uploadDetail.commentCount;
-            const didUserLike = uploadDetail.didUserLike;
-            const likeCount = uploadDetail.likeCount;
-            const shareCount = uploadDetail.shareCount;
-
-            const uploaderDetail = post.uploaderDetail;
-            const Username = uploaderDetail.Username;
-            const ProfileIconLink = uploaderDetail.ProfileIconLink;
-
-            appendPost(
-              postID,
-              PostLink,
-              Title,
-              commentCount,
-              didUserLike,
-              likeCount,
-              shareCount,
-              Username,
-              ProfileIconLink
-            );
+            displayPost(post);
           });
         }
       })
@@ -175,50 +102,70 @@ function searchUsers(search) {
   fetch(server + query)
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
-      data.forEach(function (user) {
-        // Create a div element
-        const divElement = document.createElement("div");
-        divElement.style.width = "400px";
-        divElement.style.height = "70px";
-        divElement.className = "mb-4";
-        divElement.role = "button";
+      if (data.length === 0) {
+        alert("Unable to find user where username contains: " + search);
+      } else {
+        data.forEach(function (user) {
+          // Create a div element to show the user
+          const userContainer = document.createElement("div");
+          userContainer.style.width = "400px";
+          userContainer.style.height = "70px";
+          userContainer.className = "mb-4";
+          userContainer.role = "button";
 
-        // Create an img element
-        const imgElement = document.createElement("img");
-        imgElement.alt = `${user.Username}'s profile picture`;
-        imgElement.draggable = false;
-        imgElement.src = user.ProfileIconLink;
-        imgElement.setAttribute("width", "60px");
-        imgElement.setAttribute("height", "60px");
-        imgElement.className = "rounded-circle";
+          // Create an img element to show the user profile icon
+          const userProfileIcon = document.createElement("img");
+          userProfileIcon.alt = `${user["Username"]}'s profile picture`;
+          userProfileIcon.draggable = false;
+          userProfileIcon.src = user["ProfileIconLink"];
+          userProfileIcon.setAttribute("width", "60px");
+          userProfileIcon.setAttribute("height", "60px");
+          userProfileIcon.className = "rounded-circle";
 
-        // Create the first span element
-        const spanElement1 = document.createElement("span");
-        spanElement1.className = "ms-2 display-6";
-        spanElement1.textContent = user.Username;
+          // Create a span element to show the user's username
+          const userUsername = document.createElement("span");
+          userUsername.className = "ms-2 display-6";
+          userUsername.textContent = user["Username"];
 
-        // Create the second span element
-        const spanElement2 = document.createElement("span");
-        spanElement2.className = "ms-2";
-        spanElement2.textContent = user.DisplayName;
+          // Create a span element to show the user's displayname
+          const userDisplayName = document.createElement("span");
+          userDisplayName.className = "ms-2";
+          userDisplayName.textContent = user["DisplayName"];
 
-        // Append all elements to the div
-        divElement.appendChild(imgElement);
-        divElement.appendChild(spanElement1);
-        divElement.appendChild(spanElement2);
+          // Append all elements to the container
+          userContainer.appendChild(userProfileIcon);
+          userContainer.appendChild(userUsername);
+          userContainer.appendChild(userDisplayName);
 
-        // Append the div to the main's first child
-        showcase.appendChild(divElement);
+          // Append the container to the main's first child
+          showcase.appendChild(userContainer);
 
-        //Add event listener to send user to the profile screen of the clicked user
-        divElement.addEventListener("click", function (event) {
-          const selectedUser = event.currentTarget.childNodes[1].textContent;
-          window.open(
-            `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
-            "_blank"
-          );
+          //Add event listener to send user to the profile screen of the clicked user
+          userContainer.addEventListener("click", function (event) {
+            //Get the userID of selected user
+            const selectedUser = event.currentTarget.childNodes[1].textContent;
+            window.open(
+              `http://127.0.0.1:5501/app/profile.html?Username=${selectedUser}`,
+              "_blank"
+            );
+          });
         });
+      }
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
+}
+
+function showRecommendedPost() {
+  fetch(
+    `http://127.0.0.1:5000/api/post/placeholder?userID=${currentUserUserID}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      data.map((post) => {
+        displayPost(post);
       });
     })
     .catch((error) => {
