@@ -220,9 +220,7 @@ function getDirectList() {
   fetch(`http://127.0.0.1:5000/api/direct/list?userID=${currentUserUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       data.map((user) => {
-        console.log(user);
         const profileIconLink = user.profileIconLink;
         const displayName = user.displayName;
         const userID = user.userID;

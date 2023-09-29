@@ -152,7 +152,6 @@ function getDMLimit() {
   fetch(`http://127.0.0.1:5000/api/user/dmlimit?userID=${profileUserID}`)
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       DMLimit = data.DMLimit;
       tempDMLimit = DMLimit;
       switch (DMLimit) {

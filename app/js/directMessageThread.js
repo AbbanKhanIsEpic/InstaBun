@@ -4,7 +4,6 @@ let senderID;
 let receiverID;
 
 self.onmessage = function (communicatorData) {
-  console.log(communicatorData.data);
   userID = communicatorData.data["senderID"];
   receiverID = communicatorData.data["receiverID"];
   getMessages();
@@ -18,6 +17,8 @@ function getMessages() {
     .then((response) => response.json())
     .then((data) => {
       let lastestMessage = data[data.length - 1];
+      //The cases where latestMessage will be undefined
+      //Is when there is no new message at all
       if (lastestMessage != undefined) {
         latestMessageID = lastestMessage["MessageID"];
       }

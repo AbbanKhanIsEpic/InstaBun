@@ -133,8 +133,6 @@ export function textToTextAndEmoji(message) {
   const divContainer = document.createElement("div");
   divContainer.className = "text-break";
 
-  console.log(messageArray);
-
   for (let i = 0; i < messageArray.length; i++) {
     if (emojiMap.has(messageArray[i])) {
       const emoji = document.createElement("img");
@@ -149,6 +147,5 @@ export function textToTextAndEmoji(message) {
       divContainer.appendChild(text);
     }
   }
-  console.log(divContainer);
   return divContainer;
 }

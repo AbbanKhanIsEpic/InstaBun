@@ -69,7 +69,6 @@ export function showDirectMessage(
     directMessageWorker = new Worker("/app/js/directMessageThread.js");
     directMessageWorker.onmessage = function (messages) {
       messages.data.map((message) => {
-        console.log(message);
         const messageSent = message["Message"];
         const messageID = message["MessageID"];
         const senderID = message["SenderID"];

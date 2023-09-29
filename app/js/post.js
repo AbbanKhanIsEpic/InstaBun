@@ -9,11 +9,6 @@ export function appendPost(
   username,
   profileIconLink
 ) {
-  const sendSpan = document.querySelector("#sendComment");
-  const modalBody = document.querySelector("#comments");
-  const commentInputField = document.querySelector("#commentInput");
-  const commentTitle = document.querySelector("#title");
-
   // Create the main container div
   const mainContainer = document.createElement("div");
   mainContainer.className = "d-flex justify-content-center align-items-center";
@@ -156,9 +151,6 @@ export function appendPost(
   commentSvg.setAttribute("class", "bi bi-chat-right-dots-fill");
   commentSvg.setAttribute("viewBox", "0 0 16 16");
 
-  commentSpan.dataset.bsToggle = "modal";
-  commentSpan.dataset.bsTarget = `#commentModal`;
-
   const commentPath = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "path"
@@ -177,13 +169,132 @@ export function appendPost(
   commentCountSpan.className = "text-center";
 
   commentSpan.addEventListener("click", function () {
-    commentTitle.textContent = title;
+    // Create the modal element
+    const commentModal = document.createElement("div");
+    commentModal.className = "modal fade";
+    commentModal.id = "commentModal";
+    commentModal.setAttribute("tabindex", "-1");
+    commentModal.setAttribute("aria-hidden", "true");
+
+    // Create the modal dialog
+    const modalDialog = document.createElement("div");
+    modalDialog.className = "modal-dialog";
+
+    // Create the modal content
+    const modalContent = document.createElement("div");
+    modalContent.className = "modal-content";
+
+    // Create the modal header
+    const modalHeader = document.createElement("div");
+    modalHeader.className = "modal-header";
+
+    // Create the modal title
+    const modalTitle = document.createElement("h1");
+    modalTitle.className = "modal-title fs-5 text-black";
+    modalTitle.textContent = title;
+
+    // Append the modal title to the modal header
+    modalHeader.appendChild(modalTitle);
+
+    // Create the modal body
+    const modalBody = document.createElement("div");
+    modalBody.className = "modal-body text-black";
+    modalBody.id = "comments";
+
+    // Create the modal footer
+    const modalFooter = document.createElement("div");
+    modalFooter.className = "modal-footer";
+
+    // Create the input group
+    const inputGroup = document.createElement("div");
+    inputGroup.className = "input-group";
+
+    // Create the comment input field
+    const commentInput = document.createElement("input");
+    commentInput.type = "text";
+    commentInput.className = "form-control";
+    commentInput.id = "commentInput";
+
+    // Create the "Send" button
+    const sendCommentButton = document.createElement("span");
+    sendCommentButton.className = "input-group-text";
+    sendCommentButton.setAttribute("role", "button");
+    sendCommentButton.id = "sendComment";
+    sendCommentButton.textContent = "Send";
+
+    sendCommentButton.addEventListener("click", function () {
+      if (commentInput.value.length == 0) {
+        alert("Have something to comment about");
+      } else if (commentInput.value.length > 500) {
+        alert("Too much text, max length is 500");
+      } else {
+        var dataObject = {
+          postID: postID,
+          userID: currentUserUserID,
+          comment: commentInput.value,
+        };
+
+        // Convert the JavaScript object to a JSON string
+        var jsonObject = JSON.stringify(dataObject);
+
+        fetch("http://127.0.0.1:5000/api/post/comment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: jsonObject,
+        })
+          .then((response) => response.text())
+          .then((responseData) => {
+            addComment(
+              currentUserUserID,
+              currentUserUsername,
+              currentUserProfileLink,
+              commentInput.value
+            );
+            commentCount++;
+            commentCountSpan.textContent = commentCount;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    });
+
+    // Append the comment input field and "Send" button to the input group
+    inputGroup.appendChild(commentInput);
+    inputGroup.appendChild(sendCommentButton);
+
+    // Append the input group to the modal footer
+    modalFooter.appendChild(inputGroup);
+
+    // Append the modal header, modal body, and modal footer to the modal content
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modalContent.appendChild(modalFooter);
+
+    // Append the modal content to the modal dialog
+    modalDialog.appendChild(modalContent);
+
+    // Append the modal dialog to the modal element
+    commentModal.appendChild(modalDialog);
+
+    // Append the modal element to the document body
+    document.body.appendChild(commentModal);
+
+    const modal = new bootstrap.Modal(commentModal, {
+      backdrop: "true",
+    });
+
+    modal.show();
+
     const server = "http://127.0.0.1:5000/api/post/comment";
     const query = `?postID=${postID}`;
 
     fetch(server + query)
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         data.map((comment) => {
           const text = comment.Comment;
           const profileIcon = comment.ProfileIconLink;
@@ -195,88 +306,52 @@ export function appendPost(
         // Handle any errors that occurred during the request
         console.error(error);
       });
-    sendSpan.addEventListener("click", function () {
-      var dataObject = {
-        postID: postID,
-        userID: currentUserUserID,
-        comment: commentInputField.value,
-      };
 
-      // Convert the JavaScript object to a JSON string
-      var jsonObject = JSON.stringify(dataObject);
+    function addComment(userID, username, currentUserProfileLink, text) {
+      const commentContainer = document.createElement("div");
 
-      fetch("http://127.0.0.1:5000/api/post/comment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-        body: jsonObject,
-      })
-        .then((response) => response.text())
-        .then((responseData) => {
-          addComment(
-            currentUserUserID,
-            currentUserUsername,
-            currentUserProfileLink,
-            commentInputField.value
-          );
-          commentCount++;
-          commentCountSpan.textContent = commentCount;
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    });
-  });
+      const commentText = document.createElement("div");
+      commentText.innerText = text;
+      commentText.className = "mb-4 text-break";
 
-  function addComment(userID, username, currentUserProfileLink, text) {
-    const commentContainer = document.createElement("div");
+      const whoComment = document.createElement("div");
+      whoComment.style.width = "400px";
+      whoComment.style.height = "70px";
+      whoComment.className = "mb-4";
+      whoComment.role = "button";
 
-    const commentText = document.createElement("div");
-    commentText.innerText = text;
-    commentText.className = "mb-4 text-break";
+      // Create an img element
+      const commentProfileIcon = document.createElement("img");
+      commentProfileIcon.alt = `${userID}'s profile picture`;
+      commentProfileIcon.draggable = false;
+      commentProfileIcon.src = currentUserProfileLink;
+      commentProfileIcon.setAttribute("width", "60px");
+      commentProfileIcon.setAttribute("height", "60px");
+      commentProfileIcon.className = "rounded-circle";
 
-    const whoComment = document.createElement("div");
-    whoComment.style.width = "400px";
-    whoComment.style.height = "70px";
-    whoComment.className = "mb-4";
-    whoComment.role = "button";
+      whoComment.addEventListener("click", function () {
+        window.open(
+          `http://127.0.0.1:5501/app/profile.html?Username=${username}`,
+          "_blank"
+        );
+      });
 
-    // Create an img element
-    const commentProfileIcon = document.createElement("img");
-    commentProfileIcon.alt = `${userID}'s profile picture`;
-    commentProfileIcon.draggable = false;
-    commentProfileIcon.src = currentUserProfileLink;
-    commentProfileIcon.setAttribute("width", "60px");
-    commentProfileIcon.setAttribute("height", "60px");
-    commentProfileIcon.className = "rounded-circle";
+      // Create the first span element
+      const spanElement1 = document.createElement("span");
+      spanElement1.className = "ms-2 display-6";
+      spanElement1.textContent = username;
 
-    whoComment.addEventListener("click", function () {
-      window.open(
-        `http://127.0.0.1:5501/app/profile.html?Username=${username}`,
-        "_blank"
-      );
-    });
-
-    // Create the first span element
-    const spanElement1 = document.createElement("span");
-    spanElement1.className = "ms-2 display-6";
-    spanElement1.textContent = username;
-
-    // Append all elements to the div
-    whoComment.appendChild(commentProfileIcon);
-    whoComment.appendChild(spanElement1);
-    commentContainer.appendChild(whoComment);
-    commentContainer.appendChild(commentText);
-    modalBody.appendChild(commentContainer);
-  }
-
-  const commentModal = document.querySelector("#commentModal");
-
-  commentModal.addEventListener("hidden.bs.modal", function () {
-    while (modalBody.childNodes[0]) {
-      modalBody.removeChild(modalBody.childNodes[0]);
+      // Append all elements to the div
+      whoComment.appendChild(commentProfileIcon);
+      whoComment.appendChild(spanElement1);
+      commentContainer.appendChild(whoComment);
+      commentContainer.appendChild(commentText);
+      modalBody.appendChild(commentContainer);
     }
+
+    commentModal.addEventListener("hidden.bs.modal", function () {
+      commentModal.remove();
+    });
   });
 
   const shareSpan = document.createElement("span");

@@ -29,7 +29,7 @@ const showSelect = document.querySelector("#showSelect");
 const tagsSection = document.querySelector("#tagsSection");
 const title = document.querySelector("#title");
 
-let selectedFile;
+let selectedFile = null;
 
 const uploadTags = [];
 
@@ -49,6 +49,8 @@ document
     } else if (selectedFile.type.match("image.*")) {
       previewImage(IMG);
     } else {
+      //Do not accept file that is neither a video or image
+      //The file should have been anything from a .exe file or a pdf
       alert("Sorry, you can not upload this file");
     }
   });
@@ -62,8 +64,10 @@ addTags.addEventListener("click", function () {
   const isDuplicateTags = new Set(uploadTags).size !== uploadTags.length;
   if (tags.value.length == 0) {
     alert("Enter something");
+    uploadTags.pop(tags.value);
   } else if (tags.value.length >= 100) {
     alert("Tag is too long");
+    uploadTags.pop(tags.value);
   } else if (isDuplicateTags) {
     alert("Don't enter same tag twice");
     uploadTags.pop(tags.value);
@@ -101,12 +105,14 @@ addTags.addEventListener("click", function () {
   }
 });
 
+//Display to the user what they have choosen
 selectStory.addEventListener("click", function () {
   showSelect.innerText = "Story";
   tagsSection.classList.add("visually-hidden");
   isPost = false;
 });
 
+//Display to the user what they have choosen
 selectPost.addEventListener("click", function () {
   showSelect.innerText = "Post";
   tagsSection.classList.remove("visually-hidden");
@@ -114,18 +120,23 @@ selectPost.addEventListener("click", function () {
 });
 
 cancelButton.addEventListener("click", function () {
+  //To say that the user have not uploaded a file because they have cancelled it
+  selectedFile = null;
   const image = document.createElement("img");
   const showUpload = document.querySelector("#showUpload");
   image.setAttribute("width", "300");
   image.setAttribute("height", "400");
   image.id = "showUpload";
+  //The reason for "/app/image/default.png" is because it is a custom image
+  //That informs the user that they have to upload a file to create a post or a story
   image.src = "/app/image/default.png";
+  //The reason for this is there is a possibility that the user has upload a video and then cancelled it
   showUpload.replaceWith(image);
 });
 
 createButton.addEventListener("click", function () {
-  const showUpload = document.querySelector("#showUpload");
-  if (showUpload.src == "http://127.0.0.1:5501/app/image/default.png") {
+  console.log(selectedFile);
+  if (selectedFile == null) {
     alert("Please select something");
   } else if (title.value.length == 0) {
     alert("There must be a title");
@@ -140,8 +151,8 @@ createButton.addEventListener("click", function () {
           `http://127.0.0.1:5000/api/post/total?userID=${currentUserUserID}`
         )
           .then((response) => response.json())
-          .then((data) => {
-            const totalPost = data;
+          .then((totalPost) => {
+            //Need a standard naming convention so that the the post will not be overwritten in the database later on
             const name = `P${currentUserUserID}:${totalPost}`;
             uploadToFirebase(name, true);
           })
@@ -153,8 +164,9 @@ createButton.addEventListener("click", function () {
     } else {
       fetch(`http://127.0.0.1:5000/api/story/total?userID=${currentUserUserID}`)
         .then((response) => response.json())
-        .then((data) => {
-          const name = `S${currentUserUserID}:${data}`;
+        .then((totalStory) => {
+          //Need a standard naming convention so that the the post will not be overwritten in the database later on
+          const name = `S${currentUserUserID}:${totalStory}`;
           uploadToFirebase(name, false);
         })
         .catch((error) => {
@@ -168,25 +180,34 @@ createButton.addEventListener("click", function () {
 //Functions
 
 function previewVideo() {
-  previewUpload(VIDEO);
+  changeToPreview(VIDEO);
 
   const showUpload = document.querySelector("#showUpload");
 
   let source;
 
+  //If the preview changed from an image to video
+  //There will be no source element
   if (showUpload.childNodes[0] == undefined) {
+    //If so, create one
     source = document.createElement("source");
   } else {
     source = showUpload.childNodes[0];
   }
 
   source.type = "video/mp4";
+
   source.src = URL.createObjectURL(selectedFile);
+
   const sizeInMB = selectedFile.size / 1024 / 1024;
+
+  //Limit the video size
+  //Do not want user to upload movies
   if (sizeInMB > 15) {
     alert("Video size is too large. 15MB max");
     window.location.reload();
   }
+
   showUpload.append(source);
 
   showUpload.load();
@@ -195,7 +216,7 @@ function previewVideo() {
 function previewImage() {
   const reader = new FileReader();
   reader.addEventListener("load", (event) => {
-    previewUpload(IMG);
+    changeToPreview(IMG);
     const showUpload = document.querySelector("#showUpload");
     showUpload.src = event.target.result;
     const sizeInMB = selectedFile.size / 1024 / 1024;
@@ -208,7 +229,7 @@ function previewImage() {
 }
 
 //This function will replace the image element to video element and versa visa
-function previewUpload(target) {
+function changeToPreview(target) {
   const showUpload = document.querySelector("#showUpload");
   if (showUpload.tagName != target) {
     if (target == IMG) {
@@ -231,15 +252,15 @@ function previewUpload(target) {
 }
 
 function uploadPost(url) {
+  const isVideo = selectedFile.type.match("video.*") ? true : false;
   var dataObject = {
     userID: currentUser,
     postLink: url,
     title: title.value,
     tags: uploadTags,
-    isVideo: selectedFile.type.match("video.*") ? true : false,
+    isVideo: isVideo,
   };
 
-  // Convert the JavaScript object to a JSON string
   var jsonObject = JSON.stringify(dataObject);
 
   fetch("http://127.0.0.1:5000/api/post/createPost", {
@@ -263,14 +284,14 @@ function uploadPost(url) {
 }
 
 function uploadStory(url) {
+  const isVideo = selectedFile.type.match("video.*") ? true : false;
   var dataObject = {
     userID: currentUser,
     storyLink: url,
     title: title.value,
-    isVideo: selectedFile.type.match("video.*") ? true : false,
+    isVideo: isVideo,
   };
 
-  // Convert the JavaScript object to a JSON string
   var jsonObject = JSON.stringify(dataObject);
 
   fetch("http://127.0.0.1:5000/api/story/createStory", {
