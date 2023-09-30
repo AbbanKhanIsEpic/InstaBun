@@ -1,5 +1,6 @@
 const { select } = require("./DB");
 const { update } = require("./DB");
+const GroupMessage = require("./GroupMessage");
 
 class GroupManager {
   async getGroupList(userID) {
@@ -49,8 +50,12 @@ class GroupManager {
   }
 
   async #addMembers(groupID, groupMembers) {
-    for (const groupMember of groupMembers) {
-      await addMember(groupID, groupMember);
+    try {
+      for (const groupMember of groupMembers) {
+        await this.addMember(groupID, groupMember);
+      }
+    } catch (error) {
+      return error;
     }
   }
 
@@ -110,8 +115,14 @@ class GroupManager {
     }
   }
 
-  async deleteGroup(groupID) {
+  async deleteGroup(groupID, groupMembers) {
     try {
+      const groupMessage = new GroupMessage();
+      await groupMessage.deleteGroupMessages(groupID);
+      await groupMessage.deleteClearMessages(groupID);
+      for (const groupMember of groupMembers) {
+        await this.removeMemeber(groupID, groupMember);
+      }
       const query = `DELETE FROM Collective WHERE (GroupID = ?);`;
       await update(query, [groupID]);
       return "Delete group operation successful";

@@ -754,9 +754,21 @@ app.post("/api/group/groupName", (req, res) => {
 
 app.post("/api/group/delete", (req, res) => {
   const groupID = req.body.groupID;
+  const groupMembers = req.body.groupMembers;
 
   let groupManager = new GroupManager();
-  groupManager.deleteGroup(groupID);
+  groupManager.deleteGroup(groupID, groupMembers);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/group/create", (req, res) => {
+  const userID = req.body.userID;
+  const groupName = req.body.groupName;
+  const groupIcon = req.body.groupIcon;
+  const groupMember = req.body.groupMember;
+
+  let groupManager = new GroupManager();
+  groupManager.createGroup(userID, groupName, groupIcon, groupMember);
   res.json({ message: "Data received and processed successfully" });
 });
 

@@ -39,12 +39,12 @@ const uploadProfileIcon = document.getElementById("uploadProfileIcon");
 const uploadNewProfileIcon = document.getElementById("uploadNewGroupIcon");
 const newGroupIconPreview = document.getElementById("newGroupIconPreview");
 const createGroupButton = document.getElementById("createGroupButton");
-const newOwnerProfileIcon = document.getElementById("newOwnerProfileIcon");
 const updateGroup = document.getElementById("updateGroup");
 const leaveGroup = document.getElementById("leaveGroup");
 const deleteGroup = document.getElementById("deleteGroup");
 const addUser = document.querySelector("#addUserButton");
 const addUserUsernameInput = document.querySelector("#addUserInput");
+const createGroupName = document.querySelector("#createGroupName");
 const addUserForNewGroupButton = document.getElementById(
   "addUserForNewGroupButton"
 );
@@ -57,12 +57,10 @@ const showNewMemberInNewGroup = document.getElementById(
 
 const showMembers = document.querySelector("#showMembers");
 
-let newGroupProfileIcon = null;
+let newGroupIcon = null;
 
 createGroupModal.dataset.bsToggle = "modal";
 createGroupModal.dataset.bsTarget = "#createGroupModal";
-
-newOwnerProfileIcon.src = currentUserProfileLink;
 
 let selectedFile = null;
 let originalGroupName = null;
@@ -71,9 +69,14 @@ let confirmClear = false;
 let currentlySelectedUserID = 0;
 let currentlySelectedGroupID = 0;
 
+const membersForNewGroup = [];
+const membersForCurrentGroup = [];
+
 userSelection.textContent = "Direct";
 
 getDirectList();
+
+showOwnerForNewGroup();
 
 //Event listeners
 
@@ -129,46 +132,71 @@ clearMessageConvesation.addEventListener("click", function () {
 });
 
 addUserForNewGroupButton.addEventListener("click", function () {
-  fetch(
-    `http://127.0.0.1:5000/api/user/usernameExist?username=${addUserForNewGroupInput.value}`
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      if (!data) {
-        alert("User does not exits");
-      } else {
-        fetch(
-          `http://127.0.0.1:5000/api/user/userID?username=${addUserForNewGroupInput.value}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            let userID = data["UserID"];
-            showMememberForNewGroup(addUserForNewGroupInput.value, userID);
-          })
-          .catch((error) => {
-            // Handle any errors that occurred during the request
-            console.error(error);
-          });
-      }
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the request
-      console.error(error);
-    });
+  let isNotExistingMember = false;
+  showNewMemberInNewGroup.childNodes.forEach((member) => {
+    const memberUsername = member.firstChild.childNodes[1].textContent;
+    if (
+      memberUsername.toLowerCase() ==
+      addUserForNewGroupInput.value.toLowerCase()
+    ) {
+      alert("You can not add an existing member");
+      isNotExistingMember = true;
+      return;
+    }
+  });
+  if (!isNotExistingMember) {
+    fetch(
+      `http://127.0.0.1:5000/api/user/usernameExist?username=${addUserForNewGroupInput.value}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data) {
+          alert("User does not exits");
+        } else {
+          fetch(
+            `http://127.0.0.1:5000/api/user/userID?username=${addUserForNewGroupInput.value}`
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              let userID = data["UserID"];
+              showMememberForNewGroup(addUserForNewGroupInput.value, userID);
+            })
+            .catch((error) => {
+              // Handle any errors that occurred during the request
+              console.error(error);
+            });
+        }
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
+      });
+  }
 });
 
 createGroupButton.addEventListener("click", function () {
-  console.log("Hi");
+  console.log(membersForNewGroup);
+  if (showNewMemberInNewGroup.children.length < 3) {
+    alert("To create a group, there must be a minimum of 3 people");
+  } else if (newGroupIcon == null) {
+    alert("To create a group, there must be a group icon");
+  } else if (createGroupName.value.length == 0) {
+    alert("To create a group, there must be a group name");
+  } else if (createGroupName.value.length > 100) {
+    alert("The group name is too long. Maximum length is 100 characters");
+  } else {
+    createGroup();
+  }
 });
 
 uploadNewProfileIcon.addEventListener("change", function () {
-  newGroupProfileIcon = event.target.files[0];
-  if (newGroupProfileIcon.type.match("image.*")) {
+  newGroupIcon = event.target.files[0];
+  if (newGroupIcon.type.match("image.*")) {
     const reader = new FileReader();
     reader.addEventListener("load", (event) => {
       newGroupIconPreview.src = event.target.result;
     });
-    reader.readAsDataURL(newGroupProfileIcon);
+    reader.readAsDataURL(newGroupIcon);
   } else {
     alert("Sorry, only images");
   }
@@ -193,7 +221,9 @@ addUser.addEventListener("click", function () {
   let isNotExistingMember = false;
   showMembers.childNodes.forEach((member) => {
     const memberUsername = member.firstChild.childNodes[1].textContent;
-    if (memberUsername == addUserUsernameInput.value) {
+    if (
+      memberUsername.toLowerCase() == addUserUsernameInput.value.toLowerCase()
+    ) {
       alert("You can not add an existing member");
       isNotExistingMember = true;
       return;
@@ -278,31 +308,58 @@ leaveGroup.addEventListener("click", function () {
 });
 
 updateGroup.addEventListener("click", async function () {
-  console.log(selectedFile != null);
   if (selectedFile != null) {
-    await uploadFirebase();
+    await updateCurrentGroupIcon();
   }
   if (changeGroupName.value != originalGroupName) {
-    var dataObject = {
-      groupID: currentlySelectedGroupID,
-      groupName: changeGroupName.value,
-    };
-    var jsonObject = JSON.stringify(dataObject);
-    fetch("http://127.0.0.1:5000/api/group/groupName", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: jsonObject,
-    })
-      .then((response) => response.text())
-      .then((responseData) => {
-        alert("Group name updated: Might need to refresh to view affect");
+    if (changeGroupName.value.length > 100) {
+      alert("Group name too long");
+    } else if (changeGroupName.value.length == 0) {
+      alert("Group must have a name");
+    } else {
+      var dataObject = {
+        groupID: currentlySelectedGroupID,
+        groupName: changeGroupName.value,
+      };
+      var jsonObject = JSON.stringify(dataObject);
+      fetch("http://127.0.0.1:5000/api/group/groupName", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        body: jsonObject,
       })
-      .catch((error) => {
-        alert("Unable to update group name");
-      });
+        .then((response) => response.text())
+        .then((responseData) => {
+          alert("Group name updated: Might need to refresh to view affect");
+        })
+        .catch((error) => {
+          alert("Unable to update group name");
+        });
+    }
   }
+});
+
+deleteGroup.addEventListener("click", function () {
+  var dataObject = {
+    groupID: currentlySelectedGroupID,
+    groupMembers: membersForCurrentGroup,
+  };
+  var jsonObject = JSON.stringify(dataObject);
+  fetch("http://127.0.0.1:5000/api/group/delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: jsonObject,
+  })
+    .then((response) => response.text())
+    .then((responseData) => {
+      alert("Group deleted: Might need to refresh to view affect");
+    })
+    .catch((error) => {
+      alert("Unable to delete group");
+    });
 });
 
 //Functions
@@ -311,41 +368,33 @@ async function showMememberForNewGroup(username, userID) {
   fetch(`http://127.0.0.1:5000/api/user/displayName?userID=${userID}`)
     .then((response) => response.json())
     .then(async (data) => {
-      let displayName = await data["DisplayName"];
+      const displayName = await data["DisplayName"];
 
       fetch(`http://127.0.0.1:5000/api/user/profileIcon?userID=${userID}`)
         .then((response) => response.json())
         .then(async (data) => {
+          membersForNewGroup.push(userID);
           let profileIcon = await data["ProfileIconLink"];
 
-          const memberElement = document.createElement("div");
-          memberElement.style.height = "70px";
-          memberElement.className = "mb-4";
+          // Create a new div element
+          const memeberElement = document.createElement("div");
+          memeberElement.className =
+            "input-group-text d-flex align-items-center flex-column";
+
+          // Create the first inner div element with the class 'mb-4' and inline style
+          const innerDiv1 = document.createElement("div");
+          innerDiv1.className = "mb-4";
+          innerDiv1.style.height = "70px";
 
           // Create an img element
           const imgElement = document.createElement("img");
           imgElement.alt = `${username}'s profile picture`;
           imgElement.draggable = false;
           imgElement.src = profileIcon;
-          imgElement.setAttribute("width", "60px");
-          imgElement.setAttribute("height", "60px");
+          imgElement.width = "60";
+          imgElement.height = "60";
           imgElement.className = "rounded-circle";
           imgElement.role = "button";
-
-          // Create the first span element
-          const spanElement1 = document.createElement("span");
-          spanElement1.className = "ms-2 display-6";
-          spanElement1.textContent = username;
-
-          // Create the second span element
-          const spanElement2 = document.createElement("span");
-          spanElement2.textContent = displayName;
-          spanElement2.className = "ms-2";
-
-          // Append all elements to the div
-          memberElement.appendChild(imgElement);
-          memberElement.appendChild(spanElement1);
-          memberElement.appendChild(spanElement2);
 
           imgElement.addEventListener("click", function () {
             window.open(
@@ -354,7 +403,37 @@ async function showMememberForNewGroup(username, userID) {
             );
           });
 
-          showNewMemberInNewGroup.appendChild(memberElement);
+          // Create a span element to show username
+          const userNameElement = document.createElement("span");
+          userNameElement.className = "ms-2 display-6";
+          userNameElement.textContent = username;
+
+          // Create a span element to show display name
+          const displayNameElement = document.createElement("span");
+          displayNameElement.className = "ms-2";
+          displayNameElement.textContent = displayName;
+
+          // Append the img and span elements to innerDiv1
+          innerDiv1.appendChild(imgElement);
+          innerDiv1.appendChild(userNameElement);
+          innerDiv1.appendChild(displayNameElement);
+
+          // Create the 'Remove' button
+          const removeButton = document.createElement("div");
+          removeButton.className = "btn btn-danger input-group";
+          removeButton.textContent = "Remove";
+          removeButton.role = "button";
+
+          removeButton.addEventListener("click", function () {
+            membersForNewGroup.pop(userID);
+            showNewMemberInNewGroup.removeChild(memeberElement);
+          });
+
+          // Append innerDiv1 and removeButton to the main div
+          memeberElement.appendChild(innerDiv1);
+          memeberElement.appendChild(removeButton);
+
+          showNewMemberInNewGroup.appendChild(memeberElement);
         })
         .catch((error) => {
           // Handle any errors that occurred during the request
@@ -416,7 +495,7 @@ function getDirectList() {
     });
 }
 
-async function uploadFirebase() {
+async function updateCurrentGroupIcon() {
   const url = `/profileIcon/${currentlySelectedGroupID}:${currentUserUserID}`;
   const storageRef = ref(storage, url);
   uploadBytes(storageRef, selectedFile)
@@ -443,6 +522,42 @@ async function uploadFirebase() {
           })
           .catch((error) => {
             alert("Unable to update group profile icon");
+          });
+      });
+    })
+    .catch((error) => {
+      console.error("Error uploading image:", error);
+    });
+}
+
+async function createGroup() {
+  //Since it is a new group -> there is no way to get the groupID
+  const url = `/profileIcon/${currentUserUserID}:${currentUserUserID}`;
+  const storageRef = ref(storage, url);
+  uploadBytes(storageRef, newGroupIcon)
+    .then((snapshot) => {
+      console.log("Image uploaded successfully!");
+      getDownloadURL(storageRef).then((url) => {
+        var dataObject = {
+          userID: currentUserUserID,
+          groupName: createGroupName.value,
+          groupIcon: url,
+          groupMember: membersForNewGroup,
+        };
+        var jsonObject = JSON.stringify(dataObject);
+        fetch("http://127.0.0.1:5000/api/group/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: jsonObject,
+        })
+          .then((response) => response.text())
+          .then((responseData) => {
+            alert("Group created: Might need to refresh to view affect");
+          })
+          .catch((error) => {
+            alert("Unable to create group");
           });
       });
     })
@@ -542,6 +657,7 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
   });
 
   function appendMember(username, displayName, profileIcon, userID, ownerID) {
+    membersForCurrentGroup.push(userID);
     const divElement = document.createElement("div");
     divElement.className =
       "input-group-text d-flex align-items-center flex-column";
@@ -561,19 +677,19 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
     imgElement.role = "button";
 
     // Create the first span element
-    const spanElement1 = document.createElement("span");
-    spanElement1.className = "ms-2 display-6";
-    spanElement1.textContent = username;
+    const usernameElement = document.createElement("span");
+    usernameElement.className = "ms-2 display-6";
+    usernameElement.textContent = username;
 
     // Create the second span element
-    const spanElement2 = document.createElement("span");
-    spanElement2.textContent = displayName;
-    spanElement2.className = "ms-2";
+    const displayElement = document.createElement("span");
+    displayElement.textContent = displayName;
+    displayElement.className = "ms-2";
 
     // Append all elements to the div
     memberElement.appendChild(imgElement);
-    memberElement.appendChild(spanElement1);
-    memberElement.appendChild(spanElement2);
+    memberElement.appendChild(usernameElement);
+    memberElement.appendChild(displayElement);
 
     imgElement.addEventListener("click", function () {
       window.open(
@@ -676,6 +792,9 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
     groupModal.classList.remove("show");
     groupModal.style.display = "none";
     document.body.classList.remove("modal-open");
+    membersForCurrentGroup.pop(
+      membersForCurrentGroup[membersForCurrentGroup.length - 1]
+    );
   });
 
   function clearMemberList() {
@@ -763,4 +882,64 @@ function appendDirect(userID, username, displayName, profileIconLink) {
       );
     }
   });
+}
+
+function showOwnerForNewGroup() {
+  membersForNewGroup.push(currentUserUserID);
+  fetch(
+    `http://127.0.0.1:5000/api/user/displayName?userID=${currentUserUserID}`
+  )
+    .then((response) => response.json())
+    .then(async (displayName) => {
+      // Create a new div element
+      const memeberElement = document.createElement("div");
+      memeberElement.className =
+        "input-group-text d-flex align-items-center flex-column";
+
+      // Create the first inner div element with the class 'mb-4' and inline style
+      const innerDiv1 = document.createElement("div");
+      innerDiv1.className = "mb-4";
+      innerDiv1.style.height = "70px";
+
+      // Create an img element
+      const imgElement = document.createElement("img");
+      imgElement.alt = `${currentUserUsername}'s profile picture`;
+      imgElement.draggable = false;
+      imgElement.src = currentUserProfileLink;
+      imgElement.width = "60";
+      imgElement.height = "60";
+      imgElement.className = "rounded-circle";
+      imgElement.role = "button";
+
+      imgElement.addEventListener("click", function () {
+        window.open(
+          `http://127.0.0.1:5501/app/profile.html?Username=${currentUserUsername}`,
+          "_blank"
+        );
+      });
+
+      // Create a span element to show username
+      const userNameElement = document.createElement("span");
+      userNameElement.className = "ms-2 display-6";
+      userNameElement.textContent = currentUserUsername;
+
+      // Create a span element to show display name
+      const displayNameElement = document.createElement("span");
+      displayNameElement.className = "ms-2";
+      displayNameElement.textContent = displayName["DisplayName"];
+
+      // Append the img and span elements to innerDiv1
+      innerDiv1.appendChild(imgElement);
+      innerDiv1.appendChild(userNameElement);
+      innerDiv1.appendChild(displayNameElement);
+
+      // Append innerDiv1 to the main div
+      memeberElement.appendChild(innerDiv1);
+
+      showNewMemberInNewGroup.appendChild(memeberElement);
+    })
+    .catch((error) => {
+      // Handle any errors that occurred during the request
+      console.error(error);
+    });
 }

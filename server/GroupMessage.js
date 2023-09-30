@@ -65,6 +65,26 @@ class GroupMessage {
       return error;
     }
   }
+
+  async deleteGroupMessages(groupID) {
+    try {
+      const query = `DELETE FROM GroupMessages WHERE (GroupID = ?);`;
+      await update(query, [groupID]);
+      return "Delete group messages operation successful";
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async deleteClearMessages(groupID) {
+    try {
+      const query = `DELETE FROM ClearGroupMessage WHERE (GroupID = ?);`;
+      await update(query, [groupID]);
+      return "Delete clear messages operation successful";
+    } catch (error) {
+      return error;
+    }
+  }
 }
 
 module.exports = GroupMessage;
