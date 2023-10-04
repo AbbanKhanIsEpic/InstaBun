@@ -76,6 +76,16 @@ class UserManager {
     }
   }
 
+  async doUserEmailMatch(username, emailAddress) {
+    try {
+      const query = `SELECT count(*) FROM abbankDB.Users where Username = ? AND EmailAddress = ?`;
+      const [result] = await select(query, [username, emailAddress]);
+      return result["count(*)"] == 1;
+    } catch (error) {
+      return error;
+    }
+  }
+
   async getDisplayName(userID) {
     try {
       const query = `SELECT DisplayName FROM abbankDB.Users where UserID = ?`;
@@ -125,6 +135,28 @@ class UserManager {
       const query = `SELECT count(*) FROM abbankDB.Users where Username = ? AND Password = ?`;
       const [result] = await select(query, [username, password]);
       return result["count(*)"] == 1;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async createAccount(
+    username,
+    displayName,
+    password,
+    profileIconLink,
+    emailAddress
+  ) {
+    try {
+      const query = `INSERT INTO Users (Username,DisplayName, Password, DateCreated, ProfileIconLink, EmailAddress, Visibility, DMLimit) VALUES (?, ?, ?, now(), ?, ?, 0, 0);
+      `;
+      await update(query, [
+        username,
+        displayName,
+        password,
+        profileIconLink,
+        emailAddress,
+      ]);
     } catch (error) {
       return error;
     }

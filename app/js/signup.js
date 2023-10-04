@@ -1,9 +1,12 @@
+//Import
 import { initFirebase } from "/app/js/firebase-setup.js";
 import {
   getAuth,
   signInWithPopup,
   GoogleAuthProvider,
 } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+
+//Init global variables
 
 const emailInput = document.querySelector("#emailInput");
 
@@ -16,6 +19,8 @@ const form = document.querySelector("#signUpForm");
 const buttonSection = document.querySelector("#buttonSection");
 
 const sendToLoginScreen = document.querySelector("#sendToLoginScreen");
+
+//Event listener
 
 emailButton.addEventListener("click", function () {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -34,7 +39,7 @@ function doesEmailExist() {
   fetch(server + query)
     .then((response) => response.json())
     .then((data) => {
-      if (data[0]["count(*)"] == 1) {
+      if (data) {
         emailError.style.visibility = "visible";
         emailError.innerText = "This email already exists";
       } else {
@@ -97,6 +102,12 @@ function appendUsernameInput() {
     if (emailRegex.test(usernameInput.value)) {
       usernameErrorMessage.style.visibility = "visible";
       usernameErrorMessage.innerText = "Must not be an email";
+    } else if (usernameInput.value.length < 3) {
+      usernameErrorMessage.style.visibility = "visible";
+      usernameErrorMessage.innerText = "Username is too short";
+    } else if (usernameInput.value.length > 1000) {
+      usernameErrorMessage.style.visibility = "visible";
+      usernameErrorMessage.innerText = "Username is too long";
     } else {
       doesUsernameExist();
     }
@@ -111,7 +122,7 @@ function appendUsernameInput() {
     fetch(server + query)
       .then((response) => response.json())
       .then((data) => {
-        if (data[0]["count(*)"] == 1) {
+        if (data) {
           usernameErrorMessage.style.visibility = "visible";
           usernameErrorMessage.innerText = "This email already exists";
         } else {
@@ -164,8 +175,6 @@ function appendPasswordInput() {
     passwordInput.type = nextView == "Open" ? "text" : "password";
   });
 
-  const spacing = document.createElement("p");
-
   const signUpButton = document.createElement("button");
   signUpButton.type = "button";
   signUpButton.className = "btn btn-primary btn-lg";
@@ -176,9 +185,10 @@ function appendPasswordInput() {
 
   usernameButton.replaceWith(signUpButton);
 
-  const usernameErrorMessage = document.querySelector("#usernameError");
-
-  usernameErrorMessage.innerText = "";
+  const passwordErrorMessage = document.createElement("p");
+  passwordErrorMessage.className = "fw-bold text-danger";
+  passwordErrorMessage.style.visibility = "hidden";
+  passwordErrorMessage.id = "passwordError";
 
   const viewUsernameInput = document.querySelector("#viewUsernameInput");
 
@@ -189,12 +199,32 @@ function appendPasswordInput() {
   usernameInput.type = "text";
 
   signUpButton.addEventListener("click", function () {
-    signUp();
+    console.log(passwordInput.value);
+    if (passwordInput.value.length < 10) {
+      passwordErrorMessage.style.visibility = "visible";
+      passwordErrorMessage.innerText = "Password is too short";
+    } else if (passwordInput.value.length > 200) {
+      passwordErrorMessage.style.visibility = "visible";
+      passwordErrorMessage.innerText = "Password is too long";
+    } else if (!passwordInput.value.match(/[0-9]+/)) {
+      passwordErrorMessage.style.visibility = "visible";
+      passwordErrorMessage.innerText = "Password must contain digits";
+    } else if (!passwordInput.value.match(/[A-Z]+/)) {
+      passwordErrorMessage.style.visibility = "visible";
+      passwordErrorMessage.innerText = "Password must contain capital letters";
+    } else if (!passwordInput.value.match(/[a-z]+/)) {
+      passwordErrorMessage.style.visibility = "visible";
+      passwordErrorMessage.innerText =
+        "Password must contain lowercase letters";
+    } else if (!passwordInput.value.match(/[$@#&!]+/)) {
+      passwordErrorMessage.style.visibility = "visible";
+      passwordErrorMessage.innerText =
+        "Password must contain special characters";
+    } else {
+      passwordErrorMessage.style.visibility = "hidden";
+      signUpPopUp();
+    }
   });
-
-  function signUp() {
-    signUpPopUp();
-  }
 
   async function signUpPopUp() {
     const app = initFirebase();
@@ -205,7 +235,49 @@ function appendPasswordInput() {
 
       console.log(result);
 
-      if (result == emailInput.value) {
+      if (result.user.email == emailInput.value) {
+        var dataObject = {
+          username: usernameInput.value,
+          displayName: result.user.displayName,
+          password: passwordInput.value,
+          profileIconLink: result.user.photoURL,
+          emailAddress: result.user.email,
+        };
+
+        var jsonObject = JSON.stringify(dataObject);
+
+        fetch("http://127.0.0.1:5000/api/user/createAccount", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          body: jsonObject,
+        })
+          .then((response) => response.text())
+          .then((responseData) => {
+            alert("Account created");
+            console.log("Response:", responseData);
+
+            fetch(
+              `http://127.0.0.1:5000/api/user/userID?username=${usernameInput.value}`
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                setGlobalCookie("userID", data.UserID, 30);
+                window.open(
+                  "http://127.0.0.1:5501/app/mainscreen.html",
+                  "_self"
+                );
+              })
+              .catch((error) => {
+                // Handle any errors that occurred during the request
+                console.error(error);
+              });
+          })
+          .catch((error) => {
+            alert("Account not created");
+            console.error("Error:", error);
+          });
       } else {
         alert(
           `Sending email for verification code is too much \nSo, click button again for a popup \nSelect: ${emailInput.value}`
@@ -226,7 +298,7 @@ function appendPasswordInput() {
 
   passwordSection.appendChild(heading3);
   passwordSection.appendChild(div);
-  passwordSection.appendChild(spacing);
+  passwordSection.appendChild(passwordErrorMessage);
 
   form.insertBefore(passwordSection, buttonSection);
 }
@@ -234,3 +306,16 @@ function appendPasswordInput() {
 sendToLoginScreen.addEventListener("click", function () {
   window.open("http://127.0.0.1:5501/app/login.html", "_self");
 });
+
+//Function
+function setGlobalCookie(name, value, expirationDays) {
+  const date = new Date();
+  date.setTime(date.getTime() + expirationDays * 24 * 60 * 60 * 1000);
+
+  const expires = "expires=" + date.toUTCString();
+  const domain = "domain=127.0.0.1";
+  const path = "path=/"; // Cookie accessible from all paths
+
+  document.cookie =
+    name + "=" + value + ";" + expires + ";" + domain + ";" + path;
+}

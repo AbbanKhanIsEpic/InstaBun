@@ -43,14 +43,6 @@ class GroupManager {
       const query = `INSERT INTO Collective (OwnerID,GroupName, GroupIconLink) VALUES (?,?, ?);`;
       await update(query, [createrUserID, groupName, groupIcon]);
       const groupID = await this.#getLatestGroupID(createrUserID);
-      await this.#addMembers(groupID, groupMembers);
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async #addMembers(groupID, groupMembers) {
-    try {
       for (const groupMember of groupMembers) {
         await this.addMember(groupID, groupMember);
       }

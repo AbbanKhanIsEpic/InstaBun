@@ -1,5 +1,6 @@
 const mysql = require("mysql2");
 
+//MySQL info
 const connection = mysql.createConnection({
   host: "102.130.115.69",
   user: "abbank",
@@ -21,12 +22,16 @@ function createConnection() {
   });
 }
 
+//This is parameterised MySQL query
+//This is used to prevent some MySQL injections
 function update(query, values) {
   connection.query(query, values, function (err) {
     if (err) throw err;
   });
 }
 
+//This is parameterised MySQL query
+//This is used to prevent some MySQL injections
 function select(query, values) {
   return new Promise((resolve, reject) => {
     connection.query(query, values, (err, result) => {

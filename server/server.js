@@ -78,6 +78,22 @@ app.get("/api/user/block", (req, res) => {
     });
 });
 
+app.get("/api/user/isUserEmail", (req, res) => {
+  const { username, emailAddress } = req.query;
+
+  let user = new UserManager();
+
+  user
+    .doUserEmailMatch(username, emailAddress)
+    .then((jsonifiedResult) => {
+      res.status(200).send(jsonifiedResult);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error occurred");
+    });
+});
+
 app.post("/api/user/block", (req, res) => {
   const userID = req.body.userID;
   const profileUserID = req.body.profileUserID;
@@ -87,6 +103,24 @@ app.post("/api/user/block", (req, res) => {
 
   follow.unfollow(userID, profileUserID);
   user.block(userID, profileUserID);
+  res.json({ message: "Data received and processed successfully" });
+});
+
+app.post("/api/user/createAccount", (req, res) => {
+  const username = req.body.username;
+  const displayName = req.body.displayName;
+  const password = req.body.password;
+  const profileIconLink = req.body.profileIconLink;
+  const emailAddress = req.body.emailAddress;
+
+  let user = new UserManager();
+  user.createAccount(
+    username,
+    displayName,
+    password,
+    profileIconLink,
+    emailAddress
+  );
   res.json({ message: "Data received and processed successfully" });
 });
 
