@@ -1,5 +1,5 @@
-const { select } = require("./DB");
-const { update } = require("./DB");
+//Import
+const { select, update } = require("./DB");
 
 class FollowManager {
   async follow(followerID, followingID) {
@@ -11,6 +11,7 @@ class FollowManager {
       return error;
     }
   }
+
   async unfollow(followerID, followingID) {
     try {
       const query = `DELETE FROM abbankDB.Follows WHERE (FollowerID =?) and (FollowingID = ?);`;
@@ -20,6 +21,7 @@ class FollowManager {
       return error;
     }
   }
+
   async isFollowing(followerID, followingID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Follows where FollowerID = ? AND FollowingID = ?;`;
@@ -29,20 +31,24 @@ class FollowManager {
       return error;
     }
   }
+
   async getFollowings(followerID) {
     try {
       const query = `SELECT FollowingID FROM abbankDB.Follows where FollowerID = ?;`;
       const result = await select(query, [followerID]);
+      //Convert JSON to array for easy reading
       const followings = result.map((row) => row.FollowingID);
       return followings;
     } catch (error) {
       return error;
     }
   }
+
   async getFollowers(followingID) {
     try {
       const query = `SELECT FollowerID FROM abbankDB.Follows where FollowingID = ?;`;
       const result = await select(query, [followingID]);
+      //Convert JSON to array for easy reading
       const followers = result.map((row) => row.FollowerID);
       return followers;
     } catch (error) {

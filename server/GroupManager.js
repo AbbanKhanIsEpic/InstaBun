@@ -1,5 +1,5 @@
-const { select } = require("./DB");
-const { update } = require("./DB");
+//Imports
+const { select, update } = require("./DB");
 const GroupMessage = require("./GroupMessage");
 
 class GroupManager {
@@ -42,6 +42,8 @@ class GroupManager {
     try {
       const query = `INSERT INTO Collective (OwnerID,GroupName, GroupIconLink) VALUES (?,?, ?);`;
       await update(query, [createrUserID, groupName, groupIcon]);
+      //Since user just created the group
+      //The latest groupID will be the group that just been created
       const groupID = await this.#getLatestGroupID(createrUserID);
       for (const groupMember of groupMembers) {
         await this.addMember(groupID, groupMember);

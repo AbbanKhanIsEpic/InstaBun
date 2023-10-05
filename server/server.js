@@ -1,3 +1,4 @@
+//Imports
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +18,7 @@ app.use(cors()); // Enable CORS for all routes
 
 app.use(express.json());
 
+//Connect to MySQL server
 async function connectToDatabase() {
   try {
     await createConnection();
@@ -30,6 +32,9 @@ async function connectToDatabase() {
 // Call the connectToDatabase function
 connectToDatabase();
 
+//All the api end-points
+
+//User
 app.get("/api/user/login", (req, res) => {
   const { username, password } = req.query;
 
@@ -99,9 +104,7 @@ app.post("/api/user/block", (req, res) => {
   const profileUserID = req.body.profileUserID;
 
   let user = new UserManager();
-  let follow = new FollowManager();
 
-  follow.unfollow(userID, profileUserID);
   user.block(userID, profileUserID);
   res.json({ message: "Data received and processed successfully" });
 });
@@ -297,6 +300,8 @@ app.post("/api/user/profile", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+//Follow
+
 app.get("/api/follow/following", (req, res) => {
   const { currentID, profileID } = req.query;
 
@@ -363,6 +368,8 @@ app.post("/api/follow/unfollow", (req, res) => {
 
   res.json({ message: "Data received and processed successfully" });
 });
+
+//Post
 
 app.get("/api/post/total", (req, res) => {
   const { userID } = req.query;
@@ -548,6 +555,8 @@ app.post("/api/post/share", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+//Story
+
 app.get("/api/story/total", (req, res) => {
   const { userID } = req.query;
 
@@ -590,6 +599,8 @@ app.post("/api/story/createStory", (req, res) => {
   story.upload(userID, storyLink, title, isVideo);
   res.json({ message: "Data received and processed successfully" });
 });
+
+//Direct
 
 app.get("/api/direct/permission", (req, res) => {
   const { senderID, receiverID } = req.query;
@@ -665,6 +676,8 @@ app.get("/api/direct/message", (req, res) => {
       res.status(500).send("Error occurred");
     });
 });
+
+//Group
 
 app.get("/api/group/groupList", (req, res) => {
   const { userID } = req.query;
@@ -806,4 +819,5 @@ app.post("/api/group/create", (req, res) => {
   res.json({ message: "Data received and processed successfully" });
 });
 
+//Create server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

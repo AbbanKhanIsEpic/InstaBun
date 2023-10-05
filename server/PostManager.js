@@ -1,5 +1,5 @@
-const { select } = require("./DB");
-const { update } = require("./DB");
+//Imports
+const { select, update } = require("./DB");
 const FollowManager = require("./FollowManager");
 
 class PostManager {
@@ -34,6 +34,7 @@ class PostManager {
       await update(query, [userID, isVideo, postLink, title]);
       //Since this is the latest post, we can get its ID
       const postID = await this.#getCurrentPostID(userID);
+      //Now we have the postID, we can attach the tags to the post
       await this.#attachTagsToPost(tags, postID);
     } catch (error) {
       return error;
@@ -41,6 +42,7 @@ class PostManager {
   }
 
   //This is a private method because only need to run this when a post is being uploaded
+  //It is for abstraction
   async #doesTagExist(tag) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Tag where TagName = ?;`;
@@ -52,6 +54,7 @@ class PostManager {
   }
 
   //This is a private method because only need to run this when a post is being uploaded
+  //It is for abstraction
   async #createTag(tag) {
     try {
       const query = `INSERT INTO abbankDB.Tag (TagName) VALUES (?);`;
@@ -62,18 +65,22 @@ class PostManager {
     }
   }
 
+  //This function is to get some recommendation
   async #getPostIDs(tagID) {
     try {
       const query = `SELECT distinct postID
       FROM abbankDB.PostTags
       WHERE tagID IN (?);`;
       const result = await select(query, [tagID]);
+      //Convert from JSON to array for easy reading
       const postIDsArray = result.map((row) => row.postID);
       return postIDsArray;
     } catch (error) {
       return error;
     }
   }
+
+  //This function get the postID of the post that contains all the tags that the user is searching for
   async #getSpecificPostIDs(tagID) {
     try {
       const query = `SELECT postID
@@ -82,6 +89,7 @@ class PostManager {
       GROUP BY postID
       HAVING COUNT(DISTINCT tagID) = ?;`;
       const result = await select(query, [tagID, tagID.length]);
+      //Convert from JSON to array for easy reading
       const postIDsArray = result.map((row) => row.postID);
       return postIDsArray;
     } catch (error) {
@@ -89,6 +97,8 @@ class PostManager {
     }
   }
 
+  //User will upload a post at a time
+  //The latest postID is the post the user just uploaded
   async #getCurrentPostID(userID) {
     try {
       const query = `SELECT idPost FROM abbankDB.Post where UserID = ? Order by idPost DESC Limit 1;`;
@@ -98,6 +108,7 @@ class PostManager {
       return error;
     }
   }
+
   async #attachTagsToPost(tags, postID) {
     try {
       const tagIDsArray = await this.#getTagIDs(tags);
@@ -113,9 +124,8 @@ class PostManager {
     }
   }
 
-  //get the posts from the tags the user entered
+  //Get the posts from the tags the user entered
   async getPostViaTags(userID, tags) {
-    console.log(tags);
     try {
       //It is a promise because this needs to run first
       //Because we might have a post attached to the tag the user search for
@@ -131,6 +141,7 @@ class PostManager {
 
       await Promise.all(tagPromises);
 
+      //Post that contains the tag/s doe not exists
       if (tags.length === 0) {
         return new Error("Unable to retrieve post via the provided tags");
       }
@@ -149,6 +160,11 @@ class PostManager {
     }
   }
 
+  //This is used when the user open the explore screen and have searched for nothing
+  //Rather than just having a blank screen
+  //This small algorithm to get popular videos that:
+  //If user has liked no post: show them what most people like
+  //If user has liked post: show them a mix of what they like and people really like
   async getPostBasedLike(userID) {
     try {
       const query = `
@@ -176,6 +192,7 @@ class PostManager {
 
       const tagIDsResultSet = await select(query, [userID]);
 
+      //Convert JSOn to array for easy reading
       const tagIDsArray = tagIDsResultSet.map((element) => element.currentTag);
 
       const postIDsArray = await this.#getPostIDs(tagIDsArray);
@@ -190,6 +207,11 @@ class PostManager {
     }
   }
 
+  //This method filters all the post
+  //Only return post that the user has allowed everyone to see
+  //If the uploader(the user who created the post) does not allow everyone to see
+  //The post will not be included
+  //This method is used for the explore screen
   async #filterPostForAll(postIDsArray) {
     try {
       const query = `
@@ -207,6 +229,9 @@ class PostManager {
 
       const result = await select(query, [postIDsArray]);
 
+      //Filter and only return what is important
+      //Not important to return the setting of the uploader
+      //Import to return the postID and who uploaded the post
       const postIDAndUserIDArray = result.map((element) => {
         const postIDAndUserID = {
           postID: element.idPost,
@@ -221,7 +246,21 @@ class PostManager {
     }
   }
 
+  //This method is used for the main screen and profile scren
+  //The method filters the post of the uploader(the user who uploaded the video)
+  //The uploader might have said that not everyone can see but only friends
+  //This deals with that
   async #filterPost(userID, postIDsArray) {
+    //Since the PostVisibility is:
+    //0 -> Everyone
+    //1 -> Followers
+    //2 -> Mutural / Friends
+    //3 -> No one
+    //It is easy to do comparison with counting who follow who
+    //0 -> Neither of them follow each other
+    //1 -> Only one of them follows
+    //2 -> Both of them follow each other
+    //3 -> Impossible
     try {
       const query = `
     SELECT 
@@ -248,6 +287,10 @@ class PostManager {
         ORDER BY Post.idPost DESC;`;
       const result = await select(query, [userID, userID, postIDsArray]);
 
+      //Filter and only return what is important
+      //Not important to return the relationship between the two users
+      //Not important to return the setting of the uploader
+      //Import to return the postID and who uploaded the post
       const postIDAndUserIDArray = result.map((element) => {
         const postIDAndUserID = {
           postID: element.idPost,
@@ -262,6 +305,7 @@ class PostManager {
     }
   }
 
+  //This function is used to get the post from the link they shared
   async getSingularPost(userID, postID) {
     try {
       const filteredPost = await this.#filterPost(userID, postID);
@@ -274,9 +318,17 @@ class PostManager {
     }
   }
 
+  //The function returns all the important information about the post
+  //The information are:
+  //The postID
+  //The uploader's username and link to the profile icon
+  //If the user liked the post
+  //How many people liked the post
+  //How many people commented in the post
+  //How many people shared the post
   async #getPostDetails(userID, filteredPost) {
     try {
-      const extractDetailsPromise = await Promise.all(
+      const postDetailsArray = await Promise.all(
         filteredPost.map(async (element) => {
           const uploader = element.userID;
           const upload = element.postID;
@@ -319,10 +371,6 @@ class PostManager {
         })
       );
 
-      const postDetailsArray = extractDetailsPromise.filter(
-        (details) => details !== null
-      );
-
       return postDetailsArray;
     } catch (error) {
       return error;
@@ -333,6 +381,7 @@ class PostManager {
     try {
       const query = `SELECT idTag FROM abbankDB.Tag WHERE TagName in (?);`;
       const result = await select(query, [tags]);
+      //Convert JSON to array for easy reading
       const idsArray = result.map((element) => element.idTag);
       return idsArray;
     } catch (error) {
@@ -360,6 +409,7 @@ class PostManager {
     }
   }
 
+  //This is for the main screen
   async getFollowingPost(userID) {
     try {
       const follow = new FollowManager();
@@ -370,6 +420,7 @@ class PostManager {
 
       const followingsPostID = await select(query, [followingArray]);
 
+      //Convert JSON to array for easy reading
       const followingsPostIDArray = followingsPostID.map((postID) => {
         return postID.idPost;
       });
@@ -394,12 +445,15 @@ class PostManager {
         [profileUserID]
       );
 
+      //Convert JSON to array for easy reading
       const postIDsArray = postIDsResultSet.map((element) => element.idPost);
 
+      //The return will be undefined
       if (postIDsArray.length === 0) {
         throw new Error("User does not have any post");
       }
 
+      //If the user is not looking at their own post
       if (viewerID != profileUserID) {
         const filteredPost = await this.#filterPost(viewerID, postIDsArray);
 
@@ -410,6 +464,8 @@ class PostManager {
 
         return postDetailsArray;
       } else {
+        //The user should be able to view their own post
+        //Even if they are allowed no one to see it
         const filteringPost = await select(
           `SELECT 
         Post.idPost,

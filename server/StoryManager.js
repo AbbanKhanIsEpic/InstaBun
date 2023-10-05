@@ -12,6 +12,8 @@ class StoryManager {
     }
   }
 
+  //Used for naming convensation
+  //So there will be no overridden in firebase
   async total(userID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Story where UserID = ?;`;
@@ -22,6 +24,9 @@ class StoryManager {
     }
   }
 
+  //Get the details of the stories
+  //Stories only last for a day
+  //So it is only getting stories that is a less or equal to a day old
   async getStories(userID) {
     try {
       const follow = new FollowManager();

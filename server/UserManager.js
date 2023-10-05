@@ -1,5 +1,7 @@
-const { select } = require("./DB");
-const { update } = require("./DB");
+//Imports
+const { select, update } = require("./DB");
+
+const FollowManager = require("./FollowManager");
 
 class UserManager {
   async updateProfile(
@@ -40,6 +42,10 @@ class UserManager {
     try {
       const query = `INSERT INTO BlockUser(BlockerUserID,BlockedUserID) VALUE(?,?);`;
       await update(query, [blockerUserID, blockedUserID]);
+      //When user block someone, they want no association with them
+      //So therefore, they will not be following them
+      const follow = new FollowManager();
+      follow.unfollow(blockerUserID, blockedUserID);
       return "Block operation successful";
     } catch (error) {
       return error;
@@ -76,6 +82,8 @@ class UserManager {
     }
   }
 
+  //Checking if the email address is the user's email
+  //This is used to allow user to login if they forgot their password
   async doUserEmailMatch(username, emailAddress) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Users where Username = ? AND EmailAddress = ?`;
@@ -98,7 +106,7 @@ class UserManager {
 
   async getUserProfile(userID) {
     try {
-      const query = `SELECT Username,DisplayName,ProfileIconLink,Bio  FROM abbankDB.Users where UserID = ?;`;
+      const query = `SELECT Username,DisplayName,ProfileIconLink,Bio FROM abbankDB.Users where UserID = ?;`;
       const [result] = await select(query, [userID]);
       return result;
     } catch (error) {
@@ -110,6 +118,8 @@ class UserManager {
     try {
       const query = `SELECT ProfileIconLink FROM abbankDB.Users where UserID = ?`;
       const [result] = await select(query, [userID]);
+      //This happens if the userID does not exists
+      //When created an account, a user will a profile icon
       if (result.length === 0) {
         return new Error("Unable to get the link of the user's profile icon");
       }
@@ -120,6 +130,8 @@ class UserManager {
   }
 
   async getListOfUsernames(userID, searchingUsername) {
+    //The apart of the username could be in the front, end or middle
+    //This is to give a better result
     searchingUsername = "%" + searchingUsername + "%";
     try {
       const query = `SELECT Username,DisplayName,ProfileIconLink FROM abbankDB.Users where Username Like ? AND UserID !=  ?;`;
@@ -130,6 +142,7 @@ class UserManager {
     }
   }
 
+  //Check if the user's login credential is correct
   async userLogin(username, password) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Users where Username = ? AND Password = ?`;

@@ -1,5 +1,5 @@
+//Import
 const { select, update } = require("./DB");
-
 const UserManager = require("./UserManager");
 
 class DirectMessage {
@@ -14,6 +14,7 @@ class DirectMessage {
       return error;
     }
   }
+
   async deleteMessage(messageID) {
     try {
       const query = `DELETE FROM DirectMessages WHERE MessageID = ?;
@@ -24,6 +25,11 @@ class DirectMessage {
       return error;
     }
   }
+
+  //Check if either of them has blocked each other
+  //If so: user can not send message
+  //If not: check if there is a DM limit
+  //If pass the dm limit: user can send message
   async hasAbilityToSend(senderID, receiverID) {
     try {
       const user = new UserManager();
@@ -31,6 +37,16 @@ class DirectMessage {
       if (!hasSenderBlock) {
         let hasReceiverBlock = await user.isUserBlocked(senderID, receiverID);
         if (!hasReceiverBlock) {
+          //Since the DM limit is:
+          //0 -> Everyone
+          //1 -> Followers
+          //2 -> Mutural / Friends
+          //3 -> No one
+          //It is easy to do comparison with counting who follow who
+          //0 -> Neither of them follow each other
+          //1 -> Only one of them follows
+          //2 -> Both of them follow each other
+          //3 -> Impossible
           let receiverDMLimit = await user.getDMLimit(receiverID);
           const query = `SELECT COUNT(*) FROM abbankDB.Follows WHERE FollowerID = ? AND FollowingID = ? OR FollowerID = ? AND FollowingID = ?;`;
           const [status] = (
@@ -47,6 +63,7 @@ class DirectMessage {
     }
   }
 
+  //Get list of people who has communicated with the user
   async getDirectList(userID) {
     try {
       const user = new UserManager();

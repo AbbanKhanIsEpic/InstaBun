@@ -1,5 +1,5 @@
-const { select } = require("./DB");
-const { update } = require("./DB");
+//Imports
+const { select, update } = require("./DB");
 
 class GroupMessage {
   async getMessage(userID, groupID, messageID) {
@@ -20,6 +20,7 @@ class GroupMessage {
       return error;
     }
   }
+
   async deleteMessage(messageID) {
     try {
       const query = `DELETE FROM GroupMessages WHERE MessageID = ?;`;
@@ -29,6 +30,7 @@ class GroupMessage {
       return error;
     }
   }
+
   async sendMessage(userID, groupID, message) {
     try {
       const query = `INSERT INTO abbankDB.GroupMessages (UserID, GroupID, Time, Message) VALUES (?, ?, now(), ?);`;
@@ -56,6 +58,7 @@ class GroupMessage {
       return error;
     }
   }
+
   async #hasClearedMessageBefore(userID, groupID) {
     try {
       const query = `SELECT count(*) FROM ClearGroupMessage WHERE UserID = ? AND GroupID = ?;`;
@@ -66,6 +69,9 @@ class GroupMessage {
     }
   }
 
+  //When group owner deletes the group
+  //Everything related to the group has to be deleted first
+  //Before the group can be deleted because of foreign key
   async deleteGroupMessages(groupID) {
     try {
       const query = `DELETE FROM GroupMessages WHERE (GroupID = ?);`;
@@ -76,6 +82,9 @@ class GroupMessage {
     }
   }
 
+  //When group owner deletes the group
+  //Everything related to the group has to be deleted first
+  //Before the group can be deleted because of foreign key
   async deleteClearMessages(groupID) {
     try {
       const query = `DELETE FROM ClearGroupMessage WHERE (GroupID = ?);`;
