@@ -5,7 +5,6 @@ let userID;
 let groupID;
 
 self.onmessage = function (communicatorData) {
-  console.log(communicatorData.data);
   userID = communicatorData.data["userID"];
   groupID = communicatorData.data["groupID"];
   getMessages();

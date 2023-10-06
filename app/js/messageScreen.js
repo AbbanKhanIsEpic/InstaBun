@@ -98,7 +98,6 @@ sendMessageButton.addEventListener("click", function () {
     }
   } else if (currentlySelectedUserID != 0) {
     let message = textAndEmojiToText();
-    console.log(message.length);
     if (message.length == 0) {
       alert("Please have something to say");
     } else if (message.length > 1100) {
@@ -205,6 +204,8 @@ uploadNewProfileIcon.addEventListener("change", function () {
 selectDirect.addEventListener("click", function () {
   stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
   stopShowingGroupMessage(currentlySelectedGroupID);
+  currentlySelectedGroupID = 0;
+  currentlySelectedUserID = 0;
   clearList();
   userSelection.textContent = "Direct";
   getDirectList();
@@ -212,6 +213,9 @@ selectDirect.addEventListener("click", function () {
 
 selectGroups.addEventListener("click", function () {
   stopShowingDirectMessage(currentUserUserID, currentlySelectedUserID);
+  stopShowingGroupMessage(currentlySelectedGroupID);
+  currentlySelectedGroupID = 0;
+  currentlySelectedUserID = 0;
   clearList();
   userSelection.textContent = "Groups";
   getGroupList();

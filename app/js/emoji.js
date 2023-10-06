@@ -14,7 +14,7 @@ fetch("https://emoji.gg/api/")
   })
   .then((emojis) => {
     emojis.map((emoji) => {
-      const key = ":" + emoji["title"].toLowerCase().replace(/_/g, "") + ":";
+      const key = emoji["title"].toLowerCase().replace(/_/g, "");
       const value = emoji["image"];
       emojiMap.set(key, value);
     });
@@ -33,7 +33,7 @@ fetch("https://api.github.com/emojis")
   .then((emojis) => {
     Object.entries(emojis).map((emoji) => {
       let tempKey = emoji[0].toLowerCase().replace(/_/g, "");
-      const key = ":" + (emojiMap.has(tempKey) ? tempKey + "2" : tempKey) + ":";
+      const key = emojiMap.has(tempKey) ? tempKey + "2" : tempKey;
       const value = emoji[1];
       emojiMap.set(key, value);
     });
@@ -52,9 +52,7 @@ for (let i = 0; i < 134; i++) {
           .toLowerCase()
           .replace(/_/g, "")
           .replace(/-/g, "");
-        const key = emojiMap.has(tempKey)
-          ? `:${tempKey}${count}:`
-          : `:${tempKey}:`;
+        const key = emojiMap.has(tempKey) ? `${tempKey}${count}` : tempKey;
         const value = emoji[1]["image_url"];
         emojiMap.set(key, value);
       });
@@ -112,14 +110,14 @@ export function textAndEmojiToText() {
   for (let i = 0; i < inputMessage.childNodes.length; i++) {
     let nextCloneNode = inputMessage.childNodes[i];
     if (nextCloneNode.ariaLabel == null) {
-      let textWithEscape = nextCloneNode.textContent
+      const textWithEscape = nextCloneNode.textContent
         .replace(/"/g, '\\"')
         .replace(/'/g, "\\'")
         .replace(/\\/g, "\\\\");
 
       message += textWithEscape;
     } else {
-      let representEmojiAsText = `${nextCloneNode.ariaLabel}`;
+      const representEmojiAsText = `:${nextCloneNode.ariaLabel}:`;
       message += representEmojiAsText;
     }
   }
@@ -129,17 +127,12 @@ export function textAndEmojiToText() {
 //Convert text to text and emoji
 //This recieve the string text from MySQL
 export function textToTextAndEmoji(message) {
-  //Seperate the text and emoji
-  for (const [pattern] of emojiMap.entries()) {
-    const regex = new RegExp(pattern, "g");
-    message = message.replace(regex, `,${pattern},`);
-  }
+  //This is the quickest way of converting text to emoji
+  //There is another way but because there is a lot of emoji to select, it takes a long time
+  const tempMessageArray = message.split(":");
 
-  //Convert to array
-  const tempMessageArray = message.split(",");
-
-  //Remove extra colons
-  const messageArray = tempMessageArray.filter((item) => item !== "::");
+  //Remove empty space
+  const messageArray = tempMessageArray.filter((item) => item !== "");
 
   const divContainer = document.createElement("div");
   divContainer.className = "text-break";

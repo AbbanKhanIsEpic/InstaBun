@@ -308,7 +308,6 @@ export function showGroupMessage(groupID) {
     groupMessageWorker = new Worker("/app/js/groupMessageThread.js");
     groupMessageWorker.onmessage = function (messages) {
       messages.data.map((message) => {
-        console.log(message);
         const messageSent = message["Message"];
         const messageID = message["MessageID"];
         const senderID = message["UserID"];
