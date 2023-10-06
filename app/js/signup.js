@@ -105,7 +105,7 @@ function appendUsernameInput() {
     } else if (usernameInput.value.length < 3) {
       usernameErrorMessage.style.visibility = "visible";
       usernameErrorMessage.innerText = "Username is too short";
-    } else if (usernameInput.value.length > 1000) {
+    } else if (usernameInput.value.length > 100) {
       usernameErrorMessage.style.visibility = "visible";
       usernameErrorMessage.innerText = "Username is too long";
     } else {
