@@ -33,7 +33,7 @@ class PostManager {
       const query = `INSERT INTO abbankDB.Post (UserID, isVideo , PostLink,Title) VALUES (?,?,?,?);`;
       await update(query, [userID, isVideo, postLink, title]);
       //Since this is the latest post, we can get its ID
-      const postID = await this.#getCurrentPostID(userID);
+      const postID = await this.#getLatestPostID(userID);
       //Now we have the postID, we can attach the tags to the post
       await this.#attachTagsToPost(tags, postID);
     } catch (error) {
@@ -99,7 +99,7 @@ class PostManager {
 
   //User will upload a post at a time
   //The latest postID is the post the user just uploaded
-  async #getCurrentPostID(userID) {
+  async #getLatestPostID(userID) {
     try {
       const query = `SELECT idPost FROM abbankDB.Post where UserID = ? Order by idPost DESC Limit 1;`;
       const [result] = await select(query, [userID]);
@@ -141,7 +141,7 @@ class PostManager {
 
       await Promise.all(tagPromises);
 
-      //Post that contains the tag/s doe not exists
+      //Post that contains the tag/s does not exists
       if (tags.length === 0) {
         return new Error("Unable to retrieve post via the provided tags");
       }
@@ -149,6 +149,11 @@ class PostManager {
       const tagIDsArray = await this.#getTagIDs(tags);
 
       const postIDsArray = await this.#getSpecificPostIDs(tagIDsArray);
+
+      //No post has all the tags
+      if (postIDsArray.length === 0) {
+        return new Error("Unable to retrieve post via the provided tags");
+      }
 
       const filteredPost = await this.#filterPostForAll(postIDsArray);
 
