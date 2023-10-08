@@ -142,7 +142,7 @@ app.get("/api/user/email", (req, res) => {
   let user = new UserManager();
 
   user
-    .doesEmailExist(email)
+    .isEmailTaken(email)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -158,7 +158,7 @@ app.get("/api/user/usernameExist", (req, res) => {
   let user = new UserManager();
 
   user
-    .doesUsernameExist(username)
+    .isUsernameTaken(username)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

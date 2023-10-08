@@ -175,7 +175,7 @@ class UserManager {
     }
   }
 
-  async doesUsernameExist(username) {
+  async isUsernameTaken(username) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Users where Username = ?;`;
       const [result] = await select(query, [username]);
@@ -185,7 +185,7 @@ class UserManager {
     }
   }
 
-  async doesEmailExist(email) {
+  async isEmailTaken(email) {
     try {
       const query = `SELECT count(*) FROM abbankDB.Users where EmailAddress = ?;`;
       const [result] = await select(query, [email]);
