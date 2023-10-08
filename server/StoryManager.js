@@ -38,7 +38,6 @@ class StoryManager {
       Story.idStory,
       Story.StoryLink,
       Story.Title,
-      Users.Visibility,
       Users.ProfileIconLink
   FROM
       Story
