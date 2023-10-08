@@ -257,6 +257,7 @@ function appendPost(
             commentCountSpan.textContent = commentCount;
           })
           .catch((error) => {
+            alert("A problem occured. Try again");
             console.error("Error:", error);
           });
       }
