@@ -394,9 +394,6 @@ function appendPost(
         .then((response) => response.json())
         .then((data) => {
           if (!data) {
-            shareCount++;
-            shareCountSpan.textContent = shareCount;
-
             var dataObject = {
               userID: currentUserUserID,
               postID: postID,
@@ -413,7 +410,8 @@ function appendPost(
             })
               .then((response) => response.text())
               .then((responseData) => {
-                console.log(responseData);
+                shareCount++;
+                shareCountSpan.textContent = shareCount;
               })
               .catch((error) => {
                 console.error("Error:", error);
