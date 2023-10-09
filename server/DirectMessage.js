@@ -47,7 +47,7 @@ class DirectMessage {
           //1 -> Only one of them follows
           //2 -> Both of them follow each other
           //3 -> Impossible
-          let receiverDMLimit = await user.getDMLimit(receiverID);
+          const receiverDMLimit = await user.getDMLimit(receiverID);
           const query = `SELECT COUNT(*) FROM abbankDB.Follows WHERE FollowerID = ? AND FollowingID = ? OR FollowerID = ? AND FollowingID = ?;`;
           const [status] = (
             await select(query, [senderID, receiverID, receiverID, senderID])
@@ -86,9 +86,9 @@ class DirectMessage {
           ]);
           directList.push({
             userID: recipientID,
-            profileIconLink: profileIcon.ProfileIconLink,
-            displayName: displayName.DisplayName,
-            username: username.Username,
+            profileIconLink: profileIcon,
+            displayName: displayName,
+            username: username,
           });
         } catch (error) {
           throw error;

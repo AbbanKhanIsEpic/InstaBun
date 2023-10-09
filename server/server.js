@@ -58,8 +58,8 @@ app.get("/api/user/displayName", (req, res) => {
 
   user
     .getDisplayName(userID)
-    .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+    .then((displayName) => {
+      res.status(200).send({ DisplayName: displayName });
     })
     .catch((error) => {
       console.error(error);
@@ -175,8 +175,8 @@ app.get("/api/user/username", (req, res) => {
 
   user
     .getUsername(userID)
-    .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+    .then((username) => {
+      res.status(200).send({ Username: username });
     })
     .catch((error) => {
       console.error(error);
@@ -191,8 +191,8 @@ app.get("/api/user/userID", (req, res) => {
 
   user
     .getUserID(username)
-    .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+    .then((userID) => {
+      res.status(200).send({ UserID: userID });
     })
     .catch((error) => {
       console.error(error);
@@ -239,8 +239,8 @@ app.get("/api/user/profileIcon", (req, res) => {
 
   user
     .getUserProfileIconLink(userID)
-    .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+    .then((profileIconLink) => {
+      res.status(200).send({ ProfileIconLink: profileIconLink });
     })
     .catch((error) => {
       console.error(error);
@@ -255,8 +255,8 @@ app.get("/api/user/visibility", (req, res) => {
 
   user
     .getVisibility(userID)
-    .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+    .then((visibility) => {
+      res.status(200).send({ Visibility: visibility });
     })
     .catch((error) => {
       console.error(error);
@@ -271,8 +271,8 @@ app.get("/api/user/dmlimit", (req, res) => {
 
   user
     .getDMLimit(userID)
-    .then((jsonifiedResult) => {
-      res.status(200).send(jsonifiedResult);
+    .then((dmLimit) => {
+      res.status(200).send({ DMLimit: dmLimit });
     })
     .catch((error) => {
       console.error(error);
