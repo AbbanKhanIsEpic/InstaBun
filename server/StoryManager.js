@@ -33,6 +33,17 @@ class StoryManager {
       const followingArray = await follow.getFollowings(userID);
       const query = `SELECT 
       timestampdiff(HOUR,Story.uploadDateTime,now()) as hoursOlD,
+      Users.Visibility,
+      (SELECT 
+        COUNT(*)
+          FROM
+          abbankDB.Follows
+          WHERE
+            (FollowerID = ?
+            AND FollowingID = Users.UserID)
+            OR (FollowerID = Users.UserID
+            AND FollowingID = ?))
+        AS Status,
       Story.isVideo,
       Story.UserID,
       Story.idStory,
@@ -45,9 +56,10 @@ class StoryManager {
       Users ON Users.UserID = Story.UserID
   WHERE
       Story.UserID in (?)
+      HAVING Status >= Users.Visibility
  Order by hoursOlD;`;
 
-      const result = await select(query, [followingArray]);
+      const result = await select(query, [userID, userID, followingArray]);
       return result;
     } catch (error) {
       return error;

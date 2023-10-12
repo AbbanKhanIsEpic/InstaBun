@@ -129,12 +129,14 @@ class UserManager {
     }
   }
 
-  async getListOfUsernames(userID, searchingUsername) {
+  async getListOfUsernames(userID, searchingUsername, page) {
+    const userPerPage = 5;
+    page *= userPerPage;
     //The apart of the username could be in the front, end or middle
     //This is to give a better result
     searchingUsername = "%" + searchingUsername + "%";
     try {
-      const query = `SELECT Username,DisplayName,ProfileIconLink FROM abbankDB.Users where Username Like ? AND UserID !=  ?;`;
+      const query = `SELECT Username,DisplayName,ProfileIconLink FROM abbankDB.Users where Username Like ? AND UserID !=  ? limit ${page},${userPerPage};`;
       const result = await select(query, [searchingUsername, userID]);
       return result;
     } catch (error) {

@@ -201,12 +201,12 @@ app.get("/api/user/userID", (req, res) => {
 });
 
 app.get("/api/user/search", (req, res) => {
-  const { userID, searchUser } = req.query;
+  const { userID, searchUser, page } = req.query;
 
   let user = new UserManager();
 
   user
-    .getListOfUsernames(userID, searchUser)
+    .getListOfUsernames(userID, searchUser, page)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -432,14 +432,14 @@ app.post("/api/post/createPost", (req, res) => {
 });
 
 app.get("/api/post/search", (req, res) => {
-  const { userID, tags } = req.query;
+  const { userID, tags, page } = req.query;
 
   const tagsArray = tags.split(",");
 
   let post = new PostManager();
 
   post
-    .getPostViaTags(userID, tagsArray)
+    .getPostViaTags(userID, tagsArray, page)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -466,12 +466,12 @@ app.get("/api/post/comment", (req, res) => {
 });
 
 app.get("/api/post/placeholder", (req, res) => {
-  const { userID } = req.query;
+  const { userID, page } = req.query;
 
   let post = new PostManager();
 
   post
-    .getPostBasedLike(userID)
+    .getPostBasedLike(userID, page)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

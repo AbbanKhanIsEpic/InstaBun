@@ -65,37 +65,7 @@ class PostManager {
     }
   }
 
-  //This function is to get some recommendation
-  async #getPostIDs(tagID) {
-    try {
-      const query = `SELECT distinct postID
-      FROM abbankDB.PostTags
-      WHERE tagID IN (?);`;
-      const result = await select(query, [tagID]);
-      //Convert from JSON to array for easy reading
-      const postIDsArray = result.map((row) => row.postID);
-      return postIDsArray;
-    } catch (error) {
-      return error;
-    }
-  }
-
   //This function get the postID of the post that contains all the tags that the user is searching for
-  async #getSpecificPostIDs(tagID) {
-    try {
-      const query = `SELECT postID
-      FROM abbankDB.PostTags
-      WHERE tagID IN (?)
-      GROUP BY postID
-      HAVING COUNT(DISTINCT tagID) = ?;`;
-      const result = await select(query, [tagID, tagID.length]);
-      //Convert from JSON to array for easy reading
-      const postIDsArray = result.map((row) => row.postID);
-      return postIDsArray;
-    } catch (error) {
-      return error;
-    }
-  }
 
   //User will upload a post at a time
   //The latest postID is the post the user just uploaded
@@ -125,7 +95,7 @@ class PostManager {
   }
 
   //Get the posts from the tags the user entered
-  async getPostViaTags(userID, tags) {
+  async getPostViaTags(userID, tags, page) {
     try {
       //It is a promise because this needs to run first
       //Because we might have a post attached to the tag the user search for
@@ -148,14 +118,9 @@ class PostManager {
 
       const tagIDsArray = await this.#getTagIDs(tags);
 
-      const postIDsArray = await this.#getSpecificPostIDs(tagIDsArray);
+      const filteredPost = await this.#getPostForAll(tagIDsArray, page);
 
-      //No post has all the tags
-      if (postIDsArray.length === 0) {
-        return new Error("Unable to retrieve post via the provided tags");
-      }
-
-      const filteredPost = await this.#filterPostForAll(postIDsArray);
+      console.log(filteredPost);
 
       const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
 
@@ -170,7 +135,7 @@ class PostManager {
   //This small algorithm to get popular videos that:
   //If user has liked no post: show them what most people like
   //If user has liked post: show them a mix of what they like and people really like
-  async getPostBasedLike(userID) {
+  async getPostBasedLike(userID, page) {
     try {
       const query = `
       SELECT 
@@ -200,9 +165,7 @@ class PostManager {
       //Convert JSOn to array for easy reading
       const tagIDsArray = tagIDsResultSet.map((element) => element.currentTag);
 
-      const postIDsArray = await this.#getPostIDs(tagIDsArray);
-
-      const filteredPost = await this.#filterPostForAll(postIDsArray);
+      const filteredPost = await this.#getPostForAll(tagIDsArray, page);
 
       const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
 
@@ -217,29 +180,38 @@ class PostManager {
   //If the uploader(the user who created the post) does not allow everyone to see
   //The post will not be included
   //This method is used for the explore screen
-  async #filterPostForAll(postIDsArray) {
+  async #getPostForAll(tagsArray, page) {
+    const postPerPage = 3;
+    page *= postPerPage;
     try {
       const query = `
-      SELECT
-      Post.idPost, Users.UserID, Users.Visibility
-        FROM 
-        abbankDB.Post 
-        INNER JOIN 
-          Users ON Users.UserID = Post.UserID 
-        WHERE
-          Post.idPost IN (?)
-          AND 
-          Users.Visibility = 0 
-        ORDER BY Post.idPost DESC;`;
+      SELECT 
+      postID,
+      Post.UserID,
+      Users.Visibility,
+      COUNT(DISTINCT tagID) AS total
+  FROM
+      abbankDB.PostTags
+  INNER JOIN
+      Post ON Post.idPost = PostTags.postID
+  INNER JOIN
+      Users ON Users.UserID = Post.UserID
+  WHERE
+      tagID IN (?)
+      AND Users.Visibility = 0
+  GROUP BY postID
+  ORDER BY total DESC
+  LIMIT ${page},${postPerPage}
+  `;
 
-      const result = await select(query, [postIDsArray]);
+      const result = await select(query, [tagsArray]);
 
       //Filter and only return what is important
       //Not important to return the setting of the uploader
       //Import to return the postID and who uploaded the post
       const postIDAndUserIDArray = result.map((element) => {
         const postIDAndUserID = {
-          postID: element.idPost,
+          postID: element.postID,
           userID: element.UserID,
         };
         return postIDAndUserID;

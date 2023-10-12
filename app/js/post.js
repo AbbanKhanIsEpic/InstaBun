@@ -12,7 +12,8 @@ function appendPost(
 ) {
   // Create the main container div
   const mainContainer = document.createElement("div");
-  mainContainer.className = "d-flex justify-content-center align-items-center";
+  mainContainer.className =
+    "result d-flex justify-content-center align-items-center";
   mainContainer.id = postID;
 
   // Create the first inner div
