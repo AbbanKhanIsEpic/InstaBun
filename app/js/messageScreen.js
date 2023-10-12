@@ -64,7 +64,18 @@ createGroupModal.dataset.bsTarget = "#createGroupModal";
 
 let selectedFile = null;
 let originalGroupName = null;
-let confirmClear = false;
+
+let selectedMessageClear = 0;
+let isGroupSelectedMessageClear = false;
+
+let selectedGroupLeave = 0;
+
+let selectedGroupDelete = 0;
+
+let selectedGroupTransfer = 0;
+
+let selectedMemberRemove = 0;
+let selectedMemberRemoveGroup = 0;
 
 let currentlySelectedUserID = 0;
 let currentlySelectedGroupID = 0;
@@ -81,52 +92,70 @@ showOwnerForNewGroup();
 //Event listeners
 
 sendMessageButton.addEventListener("click", function () {
-  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
-    alert("Select someone");
-  }
-  if (currentlySelectedGroupID == 0 && userSelection.textContent == "Groups") {
-    alert("Select a group");
-  }
-  if (currentlySelectedGroupID != 0) {
-    const message = textAndEmojiToText();
-    if (message.length == 0) {
-      alert("Please have something to say");
-    } else if (message.length > 1100) {
-      alert("Message too long, max length is 1100");
+  if (userSelection.textContent == "Direct") {
+    if (currentlySelectedUserID == 0) {
+      alert("Select someone");
     } else {
-      sendGroupMessage(currentUserUserID, currentlySelectedGroupID, message);
+      const message = textAndEmojiToText();
+      if (message.length == 0) {
+        alert("Please have something to say");
+      } else if (message.length > 1100) {
+        alert("Message too long, max length is 1100");
+      } else {
+        sendDirectMessage(currentlySelectedUserID, message);
+      }
     }
-  } else if (currentlySelectedUserID != 0) {
-    let message = textAndEmojiToText();
-    if (message.length == 0) {
-      alert("Please have something to say");
-    } else if (message.length > 1100) {
-      alert("Message too long, max length is 1100");
+  } else {
+    if (currentlySelectedGroupID == 0) {
+      alert("Select a group");
     } else {
-      sendDirectMessage(currentlySelectedUserID, message);
+      let message = textAndEmojiToText();
+      if (message.length == 0) {
+        alert("Please have something to say");
+      } else if (message.length > 1100) {
+        alert("Message too long, max length is 1100");
+      } else {
+        sendGroupMessage(
+          currentlySelectedUserID,
+          currentlySelectedGroupID,
+          message
+        );
+      }
     }
   }
 });
 
 clearMessageConvesation.addEventListener("click", function () {
-  if (currentlySelectedUserID == 0 && userSelection.textContent == "Direct") {
-    alert("Select someone");
-    confirmClear = false;
-  } else if (
-    currentlySelectedGroupID == 0 &&
-    userSelection.textContent == "Group"
-  ) {
-    alert("Select a group");
-    confirmClear = false;
-  } else if (!confirmClear) {
-    alert("Are you sure you want to clear all the messages?");
-    confirmClear = true;
-  } else if (currentlySelectedUserID != 0) {
-    clearDirectMessage(currentlySelectedUserID);
-    clearMessage();
-  } else if (currentlySelectedGroupID != 0) {
-    clearGroupMessage(currentlySelectedGroupID);
-    clearMessage();
+  if (userSelection.textContent == "Direct") {
+    if (currentlySelectedUserID == 0) {
+      alert("Select a person");
+    } else if (
+      selectedMessageClear == currentlySelectedUserID &&
+      !isGroupSelectedMessageClear
+    ) {
+      clearDirectMessage(currentlySelectedUserID);
+      clearMessage();
+      selectedMessageClear = 0;
+    } else {
+      alert("Click again to confirm clearing all messages");
+      isGroupSelectedMessageClear = false;
+      selectedMessageClear = currentlySelectedUserID;
+    }
+  } else {
+    if (currentlySelectedGroupID == 0) {
+      alert("Select a group");
+    } else if (
+      selectedMessageClear == currentlySelectedGroupID &&
+      isGroupSelectedMessageClear
+    ) {
+      clearGroupMessage(currentlySelectedGroupID);
+      clearMessage();
+      selectedMessageClear = 0;
+    } else {
+      alert("Click again to confirm clearing all messages");
+      isGroupSelectedMessageClear = true;
+      selectedMessageClear = currentlySelectedGroupID;
+    }
   }
 });
 
@@ -288,7 +317,8 @@ leaveGroup.addEventListener("click", function () {
   const numberOfMemebers = showMembers.childNodes.length;
   if (numberOfMemebers == 3) {
     alert("Can not leave because group needs a minium of three people");
-  } else {
+  } else if (selectedGroupLeave == currentlySelectedGroupID) {
+    selectedGroupLeave = 0;
     var dataObject = {
       groupID: currentlySelectedGroupID,
       userID: currentUserUserID,
@@ -308,6 +338,9 @@ leaveGroup.addEventListener("click", function () {
       .catch((error) => {
         alert("Unable to leave group");
       });
+  } else {
+    alert("Click leave button again to confirm");
+    selectedGroupLeave == currentlySelectedGroupID;
   }
 });
 
@@ -345,25 +378,31 @@ updateGroup.addEventListener("click", async function () {
 });
 
 deleteGroup.addEventListener("click", function () {
-  var dataObject = {
-    groupID: currentlySelectedGroupID,
-    groupMembers: membersForCurrentGroup,
-  };
-  var jsonObject = JSON.stringify(dataObject);
-  fetch("http://127.0.0.1:5000/api/group/delete", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: jsonObject,
-  })
-    .then((response) => response.text())
-    .then((responseData) => {
-      alert("Group deleted: Might need to refresh to view affect");
+  if (selectedGroupDelete == currentlySelectedGroupID) {
+    selectedGroupDelete = 0;
+    var dataObject = {
+      groupID: currentlySelectedGroupID,
+      groupMembers: membersForCurrentGroup,
+    };
+    var jsonObject = JSON.stringify(dataObject);
+    fetch("http://127.0.0.1:5000/api/group/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: jsonObject,
     })
-    .catch((error) => {
-      alert("Unable to delete group");
-    });
+      .then((response) => response.text())
+      .then((responseData) => {
+        alert("Group deleted: Might need to refresh to view affect");
+      })
+      .catch((error) => {
+        alert("Unable to delete group");
+      });
+  } else {
+    alert("Click delete button again to confirm");
+    selectedGroupDelete = currentlySelectedGroupID;
+  }
 });
 
 //Functions
@@ -535,8 +574,9 @@ async function updateCurrentGroupIcon() {
 }
 
 async function createGroup() {
-  //Since it is a new group -> there is no way to get the groupID
-  const url = `/profileIcon/${currentUserUserID}:${currentUserUserID}`;
+  //Since it is a new group -> there is no way to get the groupID -> generate a random number
+  const randomNumber = Math.random() * 10000 + 1; //Big number so it is nearly impossible to overwrite
+  const url = `/profileIcon/newGroup:${currentUserUserID}:${randomNumber}`;
   const storageRef = ref(storage, url);
   uploadBytes(storageRef, newGroupIcon)
     .then((snapshot) => {
@@ -717,7 +757,10 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
             alert(
               "Can not remove member becase group needs a minium of three people"
             );
-          } else {
+          } else if (
+            selectedMemberRemove == userID &&
+            selectedMemberRemoveGroup == groupID
+          ) {
             var dataObject = {
               userID: userID,
               groupID: groupID,
@@ -735,11 +778,15 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
             })
               .then((response) => response.text())
               .then((responseData) => {
-                alert("Member removed: Might need to refresh to view affect");
+                divElement.parentNode.removeChild(divElement);
               })
               .catch((error) => {
                 alert("Unable to remove member");
               });
+          } else {
+            alert("Click remove member button to confirm");
+            selectedMemberRemove = userID;
+            selectedMemberRemoveGroup = groupID;
           }
         });
 
@@ -748,9 +795,9 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
         transferOwnership.textContent = "Crown";
         transferOwnership.role = "button";
 
-        let confirmTransfer = false;
         transferOwnership.addEventListener("click", function () {
-          if (confirmTransfer) {
+          if (selectedGroupTransfer == userID) {
+            selectedGroupTransfer = 0;
             var dataObject = {
               newOwnerID: userID,
               groupID: groupID,
@@ -779,7 +826,7 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
             alert(
               `Are you sure you want to transfer ownership of the group to ${username}`
             );
-            confirmTransfer = true;
+            selectedGroupTransfer == userID;
           }
         });
 
