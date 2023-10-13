@@ -476,38 +476,6 @@ class PostManager {
     }
   }
 
-  async comment(postID, userID, comment) {
-    try {
-      const query = `INSERT INTO abbankDB.PostComment (PostID, Commenter, Comment) VALUES (?, ?, ?);`;
-      await update(query, [postID, userID, comment]);
-      return "Comment operation successful";
-    } catch (error) {
-      return error;
-    }
-  }
-
-  async getComments(postID) {
-    try {
-      const query = `
-      SELECT 
-      PostComment.Comment,
-      Users.Username,
-      Users.DisplayName,
-      Users.ProfileIconLink
-        FROM
-        abbankDB.PostComment
-        INNER JOIN
-          Users ON Users.UserID = PostComment.Commenter
-        Where 
-          PostID = ?;`;
-      const result = await select(query, [postID]);
-
-      return result;
-    } catch (error) {
-      return error;
-    }
-  }
-
   async hasShared(userID, postID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.PostShare where postID = ? AND userID = ?;`;

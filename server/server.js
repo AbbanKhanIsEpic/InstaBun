@@ -13,6 +13,7 @@ const StoryManager = require("./StoryManager");
 const DirectMessage = require("./DirectMessage");
 const GroupManager = require("./GroupManager");
 const GroupMessage = require("./GroupMessage");
+const CommentManager = require("./CommentManager");
 
 app.use(cors()); // Enable CORS for all routes
 
@@ -452,7 +453,7 @@ app.get("/api/post/search", (req, res) => {
 app.get("/api/post/comment", (req, res) => {
   const { postID } = req.query;
 
-  let post = new PostManager();
+  let post = new CommentManager();
 
   post
     .getComments(postID)
@@ -504,7 +505,7 @@ app.post("/api/post/comment", (req, res) => {
   const userID = req.body.userID;
   const comment = req.body.comment;
 
-  const post = new PostManager();
+  const post = new CommentManager();
   post.comment(postID, userID, comment);
 
   res.json({ message: "Data received and processed successfully" });
