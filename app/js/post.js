@@ -1,3 +1,5 @@
+const NOTSELECTEDCOLOUR = "#000000";
+const SELECTEDCOLOUR = "#BBDEFB";
 function appendPost(
   postID,
   postLink,
@@ -292,16 +294,31 @@ function appendPost(
     modal.show();
 
     const server = "http://127.0.0.1:5000/api/post/comment";
-    const query = `?postID=${postID}`;
+    const query = `?postID=${postID}&userID=${currentUserUserID}`;
 
     fetch(server + query)
       .then((response) => response.json())
       .then((data) => {
         data.map((comment) => {
+          const idComment = comment.idComment;
           const text = comment.Comment;
           const profileIcon = comment.ProfileIconLink;
           const username = comment.Username;
-          addComment(currentUserUserID, username, profileIcon, text);
+          const totalLike = comment.totalLike;
+          const totalDislike = comment.totalDislike;
+          const didLike = comment.didLike;
+          const didDislike = comment.didDislike;
+          addComment(
+            idComment,
+            currentUserUserID,
+            username,
+            profileIcon,
+            text,
+            totalLike,
+            totalDislike,
+            didLike,
+            didDislike
+          );
         });
       })
       .catch((error) => {
@@ -309,7 +326,17 @@ function appendPost(
         console.error(error);
       });
 
-    function addComment(userID, username, currentUserProfileLink, text) {
+    function addComment(
+      idComment,
+      userID,
+      username,
+      currentUserProfileLink,
+      text,
+      totalLike,
+      totalDislike,
+      didLike,
+      didDislike
+    ) {
       const commentContainer = document.createElement("div");
 
       const commentText = document.createElement("div");
@@ -349,114 +376,182 @@ function appendPost(
         "d-flex align-items-center text-center gap-2 mb-2";
 
       //Like button
+      let likeColour = didLike == 1 ? SELECTEDCOLOUR : NOTSELECTEDCOLOUR;
+
+      let dislikeColour = didDislike == 1 ? SELECTEDCOLOUR : NOTSELECTEDCOLOUR;
       // Create an SVG element
       const likeSvg = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "svg"
       );
-
-      // Set SVG attributes
-      likeSvg.setAttribute("fill", "#000000");
+      likeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      likeSvg.setAttribute("viewBox", "0 0 16 16");
       likeSvg.setAttribute("height", "32");
       likeSvg.setAttribute("width", "32");
-      likeSvg.setAttribute("version", "1.1");
-      likeSvg.setAttribute("id", "Capa_1");
-      likeSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      likeSvg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-      likeSvg.setAttribute("viewBox", "0 0 512 512");
-      likeSvg.setAttribute("xml:space", "preserve");
       likeSvg.role = "button";
 
-      likeSvg.addEventListener("click", function () {
-        console.log("Hi");
-      });
-
-      // Create SVG groups
-      const bgCarrier = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-      );
-      bgCarrier.setAttribute("id", "SVGRepo_bgCarrier");
-      bgCarrier.setAttribute("stroke-width", "0");
-
-      const tracerCarrier = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-      );
-      tracerCarrier.setAttribute("id", "SVGRepo_tracerCarrier");
-      tracerCarrier.setAttribute("stroke-linecap", "round");
-      tracerCarrier.setAttribute("stroke-linejoin", "round");
-
-      const iconCarrier = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-      );
-      iconCarrier.setAttribute("id", "SVGRepo_iconCarrier");
-
-      const path1 = document.createElementNS(
+      // Create the first path element and set its attributes
+      const pathElement1 = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "path"
       );
-      path1.setAttribute(
+      pathElement1.setAttribute("fill", "#1565C0");
+      pathElement1.setAttribute(
         "d",
-        "M498.323,297.032c0-7.992-1.901-15.683-5.553-22.635c12.034-9.18,19.23-23.438,19.23-38.914 c0-27.037-21.996-49.032-49.032-49.032H330.206c11.434-29.24,17.665-64.728,17.665-101.419c0-23.266-18.928-42.194-42.194-42.194 s-42.193,18.928-42.193,42.194c0,83.161-58.012,145.389-144.355,154.844c-0.592,0.065-1.159,0.197-1.7,0.38 C111.752,235.129,104.235,232,96,232H32c-17.645,0-32,14.355-32,32v152c0,17.645,14.355,32,32,32h64 c9.763,0,18.513-4.4,24.388-11.315c20.473,2.987,33.744,9.534,46.568,15.882c16.484,8.158,33.53,16.595,63.496,16.595h191.484 c27.037,0,49.032-21.996,49.032-49.032c0-7.991-1.901-15.683-5.553-22.635c12.034-9.18,19.23-23.438,19.23-38.914 c0-7.991-1.901-15.683-5.553-22.635C491.126,326.766,498.323,312.507,498.323,297.032z M465.561,325.727H452c-4.418,0-8,3.582-8,8 s3.582,8,8,8h11.958c3.061,5.1,4.687,10.847,4.687,16.854c0,12.106-6.56,23.096-17.163,28.919h-14.548c-4.418,0-8,3.582-8,8 s3.582,8,8,8h13.481c2.973,5.044,4.553,10.71,4.553,16.629c0,18.214-14.818,33.032-33.032,33.032H230.452 c-26.223,0-40.207-6.921-56.398-14.935c-12.358-6.117-26.235-12.961-46.56-16.594c0.326-1.83,0.506-3.71,0.506-5.632V295 c0-4.418-3.582-8-8-8s-8,3.582-8,8v121c0,8.822-7.178,16-16,16H32c-8.822,0-16-7.178-16-16V264c0-8.822,7.178-16,16-16h64 c8.822,0,16,7.178,16,16c0,4.418,3.582,8,8,8s8-3.582,8-8c0-3.105-0.453-6.105-1.282-8.947 c44.778-6.106,82.817-25.325,110.284-55.813c27.395-30.408,42.481-70.967,42.481-114.208c0-14.443,11.75-26.194,26.193-26.194 c14.443,0,26.194,11.75,26.194,26.194c0,39.305-7.464,76.964-21.018,106.04c-1.867,4.004-0.134,8.764,3.871,10.631 c1.304,0.608,2.687,0.828,4.025,0.719c0.201,0.015,0.401,0.031,0.605,0.031h143.613c18.214,0,33.032,14.818,33.032,33.032 c0,11.798-6.228,22.539-16.359,28.469h-14.975c-4.418,0-8,3.582-8,8s3.582,8,8,8h12.835c3.149,5.155,4.822,10.984,4.822,17.079 C482.323,308.985,475.927,319.848,465.561,325.727z"
+        "M0 7.5v7a.5.5 0 0 0 .5.5H5V7H.5a.5.5 0 0 0-.5.5"
       );
 
-      const path2 = document.createElementNS(
+      // Create the second path element and set its attributes
+      const pathElement2 = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "path"
       );
-      path2.setAttribute(
+      pathElement2.setAttribute("fill", likeColour);
+      pathElement2.setAttribute(
         "d",
-        "M422.384,325.727h-8.525c-4.418,0-8,3.582-8,8s3.582,8,8,8h8.525c4.418,0,8-3.582,8-8S426.802,325.727,422.384,325.727z"
+        "M14 6h-4V3c0-1.103-.897-2-2-2H6.5a.5.5 0 0 0-.5.5v2.367L4.066 7.252A.493.493 0 0 0 4 7.5v7a.5.5 0 0 0 .5.5h8.025a2 2 0 0 0 1.827-1.188l1.604-3.609A.491.491 0 0 0 16 10V8c0-1.103-.897-2-2-2z"
       );
 
-      const path3 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "path"
-      );
-      path3.setAttribute(
-        "d",
-        "M436.934,263.953h-8.525c-4.418,0-8,3.582-8,8s3.582,8,8,8h8.525c4.418,0,8-3.582,8-8S441.352,263.953,436.934,263.953z"
-      );
-
-      const path4 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "path"
-      );
-      path4.setAttribute(
-        "d",
-        "M407.833,387.5h-8.525c-4.418,0-8,3.582-8,8s3.582,8,8,8h8.525c4.418,0,8-3.582,8-8S412.252,387.5,407.833,387.5z"
-      );
-
-      path1.setAttribute("fill", "#000000");
-      path2.setAttribute("fill", "#000000");
-      path3.setAttribute("fill", "#000000");
-      path4.setAttribute("fill", "#000000");
-
-      iconCarrier.appendChild(path1);
-      iconCarrier.appendChild(path2);
-      iconCarrier.appendChild(path3);
-      iconCarrier.appendChild(path4);
-
-      likeSvg.appendChild(bgCarrier);
-      likeSvg.appendChild(tracerCarrier);
-      likeSvg.appendChild(iconCarrier);
-
-      //Like count
-      const likeCommentSpan = document.createElement("span");
-      likeCommentSpan.textContent = likeCount;
-      likeCommentSpan.className = "text-center";
+      // Append the path element to the SVG element
+      likeSvg.appendChild(pathElement1);
+      likeSvg.appendChild(pathElement2);
 
       //UnLike button
       // Create an SVG element
       const dislikeSvg = likeSvg.cloneNode(true);
       dislikeSvg.setAttribute("transform", "rotate(180)");
 
+      const dislikePathElement2 = dislikeSvg.childNodes[1];
+
+      dislikePathElement2.setAttribute("fill", dislikeColour);
+
+      dislikeSvg.addEventListener("click", function () {
+        var dataObject = {
+          userID: currentUserUserID,
+          commentID: idComment,
+        };
+
+        // Convert the JavaScript object to a JSON string
+        var jsonObject = JSON.stringify(dataObject);
+
+        //User is disliking the comment
+        if (dislikeColour == NOTSELECTEDCOLOUR) {
+          fetch("http://127.0.0.1:5000/api/comment/dislike", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+            body: jsonObject,
+          })
+            .then((response) => response.text())
+            .then((responseData) => {
+              dislikeColour = SELECTEDCOLOUR;
+              dislikePathElement2.setAttribute("fill", dislikeColour);
+              totalDislike++;
+              dislikeCommentSpan.textContent = totalDislike;
+              if (likeColour == SELECTEDCOLOUR) {
+                likeColour = NOTSELECTEDCOLOUR;
+                pathElement2.setAttribute("fill", likeColour);
+                totalLike--;
+                likeCommentSpan.textContent = totalLike;
+              }
+            })
+            .catch((error) => {
+              alert("A problem occured. Try again");
+              console.error("Error:", error);
+            });
+        }
+        //User is un disliking it
+        else {
+          fetch("http://127.0.0.1:5000/api/comment/unDislike", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+            body: jsonObject,
+          })
+            .then((response) => response.text())
+            .then((responseData) => {
+              dislikeColour = NOTSELECTEDCOLOUR;
+              dislikePathElement2.setAttribute("fill", dislikeColour);
+              totalDislike--;
+              dislikeCommentSpan.textContent = totalDislike;
+            })
+            .catch((error) => {
+              alert("A problem occured. Try again");
+              console.error("Error:", error);
+            });
+        }
+      });
+
+      likeSvg.addEventListener("click", function () {
+        var dataObject = {
+          userID: currentUserUserID,
+          commentID: idComment,
+        };
+
+        // Convert the JavaScript object to a JSON string
+        var jsonObject = JSON.stringify(dataObject);
+
+        //User is liking the comment
+        if (likeColour == NOTSELECTEDCOLOUR) {
+          fetch("http://127.0.0.1:5000/api/comment/like", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+            body: jsonObject,
+          })
+            .then((response) => response.text())
+            .then((responseData) => {
+              likeColour = SELECTEDCOLOUR;
+              pathElement2.setAttribute("fill", likeColour);
+              totalLike++;
+              likeCommentSpan.textContent = totalLike;
+              if (dislikeColour == SELECTEDCOLOUR) {
+                dislikeColour = NOTSELECTEDCOLOUR;
+                dislikePathElement2.setAttribute("fill", dislikeColour);
+                totalDislike--;
+                dislikeCommentSpan.textContent = totalDislike;
+              }
+            })
+            .catch((error) => {
+              alert("A problem occured. Try again");
+              console.error("Error:", error);
+            });
+        }
+        //User is unliking it
+        else {
+          fetch("http://127.0.0.1:5000/api/comment/unlike", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json; charset=utf-8",
+            },
+            body: jsonObject,
+          })
+            .then((response) => response.text())
+            .then((responseData) => {
+              likeColour = NOTSELECTEDCOLOUR;
+              pathElement2.setAttribute("fill", likeColour);
+              totalLike--;
+              likeCommentSpan.textContent = totalLike;
+            })
+            .catch((error) => {
+              alert("A problem occured. Try again");
+              console.error("Error:", error);
+            });
+        }
+      });
+
       //Dislike count
       const dislikeCommentSpan = document.createElement("span");
-      dislikeCommentSpan.textContent = likeCount;
+      dislikeCommentSpan.textContent = totalDislike;
       dislikeCommentSpan.className = "text-center";
+
+      //Like count
+      const likeCommentSpan = document.createElement("span");
+      likeCommentSpan.textContent = totalLike;
+      likeCommentSpan.className = "text-center";
 
       //Append all comment interactive to
       commentInteractiveContainer.append(likeSvg);

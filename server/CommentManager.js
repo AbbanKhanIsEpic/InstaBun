@@ -11,21 +11,49 @@ class CommentManager {
     }
   }
 
-  async getComments(postID) {
+  async getComments(postID, userID) {
     try {
       const query = `
-          SELECT 
-          PostComment.Comment,
-          Users.Username,
-          Users.DisplayName,
-          Users.ProfileIconLink
-            FROM
-            abbankDB.PostComment
-            INNER JOIN
-              Users ON Users.UserID = PostComment.Commenter
-            Where 
-              PostID = ?;`;
-      const result = await select(query, [postID]);
+      SELECT 
+      PostComment.idComment,
+      PostComment.Comment,
+      Users.Username,
+      Users.DisplayName,
+      Users.ProfileIconLink,
+      (SELECT 
+              COUNT(*)
+          FROM
+              CommentLike
+          WHERE
+              CommentLike.commentID = PostComment.idComment) AS totalLike,
+      (SELECT 
+              COUNT(*)
+          FROM
+              CommentDislike
+          WHERE
+              CommentDislike.commentID = PostComment.idComment) AS totalDislike,
+      (SELECT 
+              COUNT(*)
+          FROM
+              CommentLike
+          WHERE
+              CommentLike.commentID = PostComment.idComment
+                  AND CommentLike.userID = ?) AS didLike,
+      (SELECT 
+              COUNT(*)
+          FROM
+              CommentDislike
+          WHERE
+              CommentDislike.commentID = PostComment.idComment
+                  AND CommentDislike.userID = ?) AS didDislike
+  FROM
+      abbankDB.PostComment
+          INNER JOIN
+      Users ON Users.UserID = PostComment.Commenter
+  WHERE
+      PostID = ?
+  ORDER BY ((totalLike + 1) / (totalDislike + 1)) DESC;`;
+      const result = await select(query, [userID, userID, postID]);
 
       return result;
     } catch (error) {
@@ -35,9 +63,9 @@ class CommentManager {
 
   async like(commentID, userID) {
     try {
-      await unDisLike(commentID, userID);
+      await this.unDisLike(commentID, userID);
       const query = `Insert into CommentLike(commentID,userID) Values(?,?)`;
-      update(query, [commentID, userID]);
+      await update(query, [commentID, userID]);
       return "Like comment operation successful";
     } catch (error) {
       return error;
@@ -46,9 +74,9 @@ class CommentManager {
 
   async dislike(commentID, userID) {
     try {
-      await unLike(commentID, userID);
+      await this.unLike(commentID, userID);
       const query = `Insert into CommentDislike(commentID,userID) Values(?,?)`;
-      update(query, [commentID, userID]);
+      await update(query, [commentID, userID]);
       return "Like comment operation successful";
     } catch (error) {
       return error;
@@ -58,7 +86,7 @@ class CommentManager {
   async unLike(commentID, userID) {
     try {
       const query = `DELETE FROM CommentLike WHERE commentID = ? AND userID = ?`;
-      update(query, [commentID, userID]);
+      await update(query, [commentID, userID]);
       return "Remove like operation successful";
     } catch (error) {
       return error;
@@ -68,10 +96,10 @@ class CommentManager {
   async unDisLike(commentID, userID) {
     try {
       const query = `DELETE FROM CommentDislike WHERE commentID = ? AND userID = ?`;
-      update(query, [commentID, userID]);
+      await update(query, [commentID, userID]);
       return "Remove dislike operation successful";
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 }

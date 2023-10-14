@@ -158,8 +158,12 @@ function searchUsers(search) {
     .then((response) => response.json())
     .then((data) => {
       if (data.length === 0) {
-        alert("There is no username that contains: " + search);
-        end.classList.remove("visually-hidden");
+        if (showcase.childElementCount == 0) {
+          alert("There is no username that contains: " + search);
+          end.classList.add("visually-hidden");
+        } else {
+          end.classList.remove("visually-hidden");
+        }
       } else {
         data.forEach(function (user) {
           // Create a div element to show the user

@@ -19,7 +19,6 @@ fetch(`http://127.0.0.1:5000/api/story/following?userID=${currentUserUserID}`)
   .then((response) => response.json())
   .then((data) => {
     data.map((story) => {
-      console.log(story);
       const userID = story["UserID"];
       const idStory = story["idStory"];
       const profileIconLink = story["ProfileIconLink"];
