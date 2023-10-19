@@ -75,10 +75,12 @@ document.addEventListener("mousewheel", function (event) {
     if (display.textContent == "Users") {
       searchUsers(search);
     } else {
-      if (search.length === 0) {
-        showRecommendedPost();
-      } else {
-        searchPost(search);
+      if(sharedPost == null){
+        if (search.length === 0) {
+          showRecommendedPost();
+        } else {
+          searchPost(search);
+        }
       }
     }
   }

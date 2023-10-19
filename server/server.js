@@ -389,12 +389,12 @@ app.get("/api/post/total", (req, res) => {
 });
 
 app.get("/api/post/followings", (req, res) => {
-  const { userID } = req.query;
+  const { userID,page } = req.query;
 
   const post = new PostManager();
 
   post
-    .getFollowingPost(userID)
+    .getFollowingPost(userID,page)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })
@@ -405,12 +405,12 @@ app.get("/api/post/followings", (req, res) => {
 });
 
 app.get("/api/post/profile", (req, res) => {
-  const { userID, profileUserID } = req.query;
+  const { userID, profileUserID,page } = req.query;
 
   const post = new PostManager();
 
   post
-    .getProfilePost(userID, profileUserID)
+    .getProfilePost(userID, profileUserID,page)
     .then((jsonifiedResult) => {
       res.status(200).send(jsonifiedResult);
     })

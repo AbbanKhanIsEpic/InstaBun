@@ -55,8 +55,8 @@ class StoryManager {
           INNER JOIN
       Users ON Users.UserID = Story.UserID
   WHERE
-      Story.UserID in (?) AND hoursOlD <= 24
-      HAVING Status >= Users.Visibility
+      Story.UserID in (?)
+      HAVING Status >= Users.Visibility AND hoursOlD <= 24
  Order by hoursOlD;`;
 
       const result = await select(query, [userID, userID, followingArray]);

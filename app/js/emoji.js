@@ -5,7 +5,8 @@ const searchEmoji = document.querySelector("#searchEmoji");
 const inputMessage = document.querySelector("#inputMessage");
 
 //Get all the emojis
-fetch("https://emoji.gg/api/")
+if (searchEmoji != null) {
+  fetch("https://emoji.gg/api/")
   .then((response) => {
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -62,6 +63,7 @@ for (let i = 0; i < 134; i++) {
     });
 }
 
+}
 //When user seach for emoji
 if (searchEmoji != null) {
   searchEmoji.addEventListener("click", function () {
