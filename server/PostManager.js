@@ -120,8 +120,6 @@ class PostManager {
 
       const filteredPost = await this.#getPostForAll(tagIDsArray, page);
 
-      console.log(filteredPost);
-
       const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
 
       return postDetailsArray;
