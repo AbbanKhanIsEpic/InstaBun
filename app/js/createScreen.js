@@ -139,7 +139,6 @@ cancelButton.addEventListener("click", function () {
 });
 
 createButton.addEventListener("click", function () {
-  console.log(selectedFile);
   if (selectedFile == null) {
     alert("Please select something");
   } else if (title.value.length == 0) {
