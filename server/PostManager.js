@@ -227,7 +227,9 @@ class PostManager {
   //The method filters the post of the uploader(the user who uploaded the video)
   //The uploader might have said that not everyone can see but only friends
   //This deals with that
-  async #filterPost(userID, postIDsArray) {
+  async #filterPost(userID, postIDsArray,page) {
+    const postPerPage = 3;
+    page *= postPerPage;
     //Since the PostVisibility is:
     //0 -> Everyone
     //1 -> Followers
@@ -261,7 +263,8 @@ class PostManager {
         WHERE
           Post.idPost IN (?)
         HAVING Status >= Users.Visibility
-        ORDER BY Post.idPost DESC;`;
+        ORDER BY Post.idPost DESC
+        LIMIT ${page},${postPerPage};`;
       const result = await select(query, [userID, userID, postIDsArray]);
 
       //Filter and only return what is important
@@ -285,7 +288,7 @@ class PostManager {
   //This function is used to get the post from the link they shared
   async getSingularPost(userID, postID) {
     try {
-      const filteredPost = await this.#filterPost(userID, postID);
+      const filteredPost = await this.#filterPost(userID, postID,0);
 
       const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
 
@@ -387,7 +390,7 @@ class PostManager {
   }
 
   //This is for the main screen
-  async getFollowingPost(userID) {
+  async getFollowingPost(userID,page) {
     try {
       const follow = new FollowManager();
 
@@ -404,7 +407,7 @@ class PostManager {
 
       const filteredPost = await this.#filterPost(
         userID,
-        followingsPostIDArray
+        followingsPostIDArray,page
       );
 
       const postDetailsArray = await this.#getPostDetails(userID, filteredPost);
@@ -415,7 +418,7 @@ class PostManager {
     }
   }
 
-  async getProfilePost(viewerID, profileUserID) {
+  async getProfilePost(viewerID, profileUserID,page) {
     try {
       const postIDsResultSet = await select(
         `SELECT Post.idPost FROM abbankDB.Users INNER JOIN Post ON Post.UserID = Users.UserID WHERE Users.UserID = ?;`,
@@ -432,7 +435,7 @@ class PostManager {
 
       //If the user is not looking at their own post
       if (viewerID != profileUserID) {
-        const filteredPost = await this.#filterPost(viewerID, postIDsArray);
+        const filteredPost = await this.#filterPost(viewerID, postIDsArray,page);
 
         const postDetailsArray = await this.#getPostDetails(
           viewerID,
@@ -441,6 +444,8 @@ class PostManager {
 
         return postDetailsArray;
       } else {
+        const postPerPage = 3;
+        page *= postPerPage;
         //The user should be able to view their own post
         //Even if they are allowed no one to see it
         const filteringPost = await select(
@@ -453,7 +458,8 @@ class PostManager {
             Users ON Users.UserID = Post.UserID
           WHERE
             Post.idPost IN (?)
-          ORDER BY Post.idPost DESC;`,
+          ORDER BY Post.idPost DESC
+          LIMIT ${page},${postPerPage};`,
           [postIDsArray]
         );
 
