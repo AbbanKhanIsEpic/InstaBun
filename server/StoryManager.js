@@ -55,7 +55,7 @@ class StoryManager {
           INNER JOIN
       Users ON Users.UserID = Story.UserID
   WHERE
-      Story.UserID in (?)
+      Story.UserID in (?) AND hoursOlD <= 24
       HAVING Status >= Users.Visibility
  Order by hoursOlD;`;
 
