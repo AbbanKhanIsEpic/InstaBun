@@ -73,6 +73,7 @@ let selectedGroupLeave = 0;
 let selectedGroupDelete = 0;
 
 let selectedGroupTransfer = 0;
+let selectedGroupTransferMember = 0;
 
 let selectedMemberRemove = 0;
 let selectedMemberRemoveGroup = 0;
@@ -761,6 +762,8 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
             selectedMemberRemove == userID &&
             selectedMemberRemoveGroup == groupID
           ) {
+            selectedMemberRemoveGroup = 0;
+            selectedMemberRemove = 0;
             var dataObject = {
               userID: userID,
               groupID: groupID,
@@ -796,7 +799,11 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
         transferOwnership.role = "button";
 
         transferOwnership.addEventListener("click", function () {
-          if (selectedGroupTransfer == userID) {
+          if (
+            selectedGroupTransferMember == userID &&
+            selectedGroupTransfer == groupID
+          ) {
+            selectedGroupTransferMember = 0;
             selectedGroupTransfer = 0;
             var dataObject = {
               newOwnerID: userID,
