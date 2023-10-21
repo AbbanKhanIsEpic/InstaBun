@@ -833,7 +833,8 @@ function appendGroup(groupOwnerID, groupID, groupIconLink, groupName) {
             alert(
               `Are you sure you want to transfer ownership of the group to ${username}`
             );
-            selectedGroupTransfer == userID;
+            selectedGroupTransfer = groupID;
+            selectedGroupTransferMember = userID;
           }
         });
 
