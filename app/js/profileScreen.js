@@ -27,7 +27,7 @@ let tempProfileProfileIcon;
 let DMLimit;
 let PostVis;
 let selectedFile;
-let page = 0
+let page = 0;
 
 const profileIconElement = document.querySelector("#profileIcon");
 const profileUsernameElement = document.querySelector("#profileUsername");
@@ -75,40 +75,40 @@ if (username == null) {
 }
 
 //Event listener
-  // Check if the element is within the viewport
-  document.addEventListener("mousewheel", function (event) {
-    // event.deltaY contains information about the scroll direction
-    let canAppendMore = false;
-    if (event.deltaY > 0) {
-      // Scroll down
-      const elements = document.getElementsByClassName("result");
-      for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
-        const rect = element.getBoundingClientRect();
-  
-        // Check if the element is within the viewport
+// Check if the element is within the viewport
+document.addEventListener("mousewheel", function (event) {
+  // event.deltaY contains information about the scroll direction
+  let canAppendMore = false;
+  if (event.deltaY > 0) {
+    // Scroll down
+    const elements = document.getElementsByClassName("result");
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+      const rect = element.getBoundingClientRect();
+
+      // Check if the element is within the viewport
+      if (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= window.innerHeight &&
+        rect.right <= window.innerWidth
+      ) {
         if (
-          rect.top >= 0 &&
-          rect.left >= 0 &&
-          rect.bottom <= window.innerHeight &&
-          rect.right <= window.innerWidth
+          (i / (elements.length - 1)) * 100 >= 80 ||
+          i == elements.length - 1 //There might be just one post (0/0 -> NaN)
         ) {
-          if (
-            (i / (elements.length - 1)) * 100 >= 80 ||
-            i == elements.length - 1 //There might be just one post (0/0 -> NaN)
-          ) {
-            page++;
-            canAppendMore = true;
-          }
+          page++;
+          canAppendMore = true;
         }
       }
     }
-    if (canAppendMore) {
-      showPost();
-    }
-  });
+  }
+  if (canAppendMore) {
+    showPost();
+  }
+});
 
-  //Function
+//Function
 function showPost() {
   fetch(
     `http://127.0.0.1:5000/api/post/profile?userID=${currentUserUserID}&profileUserID=${profileUserID}&page=${page}`
@@ -268,7 +268,15 @@ function attachSetting() {
     const updateProfile = document.querySelector("#updateProfile");
 
     updateProfile.addEventListener("click", function () {
-      updateUserProfile();
+      if (changeDisplayName.value.length == 0) {
+        alert("You must have a display name");
+      } else if (changeDisplayName.value.length > 200) {
+        alert("Display name is over the character limit (The limit is 200)");
+      } else if (changeBio.value.length > 255) {
+        alert("Bio is over the character limit (The limit is 255)");
+      } else {
+        updateUserProfile();
+      }
     });
   });
 
