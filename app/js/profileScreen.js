@@ -369,22 +369,24 @@ async function updateUserProfile() {
 }
 
 function uploadFirebase() {
-  const url = `/profileIcon/${currentUserUserID}:${profileUsername}`;
-  const storageRef = ref(storage, url);
-  uploadBytes(storageRef, selectedFile)
-    .then((snapshot) => {
-      console.log("Image uploaded successfully!");
-      getDownloadURL(storageRef)
-        .then((url) => {
-          tempProfileProfileIcon = url;
-        })
-        .catch((error) => {
-          console.error("Error getting video URL:", error);
-        });
-    })
-    .catch((error) => {
-      console.error("Error uploading image:", error);
-    });
+  if (selectedFile != null) {
+    const url = `/profileIcon/${currentUserUserID}:${profileUsername}`;
+    const storageRef = ref(storage, url);
+    uploadBytes(storageRef, selectedFile)
+      .then((snapshot) => {
+        console.log("Image uploaded successfully!");
+        getDownloadURL(storageRef)
+          .then((url) => {
+            tempProfileProfileIcon = url;
+          })
+          .catch((error) => {
+            console.error("Error getting video URL:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
+  }
 }
 
 function setProfile() {
