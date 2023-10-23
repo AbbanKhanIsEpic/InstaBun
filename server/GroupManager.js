@@ -61,7 +61,7 @@ class GroupManager {
   async addMember(groupID, groupMemberID) {
     try {
       const query = `INSERT INTO GroupMembers (GroupID, UserID) VALUES (?, ?);`;
-      await update(query, [groupID, groupMember]);
+      await update(query, [groupID, groupMemberID]);
       return "Add member operation successful";
     } catch (error) {
       return error;
@@ -72,7 +72,7 @@ class GroupManager {
   async removeMemeber(groupID, groupMemberID) {
     try {
       const query = `DELETE FROM GroupMembers WHERE (GroupID = ?) AND (UserID = ?);`;
-      await update(query, [groupID, groupMember]);
+      await update(query, [groupID, groupMemberID]);
       return "Remove member operation successful";
     } catch (error) {
       return error;
