@@ -3,6 +3,7 @@ const { select, update } = require("./DB");
 const GroupMessage = require("./GroupMessage");
 
 class GroupManager {
+  //Return a list of groups that the user(userID) is in
   async getGroupList(userID) {
     try {
       const query = `
@@ -18,6 +19,7 @@ class GroupManager {
     }
   }
 
+  //Update the group's group icon
   async updateGroupIcon(groupID, groupIcon) {
     try {
       const query = `UPDATE Collective SET GroupIconLink = ? WHERE GroupID = ?;`;
@@ -28,6 +30,7 @@ class GroupManager {
     }
   }
 
+  //Update the group's group name
   async updateGroupName(groupID, groupName) {
     try {
       const query = `UPDATE Collective SET GroupName = ? WHERE GroupID = ?;`;
@@ -38,6 +41,7 @@ class GroupManager {
     }
   }
 
+  //Create a new group
   async createGroup(createrUserID, groupName, groupIcon, groupMembers) {
     try {
       const query = `INSERT INTO Collective (OwnerID,GroupName, GroupIconLink) VALUES (?,?, ?);`;
@@ -53,6 +57,7 @@ class GroupManager {
     }
   }
 
+  //Add member to the group
   async addMember(groupID, groupMember) {
     try {
       const query = `INSERT INTO GroupMembers (GroupID, UserID) VALUES (?, ?);`;
@@ -63,6 +68,7 @@ class GroupManager {
     }
   }
 
+  //Remove member to the group
   async removeMemeber(groupID, groupMember) {
     try {
       const query = `DELETE FROM GroupMembers WHERE (GroupID = ?) AND (UserID = ?);`;
@@ -73,6 +79,7 @@ class GroupManager {
     }
   }
 
+  //Get the latest group's id
   async #getLatestGroupID(createrUserID) {
     try {
       const query = `SELECT GroupID FROM abbankDB.Collective WHERE OwnerID = ? Order by GroupID DESC LIMIT 1;`;
@@ -83,6 +90,7 @@ class GroupManager {
     }
   }
 
+  //Return a list users who are members of the group (groupID)
   async getGroupMembers(groupID) {
     try {
       const query = `SELECT Users.UserID, Users.Username, Users.DisplayName, Users.ProfileIconLink FROM abbankDB.GroupMembers
@@ -99,6 +107,7 @@ class GroupManager {
     }
   }
 
+  //Transfer the ownership of the group(groupID) to the user(newOwnerID)
   async transferOwnership(groupID, newOwnerID) {
     try {
       const query = `UPDATE Collective SET OwnerID = ? WHERE (GroupID = ?);`;
@@ -109,6 +118,7 @@ class GroupManager {
     }
   }
 
+  //Remove everything related to the group(groupID)
   async deleteGroup(groupID, groupMembers) {
     try {
       const groupMessage = new GroupMessage();

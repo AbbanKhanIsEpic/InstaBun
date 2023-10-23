@@ -8,6 +8,7 @@ const connection = mysql.createConnection({
   database: "abbankDB",
 });
 
+//Create connection to mysql database
 function createConnection() {
   return new Promise((resolve, reject) => {
     connection.connect((err) => {
@@ -46,6 +47,7 @@ function select(query, values) {
   });
 }
 
+//End the connection to mysql database
 function endConnection() {
   connection.end((err) => {
     if (err) throw err;

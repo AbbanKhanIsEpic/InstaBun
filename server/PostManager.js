@@ -394,6 +394,10 @@ class PostManager {
 
       const followingArray = await follow.getFollowings(userID);
 
+      if(followingArray.length === 0){
+        return new Error("Can not get post of users when user does not follow anyone")
+      }
+
       const query = `SELECT idPost FROM abbankDB.Post WHERE UserID IN (?);`;
 
       const followingsPostID = await select(query, [followingArray]);

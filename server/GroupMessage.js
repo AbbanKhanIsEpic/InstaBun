@@ -2,6 +2,7 @@
 const { select, update } = require("./DB");
 
 class GroupMessage {
+  //Return the messages of the group
   async getMessage(userID, groupID, messageID) {
     try {
       const query = `SELECT GroupMessages.*, Users.DisplayName,Users.Username, Users.ProfileIconLink FROM GroupMessages
@@ -21,6 +22,7 @@ class GroupMessage {
     }
   }
 
+  //Remove the message
   async deleteMessage(messageID) {
     try {
       const query = `DELETE FROM GroupMessages WHERE MessageID = ?;`;
@@ -31,6 +33,7 @@ class GroupMessage {
     }
   }
 
+  //Save the message
   async sendMessage(userID, groupID, message) {
     try {
       const query = `INSERT INTO abbankDB.GroupMessages (UserID, GroupID, Time, Message) VALUES (?, ?, now(), ?);`;
@@ -41,6 +44,8 @@ class GroupMessage {
     }
   }
 
+  //Save when the user cleared the message
+  //Does not actually clear the message (will just appear as if on the client side of who wanted to clear the message)
   async clearMessage(userID, groupID) {
     try {
       const hasUserClearBefore = await this.#hasClearedMessageBefore(
@@ -59,6 +64,7 @@ class GroupMessage {
     }
   }
 
+  //Check if the user has cleared the message on their side before
   async #hasClearedMessageBefore(userID, groupID) {
     try {
       const query = `SELECT count(*) FROM ClearGroupMessage WHERE UserID = ? AND GroupID = ?;`;

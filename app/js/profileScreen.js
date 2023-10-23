@@ -275,7 +275,12 @@ function attachSetting() {
       } else if (changeBio.value.length > 255) {
         alert("Bio is over the character limit (The limit is 255)");
       } else {
-        updateUserProfile();
+        if (selectedFile != null) {
+          uploadFirebase();
+        }
+        else{
+          updateUserProfile();
+        }
       }
     });
   });
@@ -332,8 +337,7 @@ function attachSetting() {
   rowOfInteractive.appendChild(spanElement);
 }
 
-async function updateUserProfile() {
-  await uploadFirebase();
+function updateUserProfile() {
   PostVis = tempPostVis;
   DMLimit = tempDMLimit;
   var dataObject = {
@@ -359,8 +363,8 @@ async function updateUserProfile() {
   })
     .then((response) => response.text())
     .then((responseData) => {
-      window.location.reload();
       alert("Profile updated");
+      window.location.reload();
       console.log("Response:", responseData);
     })
     .catch((error) => {
@@ -378,6 +382,7 @@ function uploadFirebase() {
         getDownloadURL(storageRef)
           .then((url) => {
             tempProfileProfileIcon = url;
+            updateUserProfile();
           })
           .catch((error) => {
             console.error("Error getting video URL:", error);

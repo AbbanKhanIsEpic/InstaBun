@@ -1,6 +1,7 @@
 const { select, update } = require("./DB");
 
 class CommentManager {
+  //Save the comment to the database
   async comment(postID, userID, comment) {
     try {
       const query = `INSERT INTO abbankDB.PostComment (PostID, Commenter, Comment) VALUES (?, ?, ?);`;
@@ -11,6 +12,7 @@ class CommentManager {
     }
   }
 
+  //Get the comments from the post
   async getComments(postID, userID) {
     try {
       const query = `
@@ -61,6 +63,8 @@ class CommentManager {
     }
   }
 
+  //Make the user first un-dislike the comment
+  //Then the user like the comment
   async like(commentID, userID) {
     try {
       await this.unDisLike(commentID, userID);
@@ -72,6 +76,8 @@ class CommentManager {
     }
   }
 
+  //Make the user first un-like the comment
+  //Then the user dislike the comment
   async dislike(commentID, userID) {
     try {
       await this.unLike(commentID, userID);
@@ -83,6 +89,7 @@ class CommentManager {
     }
   }
 
+  //Save that the user unliked the comment
   async unLike(commentID, userID) {
     try {
       const query = `DELETE FROM CommentLike WHERE commentID = ? AND userID = ?`;
@@ -93,6 +100,7 @@ class CommentManager {
     }
   }
 
+  //Save that the user un-disliked the comment
   async unDisLike(commentID, userID) {
     try {
       const query = `DELETE FROM CommentDislike WHERE commentID = ? AND userID = ?`;

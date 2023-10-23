@@ -4,6 +4,7 @@ const { select, update } = require("./DB");
 const FollowManager = require("./FollowManager");
 
 class UserManager {
+  //Update the user's profile
   async updateProfile(
     userID,
     newDisplayName,

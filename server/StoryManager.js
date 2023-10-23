@@ -31,36 +31,39 @@ class StoryManager {
     try {
       const follow = new FollowManager();
       const followingArray = await follow.getFollowings(userID);
-      const query = `SELECT 
-      timestampdiff(HOUR,Story.uploadDateTime,now()) as hoursOlD,
-      Users.Visibility,
-      (SELECT 
-        COUNT(*)
-          FROM
-          abbankDB.Follows
-          WHERE
-            (FollowerID = ?
-            AND FollowingID = Users.UserID)
-            OR (FollowerID = Users.UserID
-            AND FollowingID = ?))
-        AS Status,
-      Story.isVideo,
-      Story.UserID,
-      Story.idStory,
-      Story.StoryLink,
-      Story.Title,
-      Users.ProfileIconLink
-  FROM
-      Story
-          INNER JOIN
-      Users ON Users.UserID = Story.UserID
-  WHERE
-      Story.UserID in (?)
-      HAVING Status >= Users.Visibility AND hoursOlD <= 24
- Order by hoursOlD;`;
-
-      const result = await select(query, [userID, userID, followingArray]);
-      return result;
+      if(followingArray.length === 0){
+        return new Error("Can not get stories of users when user follows no one")
+      }
+        const query = `SELECT 
+        timestampdiff(HOUR,Story.uploadDateTime,now()) as hoursOlD,
+        Users.Visibility,
+        (SELECT 
+          COUNT(*)
+            FROM
+            abbankDB.Follows
+            WHERE
+              (FollowerID = ?
+              AND FollowingID = Users.UserID)
+              OR (FollowerID = Users.UserID
+              AND FollowingID = ?))
+          AS Status,
+        Story.isVideo,
+        Story.UserID,
+        Story.idStory,
+        Story.StoryLink,
+        Story.Title,
+        Users.ProfileIconLink
+    FROM
+        Story
+            INNER JOIN
+        Users ON Users.UserID = Story.UserID
+    WHERE
+        Story.UserID in (?)
+        HAVING Status >= Users.Visibility AND hoursOlD <= 24
+   Order by hoursOlD;`;
+  
+        const result = await select(query, [userID, userID, followingArray]);
+        return result;
     } catch (error) {
       return error;
     }

@@ -3,6 +3,7 @@ const { select, update } = require("./DB");
 const UserManager = require("./UserManager");
 
 class DirectMessage {
+  //Save the message to database
   async sendMessage(senderID, receiverID, message) {
     try {
       const query = `
@@ -15,6 +16,7 @@ class DirectMessage {
     }
   }
 
+  //Remove the message from the database
   async deleteMessage(messageID) {
     try {
       const query = `DELETE FROM DirectMessages WHERE MessageID = ?;
@@ -103,6 +105,7 @@ class DirectMessage {
     }
   }
 
+  //Get the messages 
   async getMessage(senderID, recieverID, messageID) {
     try {
       const query = `
@@ -135,6 +138,8 @@ class DirectMessage {
     }
   }
 
+  //Save when the user cleared the message
+  //Does not actually clear the message (will just appear as if on the client side of who wanted to clear the message)
   async clearMessage(senderID, recieverID) {
     try {
       const hasUserClearBefore = await this.#hasClearedMessageBefore(
@@ -153,6 +158,7 @@ class DirectMessage {
     }
   }
 
+  //Check if the user has cleared the message on their side before
   async #hasClearedMessageBefore(senderID, recieverID) {
     try {
       const query = `SELECT count(*) FROM abbankDB.ClearDirectMessage WHERE SenderID = ? AND RecieverID = ?;`;
